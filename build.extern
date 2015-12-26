@@ -1,0 +1,3 @@
+# building production depends on building the external dependencies first
+default: dcg_security-common_java/dev-3.x
+dev-1.x: dcg_security-common_java/dev-3.x-reorg

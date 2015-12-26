@@ -1,0 +1,37 @@
+{
+   "features":[
+      "attestation_vm",
+      "attestation_host",
+      "attestation_host_xm"
+   ],
+   "targets":[
+      {
+         "host":"198.51.100.14",
+         "port":22,
+         "username":"root",
+         "password":"password",
+         "publicKeyDigest":null,
+         "timeout":15000,
+         "packages":[
+            "trust_agent"
+         ],
+         "networkRole":null
+      },
+      {
+         "host":"198.51.100.8",
+         "port":22,
+         "username":"root",
+         "password":"password",
+         "publicKeyDigest":null,
+         "timeout":15000,
+         "packages":[
+            "attestation_service"
+         ],
+         "networkRole":null
+      }
+   ],
+   "settings":{
+      "com.intel.cit.keymanager.kmip":"kmipserver.example.com",
+      "com.intel.cit.attestation.cache.expires":"3000"
+   }
+}

@@ -1,0 +1,141 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.intel.mtwilson</groupId>
+    <artifactId>cit-quickstart-wizard</artifactId>
+    <version>3.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+  
+    <parent>
+        <groupId>com.intel.mtwilson.maven</groupId>
+        <artifactId>mtwilson-core-feature-zip</artifactId>
+        <version>3.0-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+
+    <dependencies>  
+        
+        <dependency>
+            <groupId>com.intel.mtwilson</groupId>
+            <artifactId>cit-task</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+                
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-extensions</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-configuration</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.intel.mtwilson.integration</groupId>
+            <artifactId>mtwilson-configuration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <optional>true</optional>
+        </dependency>
+    
+        <dependency>
+            <groupId>com.intel.mtwilson.integration</groupId>
+            <artifactId>mtwilson-launcher-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+
+        <dependency>
+            <!-- Purpose: processing template documents to generate .env files -->
+            <!-- URL: http://www.stringtemplate.org -->
+            <!-- License: BSD http://www.stringtemplate.org/license.html -->
+            <groupId>org.antlr</groupId>
+            <artifactId>stringtemplate</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+        
+        <dependency>
+            <!-- Purpose: processing JSON-LD documents -->
+            <!-- URL: https://github.com/jsonld-java/jsonld-java -->
+            <!-- License: BSD https://github.com/jsonld-java/jsonld-java/blob/master/LICENCE -->
+            <groupId>com.github.jsonld-java</groupId>
+            <artifactId>jsonld-java</artifactId>
+            <version>0.7.0</version>
+        </dependency>        
+        
+                        
+        <dependency>
+            <!-- Purpose: connecting to hosts via ssh and sftp -->
+            <!-- URL: https://github.com/hierynomus/sshj -->
+            <!-- License: Apache 2.0 https://github.com/hierynomus/sshj/blob/master/LICENSE -->
+            <groupId>net.schmizz</groupId>
+            <artifactId>sshj</artifactId>
+            <version>0.8.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.servlet</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-ssh</artifactId>
+        </dependency>
+        
+        <!-- required for javax.ws.rs.QueryParam in RpcFilterCriteria and javax.ws.rs.Path in Rpcs resource -->
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-jaxrs2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-jaxrs2-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <!-- Purpose: logging API -->
+            <!-- URL: http://www.slf4j.org -->
+            <!-- License: MIT http://www.slf4j.org/license.html -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        
+        <dependency>
+            <!-- Purpose: logging implementation -->
+            <!-- URL: http://logback.qos.ch -->
+            <!-- License: dual EPL 1.0 and LGPL 2.1 http://logback.qos.ch/license.html -->
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+                
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+		
+    </dependencies>  
+
+
+</project>

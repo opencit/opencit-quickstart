@@ -1,0 +1,34 @@
+{
+  "software_packages": [
+     {
+       "package_name": "key_broker_proxy",
+       "file_name": "kmsproxy.bin",
+       "dependencies": [ "attestation_service" ]
+     },
+     {
+       "package_name": "attestation_service",
+       "file_name": "attestation_service.bin",
+       "dependencies": [  ]
+     },
+     {
+       "package_name": "key_broker",
+       "file_name": "kms.bin",
+       "dependencies": [ "attestation_service" ]
+     },
+     {
+       "package_name": "openstack_extensions",
+       "file_name": "openstack_extensions.bin",
+       "dependencies": [ "attestation_service" ]
+     },
+     {
+       "package_name": "trust_agent",
+       "file_name": "trust_agent.bin",
+       "dependencies": [ "attestation_service", "key_broker_proxy" ]
+     },
+     {
+       "package_name": "trust_director",
+       "file_name": "trust_director.bin",
+       "dependencies": [ "attestation_service", "key_broker", "openstack_extensions" ]
+     }
+  ]
+}

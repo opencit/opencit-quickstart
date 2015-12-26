@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Wizard</title>
+        <meta name="author" content="jbuhacoff">
+
+        <style media="screen" type="text/css">
+            /* enable absolute positioning */
+            .inner-addon { 
+                position: relative; 
+            }
+
+            /* style icon */
+            .inner-addon .glyphicon {
+                position: absolute;
+                padding: 10px;
+                pointer-events: none;
+            }
+            .inner-addon p {
+                padding: 7px;
+            }
+
+            /* align icon */
+            .left-addon .glyphicon  { left:  0px;}
+            .right-addon .glyphicon { right: 5px;}
+
+            /* add padding  */
+            .left-addon input  { padding-left:  30px; }
+            .right-addon input { padding-right: 30px; } 
+            .left-addon p  { padding-left:  30px; }
+            .right-addon p { padding-right: 30px; } 
+
+            .glyphicon .icon-error { color: red }
+
+            div.alert {
+                padding: 3px;
+            }
+            div.alert p {
+                padding: 0px;
+                margin: 0px;
+            }
+            .alert .glyphicon{
+                display:table-cell;
+            }
+
+            .alert div,
+            .alert span{
+                padding-left: 5px;
+                display:table-cell;
+            }
+
+            /* icon lists */
+            .icon-list li {
+                padding: 0 0 5px 20px;
+                display: block;
+                position: relative;
+            }
+            .icon-list li:before {
+                font-family: 'Glyphicons Halflings';
+                position: absolute;
+                left: 0px;
+                top:3px;
+                font-size:80%
+            }
+
+            li.checkmark:before {
+                content: '\e067';
+            }
+
+
+        </style>
+
+    </head>
+    <body>
+
+
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8" style="margin-top: 10px;">        
+                <div class="panel panel-default" data-bind="with: wizardViewModel">
+                    <div class="panel-heading">
+
+                        <ul class="list-inline pull-right">
+                            <!--
+                           <li><a href="#"><i class="glyphicon glyphicon-cog"></i></a></li>
+                           <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-comment"></i><span class="count">3</span></a><ul class="dropdown-menu" role="menu"><li><a href="#">1. Is there a way..</a></li><li><a href="#">2. Hello, admin. I would..</a></li><li><a href="#"><strong>All messages</strong></a></li></ul></li>
+                           <li><a href="#"><i class="glyphicon glyphicon-user"></i></a></li>
+                            -->
+                            <!--
+                            <li><a title="Refresh" data-toggle="modal" href="#" data-bind="click: reloadSettings"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
+                            <li><a title="Add Setting" data-toggle="modal" href="#editSettingModalDialog"><span class="glyphicon glyphicon-plus-sign"></span> Add Setting</a></li>
+                            -->
+                        </ul>
+
+                        <h1>Deployment Wizard</h1>
+                    </div>
+                    <div class="panel-body" id="setup_panel">
+
+                        <div class="progress">
+                            <!-- content of this div is shown when page loads; then it's dynamically set as user clicks "next";  the width here is the initial progress displayed and changes with the current step -->
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="6" style="width: 0%;">
+
+                            </div>
+                        </div>
+
+                        <div class="navbar">
+                            <div class="navbar-inner">
+                                <ul class="nav nav-pills">
+                                    <li><a href="#setup_start" data-toggle="tab" data-step="0">Start</a></li>
+                                    <li><a href="#setup_features" data-toggle="tab" data-step="1">Features</a></li>
+                                    <li><a href="#setup_environment" data-toggle="tab" data-step="2">Environment</a></li>
+                                    <li><a href="#setup_layout" data-toggle="tab" data-step="3">Layout</a></li>
+                                    <li><a href="#setup_settings" data-toggle="tab" data-step="4">Settings</a></li>
+                                    <li><a href="#setup_credentials" data-toggle="tab" data-step="5">Credentials</a></li>
+                                    <li><a href="#setup_summary" data-toggle="tab" data-step="6">Preview</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="tab-content">
+                            <div class="tab-pane fade in active" id="setup_start">
+                                <div class="well"> 
+                                    <p>This wizard will guide you through the steps necessary to deploy Intel&reg; Cloud Integrity Technology 3.0</p>
+                                </div>
+                                <a class="btn btn-default btn-lg next" href="#">Continue</a>
+                            </div>
+                            <div class="tab-pane fade" id="setup_features">
+
+                                <div class="well"> 
+                                    <form data-bind="with: features">
+                                        <label>Attestation</label>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-host" data-bind="checked: attestation_host.checked, disable: attestation_host.disable, click: $parent.update_features"/>Host BIOS, kernel, hypervisor</label>
+                                            <p>Verifies Linux KVM, Xen, or VMware&reg; ESXi hypervisor. Verifies asset tags.</p>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-host-xm" data-bind="checked: attestation_host_xm.checked, disable: attestation_host_xm.disable, click: $parent.update_features"/>Host operating system, applications, drivers, configuration</label>
+                                            <p>Can attest Docker engine but not individual containers.</p>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-vm" data-bind="checked: attestation_vm.checked, disable: attestation_vm.disable, click: $parent.update_features"/>Virtual machines</label>
+                                            <p>Measure and enforce trust policy for VMs before launching on a trusted host.</p>
+                                        </div>
+                                        <!--
+                                        <div class="checkbox">
+                                          <label><input type="checkbox" name="attestation-container" data-bind="checked: attestation_container.checked, disable: attestation_container.disable, click: $parent.update_features"/>Docker containers</label>
+                                          <p>Measure and enforce trust policy for containers before launching on a trusted Docker engine.</p>
+                                        </div>
+                                        -->
+                                        <label>Enforcement</label>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="enforcement-vm-encryption" data-bind="checked: enforcement_vm_encryption.checked, disable: enforcement_vm_encryption.disable, click: $parent.update_features"/>Workload confidentiality and location</label>
+                                            <p>Encrypted workloads run only on trusted hosts</p>
+                                        </div>
+
+                                        <label>Integrations</label>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="integration-openstack" data-bind="checked: integration_openstack.checked, disable: integration_openstack.disable, click: $parent.update_features">OpenStack</label>
+                                            <p>Nova trust scheduler and patches to Horizon to expose trust in dashboard</p>
+                                        </div>
+
+                                        <!--
+                                        <label>Security Question 1</label>
+                                        <select class="form-control input-lg">
+                                            <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                                            <option value="Where did you first attend school?">Where did you first attend school?</option>
+                                            <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                                            <option value="What is your favorite car model?">What is your favorite car model?</option>
+                                        </select>
+                                        <br>
+                                        <label>Enter Response</label>
+                                        <input class="form-control input-lg">
+                                        -->
+                                    </form>
+                                </div>
+
+                                <a class="btn btn-default btn-lg next" href="#">Continue</a>
+                            </div>
+                            <div class="tab-pane fade" id="setup_environment">
+                                <div class="well"> 
+                                    <form data-bind="with: environment">
+                                        <div class="radio">
+                                            <label><input type="radio" name="environment" value="PRIVATE" data-bind="checked: network_role, click: $parent.update_environment"/>Private Network (Enterprise or Datacenter)</label>
+                                            <p>All components will be installed for an stand-alone deployment</p>
+                                        </div>
+                                        <div class="radio">
+                                            <label><input type="radio" name="environment" value="PROVIDER" data-bind="checked: network_role, click: $parent.update_environment"/>Cloud Service Provider</label>
+                                            <p>Installs Intel&reg; Cloud Integrity Technology attestation server, Trust Director (for host attestation), OpenStack integration (if applicable), Key Broker Proxy (if applicable)</p>
+                                        </div>
+                                        <div class="radio">
+                                            <label><input type="radio" name="environment" value="SUBSCRIBER" data-bind="checked: network_role, click: $parent.update_environment"/>Enterprise</label>
+                                            <p>Installs Trust Director (for workload attestation), Key Broker (if applicable)</p>
+                                        </div>
+
+
+
+                                        <!--
+                                        <label>Security Question 2</label>
+                                        <select class="form-control  input-lg">
+                                            <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                                            <option selected="" value="Where did you first attend school?">Where did you first attend school?</option>
+                                            <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                                            <option value="What is your favorite car model?">What is your favorite car model?</option>
+                                        </select>
+                                        <br>
+                                        <label>Enter Response</label>
+                                        <input class="form-control  input-lg">
+                                        -->
+                                    </form>
+                                </div>
+                                <a class="btn btn-default btn-lg next" href="#">Continue</a>
+                            </div>
+                            <div class="tab-pane fade" id="setup_layout">
+                                <div class="well">
+                                    <form data-bind="with: environment">
+                                        <h2>Network Layout</h2>
+                                        <!--
+                                        <div class="radio">
+                                          <label><input type="radio" name="layout" value="LOCALHOST" data-bind="checked: layout, click: $parent.update_environment"/>All-in-one, localhost</label>
+                                          <p>All components will be installed on a single host or VM. This is the simplest option, but not recommended for production.</p>
+                                        </div>
+                                        -->
+                                        <div class="radio">
+                                            <label><input type="radio" name="layout" value="SINGLE_HOST" data-bind="checked: layout, click: $parent.update_environment"/>All-in-one, remote host</label>
+                                            <p>All components will be installed on a single host or VM. This is the simplest option, but not recommended for production.</p>
+                                        </div>
+                                        <div class="radio">
+                                            <label><input type="radio" name="layout" value="ONE_PACKAGE_PER_HOST" data-bind="checked: layout, click: $parent.update_environment"/>One package per remote host</label>
+                                            <p>Each component will be installed on a separate host or VM.</p>
+                                        </div>
+                                        <!-- the custom component layout is disabled until the credentials screen is ready to enable a customized layout -->
+                                        <!--
+                                        <div class="radio">
+                                          <label><input type="radio" name="layout" value="CUSTOM" data-bind="checked: layout, click: $parent.update_environment"/>Custom component layout</label>
+                                          <p>Installs each component on a separate host or VM.</p>
+                                        </div>
+                                        -->
+                                    </form>
+                                </div>
+                                <a class="btn btn-default btn-lg next" href="#">Continue</a>
+                            </div>
+                            <div class="tab-pane fade" id="setup_settings">
+                                <div class="well"> 
+                                    <div class="panel panel-primary-subdued" data-bind="visible: features.attestation_host.checked">
+                                        <div class="panel-heading"><h3 class="panel-title">Attestation</h3></div>
+                                        <div class="panel-body">
+                                            <form data-bind="with: settings">
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Attestation Service Cache Duration</label>
+                                                    <div class="col-lg-4">
+                                                        <!-- select class="selectpicker"   corresponding to bootstrap-select.js not being used right now -->
+                                                        <select data-bind="value: saml_validity_seconds">
+                                                            <option value="60">1 min</option>
+                                                            <option value="300">5 min</option>
+                                                            <option value="600">10 min</option>
+                                                            <option value="900">15 min</option>
+                                                            <option value="1800">30 min</option>
+                                                            <option value="3600">60 min</option>
+                                                        </select>
+                                                    </div>
+                                                </div>      
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-primary-subdued" data-bind="visible: features.enforcement_vm_encryption.checked">
+                                        <div class="panel-heading"><h3 class="panel-title">Key Server</h3></div>
+                                        <div class="panel-body">
+                                            <form data-bind="with: settings">
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Server Type</label>
+                                                    <div class="col-lg-4">
+                                                        <!-- select class="selectpicker"   corresponding to bootstrap-select.js not being used right now -->
+                                                        <select data-bind="value: key_server_type">
+                                                            <option value="kmip">KMIP</option>
+                                                            <option value="barbican">OpenStack Barbican</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div data-bind="visible: key_server_type() == 'kmip'">
+                                                    <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                        <label class="col-lg-3">KMIP Server URL</label>
+                                                        <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kmip_endpoint_url"/>
+                                                            <p>Example for a KMIP4J server: https://kmip4j.example.com:8443/KMIPWebAppServer/KMIPServlet</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div data-bind="visible: key_server_type() == 'barbican'">
+                                                    <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                        <label class="col-lg-3">Barbican Project ID</label>
+                                                        <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: barbican_project_id"/>
+                                                            <p>Example: 12345</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                        <label class="col-lg-3">Barbican Server URL</label>
+                                                        <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: barbican_endpoint_url"/>
+                                                            <p>Example: http://openstack.example.com:9311</p>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-primary-subdued" data-bind="visible: features.integration_openstack.checked">
+                                        <div class="panel-heading"><h3 class="panel-title">OpenStack Integration</h3></div>
+                                        <div class="panel-body">
+                                            <form  data-bind="with: settings">
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Glance Hostname or IP address</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: glance_ip"/></div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Glance Port Number</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: glance_port"/></div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Glance Username</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: glance_image_store_username"/></div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Glance Password</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: glance_image_store_password" type="password"/></div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">OpenStack Tenant Name</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: glance_tenant_name"/></div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a class="btn btn-default btn-lg next" href="#">Continue</a>
+                            </div>
+                            <div class="tab-pane fade" id="setup_credentials">
+                                <div class="well"> 
+                                    <form data-bind="foreach: targets">
+                                        <div class="panel panel-primary-subdued">
+                                            <div class="panel-heading"><h3 class="panel-title">Host</h3></div>
+                                            <div class="panel-body">
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Hostname or IP address</label>
+                                                    <div class="col-lg-4">
+                                                        <div class="inner-addon right-addon">
+                                                            <input class="form-control input-sm" data-bind="value: host"/>
+                                                            <i class="glyphicon glyphicon-ok" data-bind="visible: ssh.hostValid"></i>
+                                                            <i class="glyphicon glyphicon-exclamation-sign" data-bind="visible: ssh.hostError"></i>
+                                                            <i class="glyphicon glyphicon-hourglass" data-bind="visible: ssh.hostCheckWait"></i>
+                                                            <i class="glyphicon glyphicon-lock" data-bind="visible: ssh.hostPasswordRequired"></i>
+                                                            <!-- glyphicon-lock, glyphicon-exclamation-sign , glyphicon-warning-sign ,  glyphicon-alert , glyphicon-hourglass, glyphicon-pencil , glyphicon-edit , glyphicon-check  -->
+                                                        </div>
+
+                                                        <div class="alert alert-info" data-bind="visible: ssh.hostCheckWait">
+                                                            <div class="glyphicon glyphicon-hourglass icon-error"></div>
+                                                            <div><p data-i18n="error.host.connecting">Connecting...</p></div>
+                                                        </div>
+                                                        <div class="alert alert-danger" data-bind="visible: ssh.hostFormatInvalid">
+                                                            <div class="glyphicon glyphicon-pencil icon-error"></div>
+                                                            <div><p data-i18n="error.host.format">Hostname or IP address is required</p></div>
+                                                        </div>
+                                                        <div class="alert alert-danger" data-bind="visible: ssh.hostConnectionTimeout">
+                                                            <div class="glyphicon glyphicon-time icon-error"></div>
+                                                            <div><p data-i18n="error.host.connection.timeout">Cannot connect (timeout)</p></div>
+                                                        </div>
+                                                        <div class="alert alert-danger" data-bind="visible: ssh.hostNotReachable">
+                                                            <div class="glyphicon glyphicon-ban-circle icon-error"></div>
+                                                            <div><p data-i18n="error.host.connection.no_route">Cannot connect (host not reachable)</p></div>
+                                                            <!--  class="text-error" -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!--
+                                                <label>SSH Port Number</label>
+                                                <input class="form-control input-sm" data-bind="value: port"/>
+                                                <br/>
+                                                -->
+                                                <!--
+                                                <label>SSH Username</label>
+                                                <input class="form-control input-sm" data-bind="value: glance_image_store_username"/>
+                                                <br/>
+                                                -->
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Host check</label>
+                                                    <div class="col-lg-4">
+                                                        <p data-bind="text: ssh.publicKeyDigest"></p>
+                                                        <label><input type="checkbox" data-bind="checked: ssh.publicKeyDigestConfirmed, enable: ssh.publicKeyDigest().length"/>Accept this SSH key fingerprint</label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">SSH Password</label>
+                                                    <div class="col-lg-4">
+                                                        <div class="inner-addon right-addon">
+                                                            <input class="form-control input-sm" data-bind="value: ssh.password, enable: ssh.publicKeyDigestConfirmed" type="password"/>
+                                                            <i class="glyphicon glyphicon-ok" data-bind="visible: ssh.passwordValid"></i>
+                                                            <i class="glyphicon glyphicon-exclamation-sign" data-bind="visible: ssh.passwordError"></i>
+                                                            <i class="glyphicon glyphicon-hourglass" data-bind="visible: ssh.passwordCheckWait"></i>
+                                                        </div>
+                                                        <div class="alert alert-info" data-bind="visible: ssh.passwordCheckWait">
+                                                            <div class="glyphicon glyphicon-hourglass icon-error"></div>
+                                                            <div><p data-i18n="error.host.connecting">Connecting...</p></div>
+                                                        </div>
+                                                        <div class="alert alert-danger" data-bind="visible: ssh.passwordError">
+                                                            <div class="glyphicon glyphicon-pencil icon-error"></div>
+                                                            <div><p data-i18n="error.host.password.failure">Cannot login (incorrect password?)</p></div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+
+                                                <!--
+                                                <label>SSH Public Key Digest</label>
+                                                <span data-bind="text: publicKeyDigest"></span>
+                                                <br/>
+                                                <input class="form-control input-sm" type="checkbox" data-bind="value: confirmedPublicKeyDigest"/>
+                                                <br/>
+                                                -->
+                                            </div>
+                                            <div class="panel-footer">
+                                                <p data-bind="text: packages_csv"></p>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <a class="btn btn-default btn-lg next" href="#">Continue</a>
+                            </div>
+                            <div class="tab-pane fade" id="setup_summary">
+                                <div class="well"> 
+                                    <div class="row">
+                                        <form>
+                                            <div class="col-lg-4">
+                                                <h3>Features</h3>
+                                                <label>Attestation</label>
+                                                <div class="checkbox">
+                                                    <label><input type="checkbox" data-bind="checked: features.attestation_host.checked" disabled/>Host BIOS, kernel, initrd, hypervisor</label>
+                                                </div>
+                                                <div class="checkbox">
+                                                    <label><input type="checkbox" data-bind="checked: features.attestation_host_xm.checked" disabled/>Host apps, drivers, configuration</label>
+                                                </div>
+                                                <div class="checkbox">
+                                                    <label><input type="checkbox" data-bind="checked: features.attestation_vm.checked" disabled/>Virtual machines</label>
+                                                </div>
+                                                <!--
+                                                <div class="checkbox">
+                                                  <label><input type="checkbox" data-bind="checked: features.attestation_container.checked" disabled/>Docker containers</label>
+                                                </div>
+                                                -->
+                                                <label>Enforcement</label>
+                                                <div class="checkbox">
+                                                    <label><input type="checkbox" data-bind="checked: features.enforcement_vm_encryption.checked" disabled/>Workload confidentiality and location</label>
+                                                </div>
+
+                                                <label>Integrations</label>
+                                                <div class="checkbox">
+                                                    <label><input type="checkbox" data-bind="checked: features.integration_openstack.checked" disabled/>OpenStack</label>
+                                                </div>
+
+                                            </div>
+                                            <div class="col-lg-4">
+
+
+                                                <h3>Environment</h3>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="preview_network_role" value="PRIVATE" data-bind="checked: environment.network_role" disabled/>Private Network (Enterprise or Datacenter)</label>
+                                                    <p>All components will be installed for an stand-alone deployment</p>
+                                                </div>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="preview_network_role" value="PROVIDER" data-bind="checked: environment.network_role" disabled/>Cloud Service Provider</label>
+                                                    <p>Installs Intel&reg; Cloud Integrity Technology attestation server, Trust Director (for host attestation), OpenStack integration (if applicable), Key Broker Proxy (if applicable)</p>
+                                                </div>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="preview_network_role" value="SUBSCRIBER" data-bind="checked:environment. network_role" disabled/>Enterprise</label>
+                                                    <p>Installs Trust Director (for workload attestation), Key Broker (if applicable)</p>
+                                                </div>
+
+                                            </div>
+                                            <div class="col-lg-4">
+
+                                                <h3>Layout</h3>
+                                                <!--
+                                                <div class="radio">
+                                                  <label><input type="radio" name="preview_layout" value="LOCALHOST" data-bind="checked: environment.layout" disabled/>All-in-one, localhost</label>
+                                                  <p>All components will be installed on a single host or VM. This is the simplest option, but not recommended for production.</p>
+                                                </div>
+                                                -->
+                                                <div class="radio">
+                                                    <label><input type="radio" name="preview_layout" value="SINGLE_HOST" data-bind="checked: environment.layout" disabled/>All-in-one, remote host</label>
+                                                    <p>All components will be installed on a single host or VM. This is the simplest option, but not recommended for production.</p>
+                                                </div>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="preview_layout" value="ONE_PACKAGE_PER_HOST" data-bind="checked: environment.layout"/>One package per remote host</label>
+                                                    <p>Each component will be installed on a separate host or VM.</p>
+                                                </div>
+
+                                                <!-- the custom component layout is disabled until the credentials screen is ready to enable a customized layout -->
+                                                <!--
+                                                <div class="radio">
+                                                  <label><input type="radio" name="preview_layout" value="CUSTOM" data-bind="checked: environment.layout" disabled/>Custom component layout</label>
+                                                  <p>Installs each component on a separate host or VM.</p>
+                                                </div>
+                                                -->
+
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr><th>Host</th><th>Software</th></tr>
+                                                </thead>
+                                                <tbody data-bind="foreach: targets">
+                                                    <tr>
+                                                        <td data-bind="text: host"></td>
+                                                        <td data-bind="text: packages_csv"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <a class="btn btn-success btn-lg start" href="#">Start</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-body" id="deploy_panel" style="display: none;">
+
+                        <div class="progress quickstart-order-progress">
+                            <!-- content of this div is shown when page loads; then it's dynamically set as user clicks "next";  the width here is the initial progress displayed and changes with the current step -->
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+
+                            </div>
+                        </div>
+
+                        <div class="well"> 
+                            <h1>
+                                <span data-bind="visible: progress.order.status() == 'PENDING'">Please wait...</span>
+                                <span data-bind="visible: progress.order.status() == 'ACTIVE'">Deploying Intel&reg; Cloud Integrity Technology 3.0...</span>
+                                <span data-bind="visible: progress.order.status() == 'DONE'">Intel&reg; Cloud Integrity Technology 3.0</span>
+                                <span data-bind="visible: progress.order.status() == 'ERROR'">Failed to install software; see server log for details</span>
+                                <span data-bind="visible: progress.order.status() == 'CANCELLING'">Cancelling...</span>
+                                <span data-bind="visible: progress.order.status() == 'CANCELLED'">Cancelled</span>
+                                <i data-bind="visible: progress.order.status() == 'PENDING'" class="glyphicon glyphicon-refresh glyphicon-spin"></i>
+                            </h1>
+                            <!--
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr><th>Host</th><th>Software</th></tr>
+                                </thead>
+                                <tbody data-bind="foreach: targets">
+                                    <tr>
+                                        <td data-bind="text: host"></td>
+                                        <td>
+                                            <ul data-bind="foreach: packages">
+                                                <li data-bind="text: i18n.t('quickstart:packages.'+$data)"></li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            -->
+                            <div data-bind="visible: progress.order.status() != 'PENDING'">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr><th>Host</th><th>Software</th></tr>
+                                </thead>
+                                <tbody data-bind="foreach: progress.order.targets">
+                                    <tr>
+                                        <td data-bind="text: host"></td>
+                                        <td>
+
+                                            <ul class="list-unstyled icon-list" data-bind="foreach: packages.sort()">
+                                                <li data-bind="text: i18n.t('quickstart:packages.'+$data), css: { checkmark: $parent.packages_installed().indexOf($data) >= 0 }"></li>
+                                            </ul>
+                                            <!--
+                                            <div class="alert alert-info" data-bind="visible: type() == 'package'">
+                                                <div class="glyphicon" data-bind="css: icon"></div>
+                                                <div><p data-bind="text: i18n.t('quickstart:packages.'+package)"></p></div>
+                                            </div>
+                                            <div class="alert alert-info" data-bind="visible: type() == 'other'">
+                                                <div class="glyphicon glyphicon-ok"></div>
+                                                <div><p data-bind="text: label"></p></div>
+                                            </div>
+                                            -->
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            </div>
+                            <div data-bind="visible: progress.order.tasks().length > 0">
+                                
+                                <a href="#" data-bind="click: progress.taskView.toggle">Show/Hide detailed progress</a>
+                                
+                                <table class="table table-bordered" data-bind="visible: progress.taskView.visible">
+                                <thead>
+                                    <tr><th>Task</th><th>Progress</th></tr>
+                                </thead>
+                                <tbody data-bind="foreach: progress.order.tasks">
+                                    
+                                    <!-- id attr looks like this: id="task-99bdc661-ff30-43d1-bbcc-c2750d7af228" -->
+                                    <tr class="quickstart-order-task" data-bind="attr: { id: 'task-'+id() }">
+                                        <td data-bind="text: display_name"></td>
+                                        <td>
+                                            <!--
+                                            percent: <span data-bind="text: percent"></span> <br/>
+                                            display_percent: <span data-bind="text: display_percent"></span> <br/>
+                                            progress: <span data-bind="text: progress"></span> of <span data-bind="text: progress_max"></span>  <br/>
+                                            <p data-bind="text: id, attr: { id: id }"></p>
+                                            -->
+                                            <div class="progress">
+                                                <!-- content of this div is shown when page loads; then it's dynamically set as user clicks "next";  the width here is the initial progress displayed and changes with the current step -->
+                                                <!-- the data-bind style: { width: display_percent } is equivalent of calling jquery's .css("width", display_percent) -->
+                                                <div class="progress-bar progress-bar-success" role="progressbar" data-bind="style: { width: display_percent }" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"   style="width: 0%;">
+
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            </div>
+
+                        </div>
+                        <a class="btn btn-danger btn-lg cancel" href="#">Cancel</a>
+
+
+                    </div>
+
+
+                    <div class="panel-body" id="report_panel" style="display: none;">
+
+
+                        <div class="well"> 
+                            <p>Deployment status report for Intel&reg; Cloud Integrity Technology 3.0</p>
+                        </div>
+
+                        <!--
+                                <a class="btn btn-success btn-lg confirm" href="#">Start Over</a>
+                                <a class="btn btn-success btn-lg confirm" href="#">Exit</a>
+                        -->
+
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div class="col-md-2"></div>
+
+        </div>
+
+
+        <div class="modal" id="editSettingModalDialog" data-bind="with: wizardViewModel">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title">Edit Setting</h4>
+                    </div>
+                    <div class="modal-body">        
+                        <!--
+                        <form id="editSettingForm" data-bind="with: editSettingRequest">
+                            <fieldset>
+                                <p>Submit this form to request the server to create a new setting or edit an existing setting.</p>
+                                <input type="text" name="name" data-bind="value: name" placeholder="setting name" value=""/>
+                                <input type="text" name="value" data-bind="value: value" placeholder="setting value" value=""/>
+                                <br>
+                                <input type="submit" class="btn btn-primary"  value="Save" data-bind="click: $parent.editSetting" />
+                            </fieldset>
+                        </form>
+                        -->
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" data-dismiss="modal" class="btn">Close</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Placed at the end of the document so the pages load faster -->
+
+        <!--        
+                <script src="js/kms_settings.js"></script>
+        -->    
+        <script type="text/javascript">
+            /*property
+             attr, click, css, data, find, getElementById, length, log, next, on,
+             parents, tab, target, text, width
+             */
+            /*global
+             $, console, count_steps, document, parseInt, wizard
+             */
+            /*
+             var endpoint = "/v1";
+             function MainViewModel() {
+             var self = this;
+             self.keysViewModel = new KeyListViewModel();
+             self.wizardViewModel = new SettingListViewModel();
+             }
+             */
+
+            /**
+             * Represents a single feature checkbox in the features tab.
+             * @param {object} init with fields {checked,disable} ;  checked whether the feature should be initially checked, disable whether the feature should be initially disabled
+             * @returns {undefined}
+             */
+            function WizardFeature(init) {
+                var self = this;
+                self.checked = ko.observable(init.checked);
+                self.disable = ko.observable(init.disable);
+                self.prior_checked = null; // used to store prior checked value by force function
+                self.prior_disable = null; // used to store prior disable value by force function
+
+                /** 
+                 * The force function is used to cause a checkbox to be checked and disabled
+                 * typically as a consequence of a dependent feature being checked by the user.
+                 * It saves the state of the checkbox prior to the force effect so that
+                 * if the user unchecks the dependent feature, this feature can return to
+                 * its prior value (instead of staying checked and making user uncheck all 
+                 * forced features)
+                 * @param {type} value
+                 * @returns {undefined}
+                 */
+                self.force = function(value) {
+                    if (self.prior_checked === null) {
+                        self.prior_checked = self.checked();
+                    }
+                    if (self.prior_disable === null) {
+                        self.prior_disable = self.disable();
+                    }
+                    self.checked(value);
+                    self.disable(true);
+                };
+                /**
+                 * The release function is used to cause a checkbox to return to the
+                 * state it was in prior to being forced by a dependent feature
+                 * @returns {undefined}
+                 */
+                self.release = function() {
+                    if (self.prior_checked !== null) {
+                        self.checked(self.prior_checked);
+                    }
+                    if (self.prior_disable !== null) {
+                        self.disable(self.prior_disable);
+                    }
+                    self.prior_checked = null;
+                    self.prior_disable = null;
+                };
+
+                /**
+                 * This function provides a convenient shortcut so you can replace
+                 * code that looked like this:
+                 * if( other_feature.checked() ) {
+                 *     this_feature.force(true);
+                 * }
+                 * else {
+                 *     this_feature.release();
+                 * }
+                 * With code that looks like this:
+                 * this_feature.force_if( other_feature.checked() );
+                 * 
+                 * @param {type} condition
+                 * @returns {undefined}
+                 */
+                self.force_if = function(condition) {
+                    if (condition) {
+                        self.force(true);
+                    }
+                    else {
+                        self.release();
+                    }
+                };
+
+            }
+
+            function isHostFormatValid(input) {
+                var regexIPv4 = /^(?:(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
+                var regexHostname = /^(?:(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9]))$/;
+                return regexIPv4.test(input) || regexHostname.test(input);
+            }
+
+            function WizardHostSSH(init) {
+                var self = this;
+                if (typeof init === "undefined") {
+                    init = {};
+                }
+                if (typeof init["host"] === "undefined") {
+                    init.host = "";
+                }
+                if (typeof init["port"] === "undefined") {
+                    init.port = 22;
+                }
+                if (typeof init["username"] === "undefined") {
+                    init.username = "root";
+                }
+                if (typeof init["password"] === "undefined") {
+                    init.password = "";
+                }
+                if (typeof init["publicKeyDigest"] === "undefined") {
+                    init.publicKeyDigest = "";
+                }
+                if (typeof init["publicKeyDigestConfirmed"] === "undefined") {
+                    init.publicKeyDigestConfirmed = false;
+                }
+
+                // user input
+                self.host = ko.observable(init.host);
+                self.port = ko.observable(init.port);
+                self.username = ko.observable(init.username);
+                self.password = ko.observable(init.password);
+                self.publicKeyDigest = ko.observable(init.publicKeyDigest);
+                self.publicKeyDigestConfirmed = ko.observable(init.publicKeyDigestConfirmed);
+
+                // state flags
+                self.hostValid = ko.observable(false);
+                self.hostError = ko.observable(false);
+                self.hostCheckWait = ko.observable(false);
+                self.hostFormatInvalid = ko.observable(false);
+                self.hostConnectionTimeout = ko.observable(false);
+                self.hostNotReachable = ko.observable(false);
+                self.passwordValid = ko.observable(false);
+                self.passwordError = ko.observable(false);
+                self.passwordCheckWait = ko.observable(false);
+
+                self.timeout = 2000; // 2000 ms = 2 seconds
+                self.update_ssh_in_progress = false; // internal use only, not UI observable
+
+                // reset state flags to false; optional arguments are flag names to set to true
+                self.reset = function() {
+                    self.hostValid(false);
+                    self.hostError(false);
+                    self.hostCheckWait(false);
+                    self.hostFormatInvalid(false);
+                    self.hostConnectionTimeout(false);
+                    self.hostNotReachable(false);
+                    self.passwordValid(false);
+                    self.passwordError(false);
+                    self.passwordCheckWait(false);
+                    // if optional arguments provided and we have an observable with that name,
+                    // update it to true
+                    for (var i = 0; i < arguments.length; i++) {
+                        var flag = arguments[i];
+                        if (typeof flag === "string" && typeof self[flag] === "function") {
+                            self[flag](true);
+                        }
+                    }
+                };
+                self.cache = {};
+                // self.cache.map()  ->  returns entire cache map
+                self.cache.map = function() {
+                    // ensure the cache exists
+                    var cacheNS = namespace("com.intel.mtwilson.deployment.wizard.ssh");
+                    if (typeof cacheNS["cache"] === "undefined") {
+                        cacheNS.cache = {};
+                    }
+                    var cache = cacheNS.cache;
+                    return cache;
+                };
+                // self.cache.get("192.168.1.100")  ->  returns cached value for that host or null if not in cache
+                self.cache.get = function(host) {
+                    var cache = self.cache.map();
+                    var existingValue = cache[host];
+                    if (typeof existingValue === "undefined") {
+                        return null;
+                    }
+                    return existingValue;
+                };
+                // self.cache.set("192.168.1.100", { host: "192.168.1.100", username: "root", ... });  -> sets the cached value for that host
+                self.cache.set = function(host, newValue) {
+                    var cache = self.cache.map();
+                    cache[host] = newValue;
+                };
+                self.update_ssh = function(update) {
+                    console.log("Updating SSH info for host: %s", self.host());
+                    self.update_ssh_in_progress = true;
+                    var fn = function(val) {
+                        if (typeof val === "function") {
+                            return val();
+                        } else {
+                            return val;
+                        }
+                    };
+                    self.host(fn(update.host));
+                    self.port(fn(update.port));
+                    self.username(fn(update.username));
+                    self.publicKeyDigest(fn(update.publicKeyDigest));
+                    self.publicKeyDigestConfirmed(fn(update.publicKeyDigestConfirmed));
+                    // must be updated after publicKeyDigest to ensure that automatic actions execute
+                    self.password(fn(update.password));
+                    self.update_ssh_in_progress = false;
+                };
+
+                self.host.subscribe(function(newValue) {
+                    // the update may have happened as a result of using a previously validated cache entry; if so, the hostValid flag would have already been set. 
+                    // so when hostValid is true, we don't need to do anything here.
+                    // this check is inside isHostValidFormat so that if host is updated because user typed something, we don't skip
+                    if (self.update_ssh_in_progress) {
+                        return;
+                    }
+
+                    if (!isHostFormatValid(newValue)) {
+                        self.reset("hostFormatInvalid", "hostError");
+                        return;
+                    }
+                    // if it looks like a valid hostname or IP address, try to get the public key fingerprint
+                    console.log("Hostname or IP address format validated: %s", newValue);
+
+                    var existing = self.cache.get(newValue);
+                    if (existing !== null) {
+                        // already in cache, update our object (note it's already marked valid - only validated hosts are allowed to be written to the cache)
+                        self.reset("hostValid", "passwordValid");
+                        self.update_ssh(existing);
+                        return;
+                    }
+
+                    // not in cache, and user just updated the host so check if we can connect to it
+                    self.reset("hostCheckWait");
+//        self.port(22);
+//        self.username("root");
+                    self.publicKeyDigest("");
+                    self.publicKeyDigestConfirmed(false);
+                    self.password("");
+
+                    $.ajax({
+                        type: "POST",
+                        url: endpoint + "/rpc/ssh-login",
+                        headers: {'Accept': 'application/json'},
+                        contentType: "application/json",
+                        data: JSON.stringify({"host": newValue, "timeout": self.timeout}),
+                        success: function(responseJsonContent, status, xhr) {
+                            if (typeof responseJsonContent["faults"] === "object" && typeof responseJsonContent["faults"]["length"] !== "undefined") {
+                                console.log("ssh-login response has faults: %O", responseJsonContent.faults);
+                                self.reset("hostError");
+                                // check for different faults that we know and update the state to inform the user
+                                var length = responseJsonContent.faults.length;
+                                for (var i = 0; i < length; i++) {
+                                    var fault = responseJsonContent.faults[i];
+                                    if (fault.type === "com.intel.mtwilson.deployment.jaxrs.faults.ConnectionTimeout") {
+                                        self.hostConnectionTimeout(true);
+                                    }
+                                    if (fault.type === "com.intel.mtwilson.deployment.jaxrs.faults.NoRouteToHost") {
+                                        self.hostNotReachable(true);
+                                    }
+                                }
+                            }
+                            else {
+                                self.reset("hostValid"); // HMM... for host but doesn't cover password yet...  
+                            }
+                            self.publicKeyDigest(responseJsonContent.data.public_key_digest);
+                            self.publicKeyDigestConfirmed(false);
+                        },
+                        error: function(xhr, status, errorMessage) {
+                            console.log("Failed to get ssh public key digest for host: %s   (%s)", newValue, errorMessage);
+                            self.reset("hostError"); // is this appropriate? or should we have a different error to say we couldn't even connect to the server to check?
+                            self.publicKeyDigest("");
+                            self.publicKeyDigestConfirmed(false);
+                        }
+
+                    });
+
+
+                });
+
+                // when user updates the password, check to see if it works.
+                // we mark a host as valid (and update the cache) when we can
+                // connect and have the right password.
+                self.password.subscribe(function(newValue) {
+                    // the update may have happened as a result of using a previously validated cache entry; if so, the hostValid flag would have already been set. 
+                    // so when hostValid is true, we don't need to do anything here.
+                    if (self.update_ssh_in_progress) {
+                        return;
+                    }
+
+                    if (self.publicKeyDigest() && self.publicKeyDigestConfirmed()) {
+                        self.reset("hostValid", "passwordCheckWait"); // maybe inappropriate to assume hostValid here; does this mean we need two separate reset functions?
+
+
+                        $.ajax({
+                            type: "POST",
+                            url: endpoint + "/rpc/ssh-login",
+                            headers: {'Accept': 'application/json'},
+                            contentType: "application/json",
+                            data: JSON.stringify({"host": self.host(), "port": self.port(), "public_key_digest": self.publicKeyDigest(), "username": self.username(), "password": newValue, "timeout": self.timeout}),
+                            success: function(responseJsonContent, status, xhr) {
+                                if (typeof responseJsonContent["faults"] === "object" && typeof responseJsonContent["faults"]["length"] !== "undefined") {
+                                    console.log("ssh-login response has faults: %O", responseJsonContent.faults);
+                                    self.reset("hostValid", "passwordError");
+                                    // check for different faults that we know and update the state to inform the user
+                                    var length = responseJsonContent.faults.length;
+                                    for (var i = 0; i < length; i++) {
+                                        var fault = responseJsonContent.faults[i];
+                                        if (fault.type === "com.intel.mtwilson.deployment.jaxrs.faults.ConnectionTimeout") {
+                                            self.reset("hostConnectionTimeout", "passwordError"); // should really be under password field... just in case it happens. but it shouldn't because by this point we already validated the host, ... but it could because the host may have transient network issue.
+                                        }
+                                        if (fault.type === "com.intel.mtwilson.deployment.jaxrs.faults.NoRouteToHost") {
+                                            self.reset("hostNotReachable", "passwordError");// should really be under password field... just in case it happens. but it shouldn't because by this point we already validated the host, ... but it could because the host may have transient network issue.
+                                        }
+                                    }
+                                }
+                                else {
+                                    self.reset("hostValid", "passwordValid"); // success!
+                                    self.cache.set(self.host(), {host: self.host(), port: self.port(), username: self.username(), password: self.password(), publicKeyDigest: self.publicKeyDigest(), publicKeyDigestConfirmed: self.publicKeyDigestConfirmed()}); // note the cache.set is an internal function but the cache itself is in a global namespace; there is no circular dependency (you can only get to it by calling the internal function)
+                                }
+                            },
+                            error: function(xhr, status, errorMessage) {
+                                console.log("Failed to get ssh public key digest for host: %s   (%s)", newValue, errorMessage);
+                                self.reset("hostValid", "passwordError"); // is this appropriate? or should we have a different error to say we couldn't even connect to the server to check?
+                            }
+
+                        });
+                    }
+                    else {
+                        console.log("Password is updated but public key digest is not confirmed - not safe to send password");
+                    }
+                });
+
+            }
+
+            function WizardTarget(init) {
+                var self = this;
+                if (typeof init === "undefined") {
+                    init = {};
+                }
+                if (typeof init["host"] === "undefined") {
+                    init.host = "";
+                }
+                if (typeof init["features"] === "undefined") {
+                    init.features = [];
+                }
+                if (typeof init["packages"] === "undefined") {
+                    init.packages = [];
+                }
+                //if( typeof init["ssh"] === "undefined" ) { init.ssh = new WizardHostSSH(); }    
+                self.host = ko.observable(init.host);
+                self.features = ko.observableArray(init.features);
+                self.features_csv = ko.computed(function() {
+                    return self.features().join(", ");
+                });
+                self.packages = ko.observableArray(init.packages);
+                self.packages_csv = ko.computed(function() {
+                    console.log("CALLING I18N");
+                    var packages = self.packages();
+                    var packagesTranslated = [];
+                    for (var i = 0; i < packages.length; i++) {
+                        packagesTranslated.push(i18n.t("quickstart:packages." + packages[i]));
+                    }
+                    return packagesTranslated.join(", ");
+                });
+
+                // the ssh property is special because it relies on a centrally-managed
+                // cache of ssh credentials. this allows convenient reuse of user's
+                // input in case user needs to refer to a host more than once and already
+                // set up the ssh fingerprint and password. see copySSH and host.subscribe \
+                // functions below.    
+                self.ssh = new WizardHostSSH();
+
+                self.host.subscribe(function(newValue) {
+                    self.ssh.host(newValue);
+                });
+
+                self.ssh.host(self.host()); // 1) ssh object needs to know, 2) if tied to a UI then UI would be updated with current state
+            }
+
+
+            function WizardViewModel() {
+                var self = this;
+
+                self.features = {
+                    "attestation_host": new WizardFeature({checked: true, disable: true}), /* always disabled because this feature is required */
+                    "attestation_host_xm": new WizardFeature({checked: true, disable: false}),
+                    "attestation_vm": new WizardFeature({checked: true, disable: false}),
+                    "attestation_container": new WizardFeature({checked: false, disable: false}), /* currently disabled in the UI because server doesn't support containers yet */
+                    "enforcement_vm_encryption": new WizardFeature({checked: false, disable: false}),
+                    "integration_openstack": new WizardFeature({checked: false, disable: false})
+
+                };
+                self.update_features = function() {
+                    self.features.attestation_vm.force_if(self.features.enforcement_vm_encryption.checked());
+                    self.features.attestation_host_xm.force_if(self.features.attestation_vm.checked() || self.features.attestation_container.checked());
+                    self.features.attestation_host.force_if(self.features.attestation_host_xm.checked());
+                    // adding or removing features will affect what needs to be deployed so update the environment
+                    self.update_environment();
+                    return true;
+                };
+
+                self.environment = {
+                    "network_role": ko.observable("PRIVATE"),
+                    "layout": ko.observable("SINGLE_HOST")
+                };
+
+                self.update_environment = function() {
+                    var packages = self.networkRoleManagers[ self.environment.network_role() ]();
+                    var targets = self.layoutManagers[ self.environment.layout() ](packages);
+                    self.targets(targets);
+                    return true;
+                };
+
+                self.settings = {
+                    "saml_validity_seconds": ko.observable("900"),
+                    "glance_ip": ko.observable(""),
+                    "glance_port": ko.observable(""),
+                    "glance_image_store_username": ko.observable(""),
+                    "glance_image_store_password": ko.observable(""),
+                    "glance_tenant_name": ko.observable(""),
+                    "key_server_type": ko.observable("kmip"),
+                    "kmip_endpoint_url": ko.observable(""),
+                    "barbican_endpoint_url": ko.observable(""),
+                    "barbican_project_id": ko.observable("")
+                };
+                //self.credentials = ko.observableArray([]);
+                //self.credentials = ko.observableArray([new WizardHostSSH({host:"localhost"}), new WizardHostSSH({host:"x.y.z",port:1922,username:"jonathan",password:"abc"})]);
+                self.targets = ko.observableArray([]);
+
+                // a network role manager converts high-level features to relevant packages for the target network role
+                self.networkRoleManagers = {
+                    // the private datacenter installs all appropriate packages
+                    "PRIVATE": function() {
+                        var packages = {};
+                        if (self.features.attestation_host.checked()) {
+                            packages.attestation_service = true;
+                            packages.trust_agent = true;
+                        }
+                        if (self.features.attestation_host_xm.checked()) { /*packages.trust_agent_tbootxm = true;*/
+                        }
+                        if (self.features.attestation_vm.checked()) {
+                            packages.trust_director = true; /*packages.trust_agent_vrtm = true; packages.policy_agent = true;*/
+                        }
+                        if (self.features.enforcement_vm_encryption.checked()) {
+                            packages.key_broker = true;
+                            packages.key_broker_proxy = true;
+                        }
+                        if (self.features.integration_openstack.checked()) {
+                            packages.openstack_extensions = true;
+                        }
+                        return packages;
+                    },
+                    // the public cloud service provider (CSP) installs everything except key broker 
+                    "PROVIDER": function() {
+                        var packages = {};
+                        if (self.features.attestation_host.checked()) {
+                            packages.attestation_service = true;
+                            packages.trust_agent = true;
+                        }
+                        if (self.features.attestation_host_xm.checked()) { /*packages.trust_agent_tbootxm = true;*/
+                        }
+                        if (self.features.attestation_vm.checked()) {
+                            packages.trust_director = true; /*packages.trust_agent_vrtm = true; packages.policy_agent = true;*/
+                        }
+                        if (self.features.enforcement_vm_encryption.checked()) { /*packages.key_broker = true;*/
+                            packages.key_broker_proxy = true;
+                        }
+                        if (self.features.integration_openstack.checked()) {
+                            packages.openstack_extensions = true;
+                        }
+                        return packages;
+                    },
+                    // the public cloud customer (enterprise) installs only trust director and key broker (if applicable)
+                    "SUBSCRIBER": function() {
+                        var packages = {};
+//            if( self.features.attestation_host.checked() ) { packages.attestation_service = true; packages.trust_agent = true; }
+//            if( self.features.attestation_host_xm.checked() ) { packages.trust_agent_tbootxm = true; }
+                        if (self.features.attestation_vm.checked()) {
+                            packages.trust_director = true; /*packages.trust_agent_vrtm = true; packages.policy_agent = true;*/
+                        }
+                        if (self.features.enforcement_vm_encryption.checked()) {
+                            packages.key_broker = true; /*packages.key_broker_proxy = true;*/
+                        }
+//            if( self.features.integration_openstack.checked() ) { packages.openstack_extensions = true; }
+                        return packages;
+                    }
+                };
+                // a layout manager converts packges to a set of host targets for the selected layout; in the case of CUSTOM the user can also add more host targets or deploy multiple features to a single host
+                self.layoutManagers = {
+                    "LOCALHOST": function(packages) {
+                        var targets = [];
+                        var target = new WizardTarget({host: "127.0.0.1"});
+                        targets.push(target); // TO DO: ADD ONE FOR OPENSTACK IF ENABLED
+                        return targets;
+                    },
+                    "SINGLE_HOST": function(packages) {
+                        var targets = [];
+                        var packageNames = Object.keys(packages);
+                        var countPackages = packageNames.length;
+                        var target = new WizardTarget({host: "127.0.0.1"});
+                        for (var i = 0; i < countPackages; i++) {
+                            target.packages.push(packageNames[i]);
+                        }
+                        //target.description( target.packages_csv() );
+                        targets.push(target); // TO DO: ADD ONE FOR OPENSTACK IF ENABLED
+                        return targets;
+                    },
+                    "ONE_PACKAGE_PER_HOST": function(packages) {
+                        var targets = [];
+                        var packageNames = Object.keys(packages);
+                        var countPackages = packageNames.length;
+                        for (var i = 0; i < countPackages; i++) {
+                            var target = new WizardTarget();
+                            target.packages.push(packageNames[i]);
+                            //target.description(packageNames[i]);
+                            targets.push(target);
+                        }
+                        return targets;
+                    },
+                    "CUSTOM": function(packages) {
+                        var targets = [];
+                        var packageNames = Object.keys(packages);
+                        var countPackages = packageNames.length;
+                        for (var i = 0; i < countPackages; i++) {
+                            var target = new WizardTarget();
+                            target.packages.push(packageNames[i]);
+                            //target.description(packageNames[i]);
+                            targets.push(target);
+                        }
+                        return targets;
+                    }
+                };
+
+                self.progress = {};
+                self.progress.interval = null; // the id of the interval timer so we can clear it later
+                self.progress.interval_period = 1000; // check progress every 2 seconds = 2000 ms
+                self.progress.links = {};
+                self.progress.links.status = null; // this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a where we can get more updates
+                self.progress.links.cancel = null;// this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a/cancel where we can cancel the task with a POST
+                self.progress.actions = ko.observableArray([]); // list of actions from server about what is happening during the deployment;  these are then used to update the UI under the progress bar
+                self.progress.order = {
+                    "id": ko.observable(""),
+                    "status": ko.observable("PENDING"),
+                    "features": ko.observableArray([]),
+                    "targets": ko.observableArray([]),
+                    "tasks": ko.observableArray([]),
+                    "tasks_open": ko.observable(false),
+                    "faults": ko.observableArray([])
+                };
+                self.progress.taskView = {
+                    visible: ko.observable(true),
+                    toggle: function() { self.progress.taskView.visible( !self.progress.taskView.visible() ); }
+                };
+                
+                self.start = function() {
+                    var features = ko.toJS(self.features);
+                    var networkRole = ko.toJS(self.environment.network_role);
+                    var targets = ko.toJS(self.targets);
+                    var settings = ko.toJS(self.settings);
+
+                    var data = {};
+                    data.features = []; // only the selected feature names
+
+                    var featureNames = Object.keys(features); // attestation_host, attestation_host_xm, attestation_vm, attestation_container, enforcement_vm_encryption, integration_openstack
+                    var featureCount = featureNames.length;
+                    for (var i = 0; i < featureCount; i++) {
+                        var featureName = featureNames[i];
+                        if (features[ featureName ].checked) {
+                            data.features.push(featureName);
+                        }
+                    }
+
+                    //data.networkRole = self.environment.network_role;// get observable value
+                    //data.layout = self.environment.layout();// get observable value  /////  not needed by server
+
+                    data.targets = [];
+                    var targetCount = targets.length;
+                    for (var i = 0; i < targetCount; i++) {
+                        var targetsrc = targets[i];
+                        var target = {};
+
+                        target.host = targetsrc.host;
+                        target.port = targetsrc.ssh.port;
+                        target.username = targetsrc.ssh.username;
+                        target.password = targetsrc.ssh.password;
+                        target.public_key_digest = targetsrc.ssh.publicKeyDigest;
+                        target.network_role = networkRole;
+                        target.packages = [];
+
+                        var packagesCount = targetsrc.packages.length;
+                        for (var i = 0; i < packagesCount; i++) {
+                            target.packages.push(targetsrc.packages[i]);
+                        }
+
+                        data.targets.push(target);
+                    }
+
+
+                    data.settings = {};
+
+                    var settingNames = Object.keys(settings);
+                    var settingCount = settingNames.length;
+                    for (var i = 0; i < settingCount; i++) {
+                        var settingName = settingNames[i];
+                        data.settings[ settingName ] = settings[ settingName ];
+                    }
+
+                    console.log("Ready to deploy with data: %O", data);
+
+                    $.ajax({
+                        type: "POST",
+                        url: endpoint + "/quickstart/orders",
+                        headers: {'Accept': 'application/json'},
+                        contentType: "application/json",
+                        data: JSON.stringify(data),
+                        success: function(responseJsonContent, status, xhr) {
+                            console.log("start response: %O", responseJsonContent);
+                            if (typeof responseJsonContent["faults"] === "object" && typeof responseJsonContent["faults"]["length"] !== "undefined") {
+                                console.log("deploy response has faults: %O", responseJsonContent.faults);
+                                /*
+                                 // check for different faults that we know and update the state to inform the user
+                                 var length = responseJsonContent.faults.length;
+                                 for(var i=0; i<length; i++) {
+                                 var fault = responseJsonContent.faults[i];
+                                 if( fault.type === "com.intel.mtwilson.deployment.jaxrs.faults.ConnectionTimeout" ) {
+                                 self.reset("hostConnectionTimeout", "passwordError"); // should really be under password field... just in case it happens. but it shouldn't because by this point we already validated the host, ... but it could because the host may have transient network issue.
+                                 }
+                                 if( fault.type === "com.intel.mtwilson.deployment.jaxrs.faults.NoRouteToHost") {
+                                 self.reset("hostNotReachable", "passwordError");// should really be under password field... just in case it happens. but it shouldn't because by this point we already validated the host, ... but it could because the host may have transient network issue.
+                                 }
+                                 }
+                                 */
+                            }
+                            else {
+                                // schedule periodic progress checks
+                                self.progress.links.status = responseJsonContent.links.status;
+                                self.progress.links.cancel = responseJsonContent.links.cancel;
+                                self.progress.interval = setInterval(self.checkProgress, self.progress.interval_period); // check progress every "interval period" milliseconds
+                            }
+                        },
+                        error: function(xhr, status, errorMessage) {
+                            console.log("Failed to deploy: %s", errorMessage);
+                        }
+
+                    });
+
+                };
+
+                self.cancel = function() {
+                    console.log("Cancelling task...");
+                    clearInterval(self.progress.interval);
+                    $.ajax({
+                        type: "POST",
+                        url: self.progress.links.cancel, // notice the endpoint isn't prepended to this; it should already be included in the link we got from the server
+                        headers: {'Accept': 'application/json'},
+                        //contentType: "application/json",
+                        //data: JSON.stringify(data),
+                        success: function(responseJsonContent, status, xhr) {
+                            console.log("cancel response: %O", responseJsonContent);
+                            if (typeof responseJsonContent["faults"] === "object" && typeof responseJsonContent["faults"]["length"] !== "undefined") {
+                                console.log("cancel deployment response has faults: %O", responseJsonContent.faults);
+
+                                /*
+                                 // check for different faults that we know and update the state to inform the user
+                                 var length = responseJsonContent.faults.length;
+                                 for(var i=0; i<length; i++) {
+                                 var fault = responseJsonContent.faults[i];
+                                 if( fault.type === "com.intel.mtwilson.deployment.jaxrs.faults.ConnectionTimeout" ) {
+                                 self.reset("hostConnectionTimeout", "passwordError"); // should really be under password field... just in case it happens. but it shouldn't because by this point we already validated the host, ... but it could because the host may have transient network issue.
+                                 }
+                                 if( fault.type === "com.intel.mtwilson.deployment.jaxrs.faults.NoRouteToHost") {
+                                 self.reset("hostNotReachable", "passwordError");// should really be under password field... just in case it happens. but it shouldn't because by this point we already validated the host, ... but it could because the host may have transient network issue.
+                                 }
+                                 }
+                                 */
+                            }
+                            else {
+                                console.log("server deployment cancelled successfully");
+                            }
+                        },
+                        error: function(xhr, status, errorMessage) {
+                            console.log("Failed to deploy: %s", errorMessage);
+                        }
+
+                    });
+                };
+
+                self.checkProgress = function() {
+                    console.log("Checking progress");
+                    $.ajax({
+                        type: "GET",
+                        url: self.progress.links.status, // notice the endpoint isn't prepended to this; it should already be included in the link we got from the server
+                        headers: {'Accept': 'application/json'},
+                        //contentType: "application/json",
+                        //data: JSON.stringify(data),
+                        success: function(responseJsonContent, status, xhr) {
+                            console.log("status response: %O", responseJsonContent);
+
+                            /*
+                             * Successful order status response while the order is pending looks like this:
+                             * 
+                             * {
+                             *   "id": "5acebece-e832-419f-9dbb-db1ab466e1c5",
+                             *   "status": "PENDING", 
+                             *   "features": [ "attestation_vm", "attestation_host", "attestation_host_xm" ],
+                             *   "targets": [
+                             *     {
+                             *       "host": "198.51.100.18",
+                             *       "port": 22,
+                             *       "username": "root",
+                             *       "timeout": 15000,
+                             *       "network_role": "PRIVATE",
+                             *       "public_key_digest": "22952a72e24194f208200e76fd3900da",
+                             *       "packages": [ "trust_agent", "trust_director", "attestation_service" ]
+                             *     }
+                             *   ]
+                             * }
+                             * 
+                             * Successful order status while the order is active looks like this:
+                             * 
+                             * 
+                             * Successful (kind of) order status while the order is being cancelled (afer we send cancel command) looks the same, but status is "CANCELLING".
+                             * 
+                             * When we cancel we stop querying the order status but IF we were to query again after the server has finished cancelling it, 
+                             * then we would see the order status is "CANCELLED"
+                             */
+
+                            if (responseJsonContent.status) {
+                                self.progress.order.status(responseJsonContent.status);
+                                // if the server reports the order is done, has errors, or is cancelled,  then stop checking for updates because there won't be any more.
+                                if (responseJsonContent.status == "DONE" || responseJsonContent.status == "ERROR" || responseJsonContent.status == "CANCELLED") {
+                                    clearInterval(self.progress.interval);
+                                }
+                            }
+
+                            console.log("server deployment progress received successfully");
+                            // update wizard progress bar
+                            // this used to pass the data correctly to the handler  as e.data,   then it stopped workign:
+                            /*
+                             $(document).trigger({
+                             type: "mtwilson-quickstart-wizard:progress",
+                             data: { "current": responseJsonContent.progress, "max": responseJsonContent.progressMax, "status": responseJsonContent.status }, // {  current: int, max: int, status: text }
+                             time: new Date()
+                             });
+                             */
+                            $(document).trigger("mtwilson-quickstart-wizard:progress", [{"current": responseJsonContent.progress, "max": responseJsonContent.progress_max, "status": responseJsonContent.status}]);
+
+                            if (responseJsonContent.targets) {
+                                for(var i=0; i<responseJsonContent.targets.length; i++) {
+                                    if( typeof responseJsonContent.targets[i]["packages_installed"] === "undefined" ) {
+                                        responseJsonContent.targets[i].packages_installed = [];
+                                    }
+                                }
+                                //self.progress.order.targets(responseJsonContent.targets);
+                                ko.mapping.fromJS(responseJsonContent.targets, {}, self.progress.order.targets);
+                            }
+                            /*
+                             {
+                             "id": ko.observable(""),
+                             "name": ko.observable(""),
+                             "display_name": ko.observable(""),
+                             "progress": ko.observable(0),
+                             "progress_max": ko.observable(1),
+                             "percent": ko.observable(0),
+                             "display_percent": ko.observable("0%"),
+                             }
+                             */
+
+                            if (responseJsonContent.tasks) {
+                                for (var i = 0; i < responseJsonContent.tasks.length; i++) {
+//                           responseJsonContent.tasks[i].sequence = i+1;
+                                    // the task name may be a fully qualified java class name;  i18n uses dots to navigate the translation object so we can't have them in the object name
+                                    //var underscore_name = responseJsonContent.tasks[i].name.replace(/\./g,"\\.");
+                                    var underscore_name = responseJsonContent.tasks[i].name.replace(/\./g, "_");
+                                    responseJsonContent.tasks[i].display_name = i18n.t('quickstart:tasks.' + underscore_name, responseJsonContent.tasks[i].data); // second argument provides a data object from the task status object for interpolation into the translated text
+                                    responseJsonContent.tasks[i].percent = Math.round(responseJsonContent.tasks[i].progress_max == 0 ? 0 : (parseInt(responseJsonContent.tasks[i].progress) / responseJsonContent.tasks[i].progress_max) * 100);
+                                    responseJsonContent.tasks[i].display_percent = responseJsonContent.tasks[i].percent + '%';
+                                }
+                                responseJsonContent.tasks.sort(sortBy('+sequence', '-percent', '+display_name'));
+                                ko.mapping.fromJS(responseJsonContent.tasks, {}, self.progress.order.tasks);
+                                // also, calculate "tasks_open" which is:  if any tasks are incomplete, it should be "true",  but if all tasks are done then it should be "false"
+                                var tasks_open = false;
+                                for (var i = 0; i < responseJsonContent.tasks.length; i++) {
+                                    tasks_open = tasks_open || responseJsonContent.tasks[i].percent < 100;
+                                }
+                                self.progress.order.tasks_open(tasks_open);
+                            }
+
+                            //typeof responseJsonContent["faults"] === "object" && typeof responseJsonContent["faults"]["length"] !== "undefined" 
+                            if (responseJsonContent.faults) {
+                                self.progress.order.faults(responseJsonContent.faults);
+                                console.log("deployment progress response has faults: %O", responseJsonContent.faults);
+                                /*
+                                 // check for different faults that we know and update the state to inform the user
+                                 var length = responseJsonContent.faults.length;
+                                 for(var i=0; i<length; i++) {
+                                 var fault = responseJsonContent.faults[i];
+                                 if( fault.type === "com.intel.mtwilson.deployment.jaxrs.faults.ConnectionTimeout" ) {
+                                 self.reset("hostConnectionTimeout", "passwordError"); // should really be under password field... just in case it happens. but it shouldn't because by this point we already validated the host, ... but it could because the host may have transient network issue.
+                                 }
+                                 if( fault.type === "com.intel.mtwilson.deployment.jaxrs.faults.NoRouteToHost") {
+                                 self.reset("hostNotReachable", "passwordError");// should really be under password field... just in case it happens. but it shouldn't because by this point we already validated the host, ... but it could because the host may have transient network issue.
+                                 }
+                                 }
+                                 */
+                            }
+
+
+
+
+                            /*
+                             var actions = responseJsonContent.data.actions;
+                             var actionsLength = actions.length;
+                             for(var i=0; i<actionsLength; i++) {
+                             // add a global sequence number to all actions received from server
+                             actions[i].seq = i;
+                             // add a status index so  "completed" is 1, "active" is 2, "pending" is 3, and "cancelled" is 4.
+                             switch( actions[i].status ) {
+                             case "completed": actions[i].statusIndex = 1; break;
+                             case "active": actions[i].statusIndex = 2; break;
+                             case "pending": actions[i].statusIndex = 3; break;
+                             case "cancelled": actions[i].statusIndex = 4; break;
+                             }
+                             }
+                             
+                             // first sort the list of action items we received from server by 1) host, 2) global sequence number                    
+                             actions.sort(sortBy("host","seq"));
+                             // update list of action items 
+                             self.progress.actions(actions); // array of actions where each action is { label: "..." , host: "...", status: "pending" }  and status can be "pending" (not started), "active" (in progress), "completed", or "cancelled"
+                             */
+                        },
+                        error: function(xhr, status, errorMessage) {
+                            console.log("Failed to deploy: %s", errorMessage);
+                        }
+
+                    });
+                };
+
+                // listen for UI events
+                $(document).on("mtwilson-quickstart-wizard:start", function(e) {
+                    console.log("Caught start event");
+                    self.start();
+                });
+                $(document).on("mtwilson-quickstart-wizard:cancel", function(e) {
+                    console.log("Caught cancel event");
+                    self.cancel();
+                });
+
+            }
+
+//var wizardViewModel = new WizardViewModel();
+
+            console.log("wizard.html script");
+            resourceLoader.loadJS(['js/knockout.js', 'js/jquery.js'/*, 'js/kms_settings.js'*/], function() {
+                "use strict";
+                console.log("wizard.html: loaded scripts");
+
+                // also need to load the localized text before we can initialize the UI 
+                // load package names from translation file
+                // with default english values provided by  /v1/html5/public/com.intel.mtwilson.deployment.wizard/mtwilson-core-html5/locales/quickstart.en-US.json  via  /v1/html5/public/merge?path=/mtwilson-core-html5/locales/quickstart.en-US.json
+                // NOTE:  the onload function provided is called whether or not the translation was found; for example if you specify a non-existent namespace like "doesnotexist", the call to /v1/html5/public/merge?path=/mtwilson-core-html5/locales/doesnotexist.en-US.json   will return an empty object { } , NOT  a 404,  so the response is valid but empty of data.
+                i18n.loadNamespaces('quickstart', function() {
+
+
+// NOTE: use document.getElementById is the quickest and easiest way to get a handle on our tab
+// because the tab has dots in the name, which are valid HTML but not supported by jquery $("#id")
+// and in order to use jquery you'd have to write $("#com\\.intel\\.mtwilson\\.deployment\\.wizard")
+// which calls document.getElementById internally anyway, or write it like
+// $("[id='com.intel.mtwilson.deployment.wizard']") which is neater because no backslashes but also slower.
+// due to the implementation having to iterate through many elements.
+                    var wizard = $(document.getElementById("com.intel.mtwilson.deployment.wizard"));
+
+                    var count_steps = wizard.find('#setup_panel a[data-toggle="tab"]').length; // this is 8 steps but... if there is a declared number of steps allow it to override.
+                    var max_steps = wizard.find('#setup_panel div[role="progressbar"]').attr('aria-valuemax');
+
+                    console.log("WIZARD detected %s steps", count_steps);
+
+                    wizard.find('#setup_panel .next').click(function() {
+
+                        var nextId = $(this).parents('.tab-pane').next().attr("id");
+                        $('#setup_panel [href=#' + nextId + ']').tab('show');
+                        return false;
+
+                    });
+
+                    wizard.find('#setup_panel a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+
+                        //update progress
+                        var step = $(e.target).data('step');
+                        var percent = (parseInt(step) / max_steps) * 100;
+                        var progressText = "Step " + step + " of " + max_steps;
+                        if (step === "0") {
+                            progressText = "";
+                        }
+
+                        wizard.find('#setup_panel .progress-bar').css({width: percent + '%'});
+                        wizard.find('#setup_panel .progress-bar').text(progressText);
+
+                        //e.relatedTarget // previous tab
+
+                    });
+
+                    wizard.find("#setup_panel a[href='#setup_start']").tab('show');
+
+                    wizard.find('#setup_panel .start').click(function() {
+
+                        wizard.find('#setup_panel').hide();
+                        wizard.find('#deploy_panel').show();
+
+                        // trigger deployment request and periodic progress checks
+                        $(document).trigger({
+                            type: "mtwilson-quickstart-wizard:start",
+                            data: {},
+                            time: new Date()
+                        });
+
+                    });
+
+                    wizard.find('#deploy_panel .cancel').click(function() {
+
+                        wizard.find('#deploy_panel').hide();
+                        wizard.find('#setup_panel a:first').tab('show');
+                        wizard.find('#setup_panel').show();
+
+                        // cancel deployment request and periodic progress checks
+                        $(document).trigger("mtwilson-quickstart-wizard:cancel");
+                        /*
+                         $(document).trigger({
+                         type: "mtwilson-quickstart-wizard:cancel",
+                         data: {},
+                         time: new Date()
+                         });
+                         */
+
+                    });
+
+                    $(document).on("mtwilson-quickstart-wizard:progress", function(e, data) {
+                        console.log("Caught progress event: %O", data);
+                        //update progress
+                        var current = data.current; // integer
+                        var max = data.max; // max 
+                        var percent = Math.round((parseInt(current) / max) * 100);
+                        var progressText = percent + "%"; //"Processing..."; //  data.status;  //  looking for one line from server... //"Step " + step + " of " + max_steps;
+                        if (current === 0) {
+                            progressText = "";
+                        }
+
+                        wizard.find('#deploy_panel .quickstart-order-progress .progress-bar').css({width: percent + '%'});
+                        wizard.find('#deploy_panel .quickstart-order-progress .progress-bar').text(progressText);
+
+                    });
+
+
+                    // add our view models to the main view model defined by index.html
+                    mainViewModel.wizardViewModel = new WizardViewModel();
+                    ko.applyBindings(mainViewModel, document.getElementById("com.intel.mtwilson.deployment.wizard"));
+                    // ko.applyBindings(wizardViewModel, document.getElementById("com.intel.mtwilson.deployment.wizard"));
+                    //mainViewModel.wizardViewModel.searchSettings({});
+
+                    // initialize
+                    mainViewModel.wizardViewModel.update_features(); // calls update_environment()
+                    //mainViewModel.wizardViewModel.update_environment();
+
+                    /**
+                     * Instead of putting this in the HTML above:
+                     *         &lt;script type="text/javascript" src="/v1/html5/public/cit-quickstart-wizard/lib/js/bootstrap-select.js"&gt;&lt;/script&gt;
+                     * Which results in a synchronous XHR and this warning from jquery: Synchronous XMLHttpRequest on the main thread is deprecated because of its detrimental effects to the end user's experience. For more help, check http://xhr.spec.whatwg.org/
+                     * We use the resource loader to load the required javascript asynchronously and only use it after it's loaded:
+                     */
+                    /*
+                     resourceLoader.loadJS(['/v1/html5/public/com.intel.mtwilson.deployment.wizard/lib/js/bootstrap-select.js'], function() {
+                     $('.selectpicker').selectpicker();
+                     });
+                     */
+                });  // i18n namespace loaded
+
+            }); // required javascripts loaded
+
+        </script>
+
+    </body>
+</html>
