@@ -19,9 +19,18 @@ import java.util.List;
 public class PreconfigureOpenstackExtensions extends AbstractPreconfigureTask implements FileTransferManifestProvider {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PreconfigureOpenstackExtensions.class);
     private List<FileTransferDescriptor> manifest;
-
+    private File envFile;
+    
+    /**
+     * Initializes the task with a file transfer manifest; the file(s) mentioned
+     * in the manifest will not be available until AFTER execute() completes
+     * successfully.
+     */
     public PreconfigureOpenstackExtensions() {
-        super();
+        super(); // initializes taskDirectory
+        envFile = new File(taskDirectory.getAbsolutePath() + File.separator + "mtwilson-openstack-controller.env");
+        manifest = new ArrayList<>();
+        manifest.add(new FileTransferDescriptor(envFile, envFile.getName()));
     }
     
     @Override
@@ -42,10 +51,7 @@ public class PreconfigureOpenstackExtensions extends AbstractPreconfigureTask im
         // the PostconfigureAttestationService task must already be executed 
         data.put("MTWILSON_TLS_CERT_SHA1", order.getSettings().get("mtwilson.tls.cert.sha1"));
         // generate the .env file using pre-configuration data
-        File envFile = render("mtwilson-openstack-controller.env.st4", "mtwilson-openstack-controller.env");
-        // collect all pre-configuration data...
-        manifest = new ArrayList<>();
-        manifest.add(new FileTransferDescriptor(envFile, "mtwilson-openstack-controller.env"));
+        render("mtwilson-openstack-controller.env.st4", envFile);
     }
 
 

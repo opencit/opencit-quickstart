@@ -43,7 +43,7 @@ public class DependenciesTest {
         for (int i = 0; i < 10; i++) {
             Collections.shuffle(list);
             log.debug("shuffled: {}", mapper.writeValueAsString(list));
-            Collections.sort(list, new DependencyComparator<SoftwarePackageExample>());
+           DependenciesUtil.sort(list);
             log.debug("sorted: {}", mapper.writeValueAsString(list));
             postcondition(list);
         }

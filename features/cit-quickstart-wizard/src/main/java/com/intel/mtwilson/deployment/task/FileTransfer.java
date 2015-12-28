@@ -14,7 +14,6 @@ import com.intel.mtwilson.deployment.jaxrs.faults.FileNotFound;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import net.schmizz.sshj.common.StreamCopier;
@@ -33,8 +32,7 @@ public class FileTransfer extends AbstractTaskWithId implements Progress {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FileTransfer.class);
     private SSH remote;
-    private List<FileTransferDescriptor> manifest;
-    private FileTransferManifestProvider manifestProvider;
+    protected List<FileTransferDescriptor> manifest;
     private HashMap<FileTransferDescriptor, FileTransferProgressListener> listenerMap = new HashMap<>();
 
     public FileTransfer(SSH remote, FileTransferDescriptor singleFileTransfer) {
@@ -50,21 +48,12 @@ public class FileTransfer extends AbstractTaskWithId implements Progress {
         this.manifest = manifest;
     }
 
-    public FileTransfer(SSH remote, FileTransferManifestProvider manifestProvider) {
-        super();
-        this.remote = remote;
-        this.manifestProvider = manifestProvider;
-    }
-
     @Override
     public void execute() {
         // precondition:  file transfer manifest available and all source files exist and readable
-        if (manifest == null) {
-            manifest = manifestProvider.getFileTransferManifest();
-            for (FileTransferDescriptor entry : manifest) {
-                if (!entry.getSource().exists() || !entry.getSource().canRead()) {
-                    fault(new FileNotFound(entry.getSource().getName()));
-                }
+        for (FileTransferDescriptor entry : manifest) {
+            if (!entry.getSource().exists() || !entry.getSource().canRead()) {
+                fault(new FileNotFound(entry.getSource().getName()));
             }
         }
 

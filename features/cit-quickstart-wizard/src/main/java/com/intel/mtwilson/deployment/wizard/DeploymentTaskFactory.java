@@ -10,7 +10,6 @@ import com.intel.mtwilson.deployment.FeatureRepository;
 import com.intel.mtwilson.deployment.FeatureRepositoryFactory;
 import com.intel.mtwilson.deployment.FeatureUtils;
 import com.intel.mtwilson.deployment.FileTransferDescriptor;
-import com.intel.mtwilson.deployment.FileTransferManifestProvider;
 import com.intel.mtwilson.deployment.OrderAware;
 import com.intel.mtwilson.deployment.SoftwarePackage;
 import com.intel.mtwilson.deployment.SoftwarePackageRepository;
@@ -20,6 +19,7 @@ import com.intel.mtwilson.deployment.SoftwarePackageUtils;
 import com.intel.mtwilson.deployment.TargetAware;
 import com.intel.mtwilson.deployment.conditions.FeatureAvailable;
 import com.intel.mtwilson.deployment.conditions.FeatureDependenciesIncluded;
+import com.intel.mtwilson.deployment.conditions.FeatureRequiredSoftwarePackagesIncluded;
 import com.intel.mtwilson.deployment.conditions.SoftwarePackageAvailable;
 import com.intel.mtwilson.deployment.conditions.SoftwarePackageDependenciesIncluded;
 import com.intel.mtwilson.deployment.descriptor.Target;
@@ -38,9 +38,8 @@ import com.intel.mtwilson.deployment.task.PreconfigureTrustAgent;
 import com.intel.mtwilson.deployment.task.PreconfigureTrustDirector;
 import com.intel.mtwilson.deployment.task.RemoteInstall;
 import com.intel.mtwilson.deployment.task.SynchronizeSoftwarePackageTargets;
-import com.intel.mtwilson.jaxrs2.provider.JacksonObjectMapperProvider;
 import com.intel.mtwilson.util.task.AbstractTask;
-import com.intel.mtwilson.util.task.DependencyComparator;
+import com.intel.mtwilson.util.task.DependenciesUtil;
 import com.intel.mtwilson.util.task.Task;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -100,7 +99,7 @@ public class DeploymentTaskFactory extends AbstractTask {
         Set<String> selectedFeatureNames = request.getFeatures();
         precondition(new FeatureAvailable(availableFeatureMap, selectedFeatureNames));
 
-        // do the specified features include all required dependencies?
+        // do the specified features include all required feature-dependencies?
         selectedFeatures = createFeatureList(selectedFeatureNames);
         precondition(new FeatureDependenciesIncluded(selectedFeatures));
 
@@ -110,9 +109,16 @@ public class DeploymentTaskFactory extends AbstractTask {
         Set<String> selectedSoftwarePackageNames = getSoftwarePackageNamesFromTargets(request.getTargets());
         precondition(new SoftwarePackageAvailable(availableSoftwarePackageMap, selectedSoftwarePackageNames));
 
-        // do the specified software packages include all required dependencies?
+        // do the specified software packages include all required software for selected features?
+        // NOTE: feature dependencies are checked by another precondition so we don't need to 
+        // check transitively.
         selectedSoftwarePackages = createSoftwarePackageList(selectedSoftwarePackageNames);
-        precondition(new SoftwarePackageDependenciesIncluded(selectedSoftwarePackages));
+        precondition(new FeatureRequiredSoftwarePackagesIncluded(selectedFeatures, selectedSoftwarePackages));
+        
+        // we don't check this one because the dependencies also include software that mayh not have been
+        // selected to install...  so would give a "false negative" by failing in a case where
+        // trust director is selected but key broker isn't because vm encryption was not chosen.
+//        precondition(new SoftwarePackageDependenciesIncluded(selectedSoftwarePackages));
         
         // map the selected software packages (across all targets) so it's easy for tasks to see what else is going on (useful for conditional integration tasks)
         selectedSoftwarePackageMap = SoftwarePackageUtils.mapSoftwarePackages(selectedSoftwarePackages);
@@ -169,7 +175,7 @@ public class DeploymentTaskFactory extends AbstractTask {
             PreconfigureAttestationService generateEnvFile = new PreconfigureAttestationService();
             tasks.add(generateEnvFile);
             // copy the env file
-            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile);
+            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile.getFileTransferManifest());
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
             tasks.add(fileTransferEnvFile);
             remoteInstall.getDependencies().add(fileTransferEnvFile);
@@ -193,7 +199,7 @@ public class DeploymentTaskFactory extends AbstractTask {
             PreconfigureKeyBroker generateEnvFile = new PreconfigureKeyBroker();
             tasks.add(generateEnvFile);
             // copy the env file
-            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile);
+            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile.getFileTransferManifest());
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
             tasks.add(fileTransferEnvFile);
             remoteInstall.getDependencies().add(fileTransferEnvFile);
@@ -212,7 +218,7 @@ public class DeploymentTaskFactory extends AbstractTask {
             PreconfigureKeyBrokerProxy generateEnvFile = new PreconfigureKeyBrokerProxy();
             tasks.add(generateEnvFile);
             // copy the env file
-            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile);
+            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile.getFileTransferManifest());
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
             tasks.add(fileTransferEnvFile);
             remoteInstall.getDependencies().add(fileTransferEnvFile);
@@ -221,7 +227,7 @@ public class DeploymentTaskFactory extends AbstractTask {
             PreconfigureTrustDirector generateEnvFile = new PreconfigureTrustDirector();
             tasks.add(generateEnvFile);
             // copy the env file
-            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile);
+            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile.getFileTransferManifest());
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
             tasks.add(fileTransferEnvFile);
             remoteInstall.getDependencies().add(fileTransferEnvFile);
@@ -230,7 +236,7 @@ public class DeploymentTaskFactory extends AbstractTask {
             PreconfigureTrustAgent generateEnvFile = new PreconfigureTrustAgent();
             tasks.add(generateEnvFile);
             // copy the env file
-            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile);
+            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile.getFileTransferManifest());
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
             tasks.add(fileTransferEnvFile);
             remoteInstall.getDependencies().add(fileTransferEnvFile);
@@ -239,7 +245,7 @@ public class DeploymentTaskFactory extends AbstractTask {
             PreconfigureOpenstackExtensions generateEnvFile = new PreconfigureOpenstackExtensions();
             tasks.add(generateEnvFile);
             // copy the env file
-            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile);
+            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile.getFileTransferManifest());
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
             tasks.add(fileTransferEnvFile);
             remoteInstall.getDependencies().add(fileTransferEnvFile);
@@ -298,7 +304,7 @@ public class DeploymentTaskFactory extends AbstractTask {
      */
     private List<String> createOrderedAvailableSoftwarePackageNameList() {
         List<SoftwarePackage> list = softwarePackageRepository.listAll();
-        Collections.sort(list, new DependencyComparator<SoftwarePackage>());
+        DependenciesUtil.sort(list);
         ArrayList<String> sortedNames = new ArrayList<>();
         for (SoftwarePackage item : list) {
             sortedNames.add(item.getPackageName());
@@ -308,7 +314,7 @@ public class DeploymentTaskFactory extends AbstractTask {
 
     private List<String> createOrderedAvailableFeatureNameList() {
         List<Feature> list = featureRepository.listAll();
-        Collections.sort(list, new DependencyComparator<Feature>());
+        DependenciesUtil.sort(list);
         ArrayList<String> sortedNames = new ArrayList<>();
         for (Feature item : list) {
             sortedNames.add(item.getName());
@@ -319,7 +325,7 @@ public class DeploymentTaskFactory extends AbstractTask {
     private List<SoftwarePackage> createSoftwarePackageList(Collection<String> softwarePackageNames) throws IOException {
         ArrayList<SoftwarePackage> list = new ArrayList<>();
         for (String name : softwarePackageNames) {
-            SoftwarePackage softwarePackage = softwarePackageRepository.searchByNameEquals(name);
+            SoftwarePackage softwarePackage = availableSoftwarePackageMap.get(name); //softwarePackageRepository.searchByNameEquals(name);
             if (softwarePackage == null) {
                 log.debug("Software package {} does not exist", name);
             }
@@ -329,7 +335,7 @@ public class DeploymentTaskFactory extends AbstractTask {
         }
         return list;
     }
-
+    
 
 //private ObjectMapper mapper = JacksonObjectMapperProvider.createDefaultMapper();
     private List<Feature> createFeatureList(Collection<String> featureNames) throws IOException {
@@ -378,7 +384,21 @@ public class DeploymentTaskFactory extends AbstractTask {
         // then these would be installed first, then would be synchronized so each
         // of them  has the other's certs, so that when other software is installed
         // it will have the complete configuration available (both certs).
-        Collections.sort(selectedSoftwarePackages, new DependencyComparator<SoftwarePackage>());
+        DependenciesUtil.sort(selectedSoftwarePackages);
+        /*
+        if( log.isDebugEnabled()) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                log.debug("selected software packages JSON: {}", mapper.writeValueAsString(selectedSoftwarePackages));
+                for(SoftwarePackage s : selectedSoftwarePackages) {
+                    log.debug("selected software packages name:{} ref:{}", s.getPackageName(), s);
+                }
+            }
+            catch(Exception e) {
+                log.error("cannot serialize selected software packages", e);
+            }
+        }
+        */
 //        List<SoftwarePackage> orderedSelectedSoftwarePackages = //createSoftwarePackageList(orderedAvailableSoftwarePackageNameList);
         log.debug("Creating new output list");
         output = new ArrayList<>();

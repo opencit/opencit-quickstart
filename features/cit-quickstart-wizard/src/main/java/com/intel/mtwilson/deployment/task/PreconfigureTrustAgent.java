@@ -19,9 +19,18 @@ import java.util.List;
 public class PreconfigureTrustAgent extends AbstractPreconfigureTask implements FileTransferManifestProvider {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PreconfigureTrustAgent.class);
     private List<FileTransferDescriptor> manifest;
-
+    private File envFile;
+    
+    /**
+     * Initializes the task with a file transfer manifest; the file(s) mentioned
+     * in the manifest will not be available until AFTER execute() completes
+     * successfully.
+     */
     public PreconfigureTrustAgent() {
-        super();
+        super(); // initializes taskDirectory
+        envFile = new File(taskDirectory.getAbsolutePath() + File.separator + "trustagent.env");
+        manifest = new ArrayList<>();
+        manifest.add(new FileTransferDescriptor(envFile, envFile.getName()));
     }
     
     @Override
@@ -59,10 +68,7 @@ public class PreconfigureTrustAgent extends AbstractPreconfigureTask implements 
         data.put("TRUSTAGENT_HOST", target.getHost());
         
         // generate the .env file using pre-configuration data
-        File envFile = render("trustagent.env.st4", "trustagent.env");
-        // collect all pre-configuration data...
-        manifest = new ArrayList<>();
-        manifest.add(new FileTransferDescriptor(envFile, "trustagent.env"));
+        render("trustagent.env.st4", envFile);
     }
 
     private void port() {

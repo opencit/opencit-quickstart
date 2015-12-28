@@ -17,7 +17,6 @@ import com.intel.mtwilson.deployment.jaxrs.io.TaskDocument;
 import com.intel.mtwilson.deployment.threads.OrderDocumentUpdateQueue.OrderStatusUpdate;
 import com.intel.mtwilson.deployment.wizard.DeploymentTaskFactory;
 import com.intel.mtwilson.jaxrs2.provider.JacksonObjectMapperProvider;
-import com.intel.mtwilson.util.task.DependencyComparator;
 import com.intel.mtwilson.util.task.Task;
 import com.intel.mtwilson.util.task.TaskManager;
 import com.intel.mtwilson.util.validation.faults.Thrown;
@@ -136,7 +135,7 @@ public class OrderDispatchQueue implements ServletContextListener {
                         log.error("TaskManager did not generate tasks for this order: {}", orderId);
                         ObjectMapper mapper = JacksonObjectMapperProvider.createDefaultMapper();
                         log.debug("DeploymentTaskFactory faults: {}", mapper.writeValueAsString(taskFactory));
-                        OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderStatusUpdate(nextOrder.getId(), "ERROR", 0L, Integer.valueOf(generatedTasks.size()).longValue()));
+                        OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderStatusUpdate(nextOrder.getId(), "ERROR", 0L, 0L));
                     }
                     
                 } catch (IOException | RuntimeException e) {

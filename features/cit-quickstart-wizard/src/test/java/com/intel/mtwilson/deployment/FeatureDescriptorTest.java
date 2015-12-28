@@ -7,7 +7,7 @@ package com.intel.mtwilson.deployment;
 import com.intel.mtwilson.deployment.descriptor.FeatureDescriptorCollection;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intel.mtwilson.jaxrs2.provider.JacksonObjectMapperProvider;
-import com.intel.mtwilson.util.task.DependencyComparator;
+import com.intel.mtwilson.util.task.DependenciesUtil;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +32,7 @@ public class FeatureDescriptorTest {
         JsonSoftwarePackageRepository softwarePackageRepository = new JsonSoftwarePackageRepository(getClass().getResourceAsStream("/software.json"));
         JsonFeatureRepository featureRepository = new JsonFeatureRepository(getClass().getResourceAsStream("/features.json"), softwarePackageRepository);
         List<Feature> featureList = featureRepository.listAll();
-        Collections.sort(featureList, new DependencyComparator<Feature>());
+        DependenciesUtil.sort(featureList);
         log.debug("features: {}", mapper.writeValueAsString(featureList));
         
     }

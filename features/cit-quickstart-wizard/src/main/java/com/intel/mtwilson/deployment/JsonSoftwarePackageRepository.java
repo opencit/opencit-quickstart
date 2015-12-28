@@ -25,13 +25,13 @@ import java.util.Map;
  */
 public class JsonSoftwarePackageRepository implements SoftwarePackageRepository {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JsonSoftwarePackageRepository.class);
-    private final Map<String,SoftwarePackage> softwarePackagesMap = new HashMap<>();
+    private final Map<String,SoftwarePackage> softwarePackageMap = new HashMap<>();
     private final ObjectMapper mapper = JacksonObjectMapperProvider.createDefaultMapper();
 
     public JsonSoftwarePackageRepository(InputStream in) throws IOException {
         List<SoftwarePackage> list = read(in);
         for(SoftwarePackage item : list) {
-            softwarePackagesMap.put(item.getPackageName(), item);
+            softwarePackageMap.put(item.getPackageName(), item);
         }
     }
 
@@ -42,12 +42,20 @@ public class JsonSoftwarePackageRepository implements SoftwarePackageRepository 
 
         // first convert each descriptor to a software package instance with package name and filename
         for (SoftwarePackageDescriptor descriptor : descriptorCollection.getSoftwarePackages()) {
+            if( descriptor.getDependencies() == null ) {
+                descriptor.setDependencies(new ArrayList<String>());
+            }
+            if( descriptor.getRequirements() == null ) {
+                descriptor.setRequirements(new ArrayList<String>());
+            }
+            
             File file = getPackageFile(descriptor.getPackageName(), descriptor.getFileName());
             SoftwarePackage softwarePackage = new SoftwarePackage(descriptor.getPackageName(), file);
             softwarePackageList.add(softwarePackage);
         }
         // second, make a map of package name => software package instance
-        HashMap<String, SoftwarePackage> softwarePackageMap = new HashMap<>();
+//        HashMap<String, SoftwarePackage> softwarePackageMap = new HashMap<>();
+        softwarePackageMap.clear();
         for (SoftwarePackage softwarePackage : softwarePackageList) {
             softwarePackageMap.put(softwarePackage.getPackageName(), softwarePackage);
         }
@@ -61,6 +69,19 @@ public class JsonSoftwarePackageRepository implements SoftwarePackageRepository 
                     subject.getDependencies().add(dependency);
                 } else {
                     log.warn("Cannot resolve dependency: {}", dependencyName);
+                }
+            }
+        }
+        // fourth, for each package, find the requirements in the map and associate them
+        for (SoftwarePackageDescriptor descriptor : descriptorCollection.getSoftwarePackages()) {
+            Collection<String> requirementNames = descriptor.getRequirements();
+            SoftwarePackage subject = softwarePackageMap.get(descriptor.getPackageName());
+            for (String requirementName : requirementNames) {
+                SoftwarePackage requirement = softwarePackageMap.get(requirementName);
+                if (requirement != null) {
+                    subject.getRequirements().add(requirement);
+                } else {
+                    log.warn("Cannot resolve requirement: {}", requirementName);
                 }
             }
         }
@@ -92,13 +113,13 @@ public class JsonSoftwarePackageRepository implements SoftwarePackageRepository 
     
     @Override
     public SoftwarePackage searchByNameEquals(String name) {
-        return softwarePackagesMap.get(name);
+        return softwarePackageMap.get(name);
     }
 
     @Override
     public List<SoftwarePackage> listAll() {
         ArrayList<SoftwarePackage> list = new ArrayList<>();
-        list.addAll(softwarePackagesMap.values());
+        list.addAll(softwarePackageMap.values());
         return list;
     }
 

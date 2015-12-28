@@ -33,7 +33,6 @@ public class TaskManager extends AbstractTask {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TaskManager.class);
     private static final ObjectMapper mapper = JacksonObjectMapperProvider.createDefaultMapper(); // for debugging only
     private final ArrayList<Task> tasks = new ArrayList<>();
-    private final DependencyComparator<Task> dependentTaskComparator = new DependencyComparator<>();
     private boolean cancel = false;
 
     public TaskManager() {
@@ -43,7 +42,7 @@ public class TaskManager extends AbstractTask {
     public TaskManager(List<Task> tasks) {
         super();
         this.tasks.addAll(tasks);
-        Collections.sort(this.tasks, dependentTaskComparator);
+        DependenciesUtil.sort(this.tasks);
     }
     
     
@@ -104,7 +103,7 @@ public class TaskManager extends AbstractTask {
         this.tasks.clear();
         this.tasks.addAll(tasks);
         // sort the tasks to ensure any dependencies are executed before their dependent tasks
-        Collections.sort(this.tasks, dependentTaskComparator);
+        DependenciesUtil.sort(this.tasks);
     }
     
     public void cancel() {

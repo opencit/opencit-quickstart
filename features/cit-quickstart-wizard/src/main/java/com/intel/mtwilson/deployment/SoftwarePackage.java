@@ -15,6 +15,7 @@ import java.util.Collection;
  */
 public class SoftwarePackage implements Dependencies<SoftwarePackage> {
     private final ArrayList<SoftwarePackage> dependencies = new ArrayList<>();
+    private final ArrayList<SoftwarePackage> requirements = new ArrayList<>();
     private final String packageName;
     private final File file;
 
@@ -34,6 +35,10 @@ public class SoftwarePackage implements Dependencies<SoftwarePackage> {
     @Override
     public Collection<SoftwarePackage> getDependencies() {
         return dependencies;
+    }
+
+    public ArrayList<SoftwarePackage> getRequirements() {
+        return requirements;
     }
     
     public boolean isFileAvailable() {

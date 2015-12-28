@@ -79,20 +79,7 @@
             <div class="col-md-8" style="margin-top: 10px;">        
                 <div class="panel panel-default" data-bind="with: wizardViewModel">
                     <div class="panel-heading">
-
-                        <ul class="list-inline pull-right">
-                            <!--
-                           <li><a href="#"><i class="glyphicon glyphicon-cog"></i></a></li>
-                           <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-comment"></i><span class="count">3</span></a><ul class="dropdown-menu" role="menu"><li><a href="#">1. Is there a way..</a></li><li><a href="#">2. Hello, admin. I would..</a></li><li><a href="#"><strong>All messages</strong></a></li></ul></li>
-                           <li><a href="#"><i class="glyphicon glyphicon-user"></i></a></li>
-                            -->
-                            <!--
-                            <li><a title="Refresh" data-toggle="modal" href="#" data-bind="click: reloadSettings"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
-                            <li><a title="Add Setting" data-toggle="modal" href="#editSettingModalDialog"><span class="glyphicon glyphicon-plus-sign"></span> Add Setting</a></li>
-                            -->
-                        </ul>
-
-                        <h1>Deployment Wizard</h1>
+                        <h1>Quickstart</h1>
                     </div>
                     <div class="panel-body" id="setup_panel">
 
@@ -625,7 +612,13 @@
                             </div>
 
                         </div>
-                        <a class="btn btn-danger btn-lg cancel" href="#">Cancel</a>
+                        
+                        <div data-bind="visible: progress.order.status() == 'PENDING' || progress.order.status() == 'ACTIVE'">
+                            <a class="btn btn-danger btn-lg cancel" href="#">Cancel</a>                            
+                        </div>
+                        <div data-bind="visible: progress.order.status() == 'DONE'">
+                            <a class="btn btn-danger btn-lg restart" href="#">Start Again</a>                            
+                        </div>
 
 
                     </div>
@@ -654,32 +647,6 @@
         </div>
 
 
-        <div class="modal" id="editSettingModalDialog" data-bind="with: wizardViewModel">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h4 class="modal-title">Edit Setting</h4>
-                    </div>
-                    <div class="modal-body">        
-                        <!--
-                        <form id="editSettingForm" data-bind="with: editSettingRequest">
-                            <fieldset>
-                                <p>Submit this form to request the server to create a new setting or edit an existing setting.</p>
-                                <input type="text" name="name" data-bind="value: name" placeholder="setting name" value=""/>
-                                <input type="text" name="value" data-bind="value: value" placeholder="setting value" value=""/>
-                                <br>
-                                <input type="submit" class="btn btn-primary"  value="Save" data-bind="click: $parent.editSetting" />
-                            </fieldset>
-                        </form>
-                        -->
-                    </div>
-                    <div class="modal-footer">
-                        <a href="#" data-dismiss="modal" class="btn">Close</a>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Placed at the end of the document so the pages load faster -->
 
@@ -1336,7 +1303,10 @@
 
                 self.cancel = function() {
                     console.log("Cancelling task...");
-                    clearInterval(self.progress.interval);
+                    if( self.progress.interval !== null ) {
+                        clearInterval(self.progress.interval);
+                        self.progress.interval = null;
+                    }
                     $.ajax({
                         type: "POST",
                         url: self.progress.links.cancel, // notice the endpoint isn't prepended to this; it should already be included in the link we got from the server
@@ -1371,6 +1341,26 @@
                         }
 
                     });
+                };
+                
+                self.reset = function() {
+                    if( self.progress.interval ) {
+                        clearInterval(self.progress.interval);
+                        self.progress.interval = null;
+                    }
+                    self.progress.links = {};
+                    self.progress.links.status = null; // this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a where we can get more updates
+                    self.progress.links.cancel = null;// this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a/cancel where we can cancel the task with a POST
+                    self.progress.actions([]);
+                    self.progress.order.id("");
+                    self.progress.order.status("PENDING");
+                    self.progress.order.features([]);
+                    self.progress.order.targets([]);
+                    self.progress.order.tasks([]);
+                    self.progress.order.tasks_open(false);
+                    self.progress.order.faults([]);
+                 
+                
                 };
 
                 self.checkProgress = function() {
@@ -1533,6 +1523,10 @@
                     console.log("Caught cancel event");
                     self.cancel();
                 });
+                $(document).on("mtwilson-quickstart-wizard:reset", function(e) {
+                    console.log("Caught reset event");
+                    self.reset();
+                });
 
             }
 
@@ -1620,6 +1614,18 @@
                          });
                          */
 
+                    });
+
+                    wizard.find('#deploy_panel .restart').click(function() {
+
+                        wizard.find('#deploy_panel').hide();
+                        wizard.find('#setup_panel a:first').tab('show');
+                        wizard.find('#setup_panel').show();
+
+                        // we keep current user selections for next order,
+                        // but clear all progress info.
+                        $(document).trigger("mtwilson-quickstart-wizard:reset");
+                        
                     });
 
                     $(document).on("mtwilson-quickstart-wizard:progress", function(e, data) {

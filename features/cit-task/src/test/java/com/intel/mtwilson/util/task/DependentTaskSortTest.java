@@ -73,7 +73,7 @@ public class DependentTaskSortTest {
         List<Task> tasks = createTasks();
         Collections.shuffle(tasks);
         printTasks(tasks);
-        Collections.sort(tasks, new DependencyComparator<Task>());
+        DependenciesUtil.sort(tasks);
         log.debug("sorted tasks");
         printTasks(tasks);
     }

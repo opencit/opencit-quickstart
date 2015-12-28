@@ -18,6 +18,19 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PreconfigureTrustDirector.class);
     private List<FileTransferDescriptor> manifest;
+    private File envFile;
+    
+    /**
+     * Initializes the task with a file transfer manifest; the file(s) mentioned
+     * in the manifest will not be available until AFTER execute() completes
+     * successfully.
+     */
+    public PreconfigureTrustDirector() {
+        super(); // initializes taskDirectory
+        envFile = new File(taskDirectory.getAbsolutePath() + File.separator + "director.env");
+        manifest = new ArrayList<>();
+        manifest.add(new FileTransferDescriptor(envFile, envFile.getName()));
+    }
 
     @Override
     public void execute() {
@@ -60,7 +73,7 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
         data.put("OPENSTACK_GLANCE_PORT", order.getSettings().get("openstack.glance.port")); // TODO:  is this http or https?  should make the property name specific , and also if https we will need tls cert sha1 fingerprint
         data.put("DIRECTOR_GLANCE_USERNAME", order.getSettings().get("director.glance.username"));
         data.put("DIRECTOR_GLANCE_PASSWORD", order.getSettings().get("director.glance.password"));
-        
+
         // optional:
         // IF key broker is enabled, these settings must be available:
         // kms.host, kms.port, kms.username, kms.password, kms.tls.cert.sha1
@@ -71,10 +84,7 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
         data.put("DIRECTOR_KMS_LOGIN_BASIC_PASSWORD", order.getSettings().get("director.kms.password"));
 
         // generate the .env file using pre-configuration data
-        File envFile = render("director.env.st4", "director.env");
-        // collect all pre-configuration data...
-        manifest = new ArrayList<>();
-        manifest.add(new FileTransferDescriptor(envFile, "director.env"));
+        render("director.env.st4", envFile);
     }
 
     private void port() {

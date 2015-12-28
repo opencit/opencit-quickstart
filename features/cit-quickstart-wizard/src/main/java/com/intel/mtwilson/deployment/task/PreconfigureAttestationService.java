@@ -14,7 +14,22 @@ import java.util.List;
 public class PreconfigureAttestationService extends AbstractPreconfigureTask implements FileTransferManifestProvider {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PreconfigureAttestationService.class);
     private List<FileTransferDescriptor> manifest;
+    private File envFile;
 
+    /**
+     * Initializes the task with a file transfer manifest; the file(s) mentioned
+     * in the manifest will not be available until AFTER execute() completes
+     * successfully.
+     */    
+    public PreconfigureAttestationService() {
+        super(); // initializes taskDirectory
+        envFile = new File(taskDirectory.getAbsolutePath() + File.separator + "mtwilson.env");
+        manifest = new ArrayList<>();
+        manifest.add(new FileTransferDescriptor(envFile, envFile.getName()));
+    }
+
+    
+    
     @Override
     public void execute() {
         // collect all pre-configuration data, and
@@ -54,11 +69,7 @@ public class PreconfigureAttestationService extends AbstractPreconfigureTask imp
         data.put("MTWILSON_TAG_PROVISION_XML_PASSWORD", order.getSettings().get("mtwilson.tag.provision.xml.password"));
         
         // generate the .env file using pre-configuration data
-        File envFile = render("mtwilson.env.st4", "mtwilson.env");
-        
-        // create the manifest for another task to sftp this file to the host
-        manifest = new ArrayList<>();
-        manifest.add(new FileTransferDescriptor(envFile, "mtwilson.env"));
+        render("mtwilson.env.st4", envFile);
     }
 
     private void port() {
