@@ -17,6 +17,13 @@ public class DependenciesUtil {
      * in the list that have dependencies AFTER them in the list is smaller 
      * than it was in iteration "i" (the previous iteration) or the loop counter
      * i is incremented.
+     * 
+     * Note that dependencies of an item are not required to be in the list...
+     * we use "indexOf" so if a dependency is not in the list, it's indexOf 
+     * return value will be -1 and it will always be skipped when considering
+     * if anything needs to be moved since -1 is less than even the first element
+     * at index 0.
+     * 
      * @param list 
      */
     public static <T extends Dependencies<T>> void sort(List<T> list) {

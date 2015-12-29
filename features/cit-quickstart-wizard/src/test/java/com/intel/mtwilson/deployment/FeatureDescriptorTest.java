@@ -9,7 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intel.mtwilson.jaxrs2.provider.JacksonObjectMapperProvider;
 import com.intel.mtwilson.util.task.DependenciesUtil;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import org.junit.Test;
 
@@ -36,4 +37,99 @@ public class FeatureDescriptorTest {
         log.debug("features: {}", mapper.writeValueAsString(featureList));
         
     }
+    
+    private SoftwarePackageRepository createSoftwarePackageRepository() throws IOException {
+                JsonSoftwarePackageRepository softwarePackageRepository = new JsonSoftwarePackageRepository(getClass().getResourceAsStream("/software.json"));
+return softwarePackageRepository;
+    }
+ 
+    private FeatureRepository createFeatureRepository(FeatureDescriptorCollection descriptorCollection) throws IOException {
+        SoftwarePackageRepository softwarePackageRepository = createSoftwarePackageRepository();
+                FeatureRepository instance = new JsonFeatureRepository(descriptorCollection, softwarePackageRepository);
+        return instance;
+    }
+    
+    private Collection<String> getRequiredSoftwarePackges(Collection<Feature> features) {
+        HashSet<String> requiredSoftwarePackages = new HashSet<>();
+        for(Feature feature : features) {
+           Collection<SoftwarePackage> softwarePackages = feature.getSoftwarePackages();
+           List<String> softwarePackageNames = SoftwarePackageUtils.listSoftwarePackageNames(softwarePackages);
+           requiredSoftwarePackages.addAll(softwarePackageNames);
+        }
+        return requiredSoftwarePackages;
+    }
+    private Collection<String> getRequiredSettings(Collection<Feature> features) {
+        HashSet<String> requiredSettings = new HashSet<>();
+        for(Feature feature : features) {
+           Collection<String> settingNames = feature.getRequiredSettings();
+           requiredSettings.addAll(settingNames);
+        }
+        return requiredSettings;
+    }
+    
+    /**
+     * Expected:
+     * feature names: [enforcement_vm_encryption, attestation_vm, integration_openstack, attestation_host, attestation_host_xm]
+     *  required software packages: [trust_director, key_broker_proxy, attestation_service, openstack_extensions, key_broker]
+     * @throws IOException 
+     */
+    @Test
+    public void testFeatureFactoryForPRIVATE() throws IOException {
+        FeatureDescriptorCollection descriptorCollection = mapper.readValue(getClass().getResourceAsStream("/PRIVATE.json"), FeatureDescriptorCollection.class);
+        log.debug("features: {}", mapper.writeValueAsString(descriptorCollection));
+        
+        FeatureRepository featureRepository = createFeatureRepository(descriptorCollection);
+         
+        List<Feature> features = featureRepository.listAll();
+        log.debug("feature names: {}", FeatureUtils.listFeatureNames(features));
+Collection<String> requiredSoftwarePackages = getRequiredSoftwarePackges(features);
+        log.debug("required software packages: {}", requiredSoftwarePackages);
+        
+        Collection<String> requiredSettings = getRequiredSettings(features);
+        log.debug("required settings: {}", requiredSettings);
+        
+    }
+    
+    /**
+     * 
+     * Expected:
+     * feature names: [enforcement_vm_encryption, attestation_vm, integration_openstack, attestation_host, attestation_host_xm]
+     *  required software packages: [trust_director, key_broker_proxy, attestation_service, openstack_extensions]
+     * 
+     * @throws IOException 
+     */
+   @Test
+    public void testFeatureFactoryForPROVIDER() throws IOException {
+        FeatureDescriptorCollection descriptorCollection = mapper.readValue(getClass().getResourceAsStream("/PROVIDER.json"), FeatureDescriptorCollection.class);
+                log.debug("features: {}", mapper.writeValueAsString(descriptorCollection));
+        FeatureRepository featureRepository = createFeatureRepository(descriptorCollection);
+        List<Feature> features = featureRepository.listAll();
+        log.debug("feature names: {}", FeatureUtils.listFeatureNames(features));
+Collection<String> requiredSoftwarePackages = getRequiredSoftwarePackges(features);
+        log.debug("required software packages: {}", requiredSoftwarePackages);
+        Collection<String> requiredSettings = getRequiredSettings(features);
+        log.debug("required settings: {}", requiredSettings);
+
+    }
+   
+    /**
+     * Expected:
+     * feature names: [enforcement_vm_encryption, attestation_vm, integration_openstack, attestation_host, attestation_host_xm]
+     *  required software packages: [trust_director, key_broker]
+     * 
+     * @throws IOException 
+     */
+   @Test
+    public void testFeatureFactoryForSUBSCRIBER() throws IOException {
+        FeatureDescriptorCollection descriptorCollection = mapper.readValue(getClass().getResourceAsStream("/SUBSCRIBER.json"), FeatureDescriptorCollection.class);
+                log.debug("features: {}", mapper.writeValueAsString(descriptorCollection));
+        FeatureRepository featureRepository = createFeatureRepository(descriptorCollection);
+        List<Feature> features = featureRepository.listAll();
+        log.debug("feature names: {}", FeatureUtils.listFeatureNames(features));
+Collection<String> requiredSoftwarePackages = getRequiredSoftwarePackges(features);
+        log.debug("required software packages: {}", requiredSoftwarePackages);
+        Collection<String> requiredSettings = getRequiredSettings(features);
+        log.debug("required settings: {}", requiredSettings);
+
+    }   
 }

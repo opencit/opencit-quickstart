@@ -24,18 +24,54 @@
                 
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-exec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-extensions</artifactId>
         </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-configuration</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-jaxrs2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-jaxrs2-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-jaxrs2-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-ssh</artifactId>
+        </dependency>
         
+        <!-- this is mtwilson-core-configuration -->
         <dependency>
             <groupId>com.intel.mtwilson.integration</groupId>
             <artifactId>mtwilson-configuration</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- this is mtwilson-core-launcher-api -->
+        <dependency>
+            <groupId>com.intel.mtwilson.integration</groupId>
+            <artifactId>mtwilson-launcher-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+    <groupId>com.intel.mtwilson.integration</groupId>
+    <artifactId>mtwilson-feature-xml</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
@@ -47,12 +83,6 @@
             <optional>true</optional>
         </dependency>
     
-        <dependency>
-            <groupId>com.intel.mtwilson.integration</groupId>
-            <artifactId>mtwilson-launcher-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
 
         <dependency>
             <!-- Purpose: processing template documents to generate .env files -->
@@ -88,27 +118,21 @@
             <scope>provided</scope>
         </dependency>
 
-
         <dependency>
-            <groupId>com.intel.mtwilson.util</groupId>
-            <artifactId>mtwilson-util-ssh</artifactId>
+            <!-- Purpose: to support zip file uploads to key broker (provides org.glassfish.jersey.media.multipart.FormDataMultiPart class) -->
+            <!-- URL: https://jersey.java.net/ -->
+            <!-- License: (DUAL) CDDL 1.1 and GPLv2 with classpath exception https://jersey.java.net/license.html  -->
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-multipart</artifactId>
+            <version>2.4.1</version>
         </dependency>
+
         
         <!-- required for javax.ws.rs.QueryParam in RpcFilterCriteria and javax.ws.rs.Path in Rpcs resource -->
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.intel.mtwilson.util</groupId>
-            <artifactId>mtwilson-util-jaxrs2</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.intel.mtwilson.util</groupId>
-            <artifactId>mtwilson-util-jaxrs2-server</artifactId>
-            <version>${project.version}</version>
         </dependency>
         
         <dependency>

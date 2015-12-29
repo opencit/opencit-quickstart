@@ -1,0 +1,58 @@
+{
+  "features": [
+      {
+          "name": "enforcement_vm_encryption",
+          "software_packages": [
+              "key_broker", "trust_director"
+          ],
+          "dependencies": [
+              "attestation_vm", "attestation_host_xm"
+          ],
+          "required_settings": [
+              "kms.key.provider"
+          ]
+      },
+      {
+          "name": "integration_openstack",
+          "software_packages": [
+              "trust_director"
+          ],
+          "dependencies": [
+              "attestation_host"
+          ],
+          "required_settings": [
+              "director.glance.tenant", "director.glance.host", "director.glance.port", "director.glance.username", "director.glance.password"
+          ]
+      },
+      {
+          "name": "attestation_vm",
+          "software_packages": [
+              "trust_director"
+          ],
+          "dependencies": [
+              "attestation_host_xm"
+          ],
+          "required_settings": [
+              "mtwilson.host", "mtwilson.port.https", "mtwilson.tls.cert.sha1", "director.mtwilson.username", "director.mtwilson.password"
+          ]
+      },
+      {
+          "name": "attestation_host",
+          "software_packages": [
+              "trust_director"
+          ],
+          "dependencies": [
+              
+          ]
+      },
+      {
+          "name": "attestation_host_xm",
+          "software_packages": [
+              "trust_director"
+          ],
+          "dependencies": [
+              "attestation_host"
+          ]
+      }
+  ]
+}

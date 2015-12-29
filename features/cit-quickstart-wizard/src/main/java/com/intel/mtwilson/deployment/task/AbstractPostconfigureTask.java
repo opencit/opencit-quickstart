@@ -13,7 +13,7 @@ import com.intel.mtwilson.deployment.jaxrs.io.OrderDocument;
  *
  * @author jbuhacoff
  */
-public abstract class AbstractPostconfigureTask extends AbstractTaskWithId implements OrderAware, TargetAware {
+public abstract class AbstractPostconfigureTask extends AbstractRemoteTask implements OrderAware, TargetAware {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AbstractPostconfigureTask.class);
 
     protected OrderDocument order;

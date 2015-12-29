@@ -257,32 +257,32 @@
                                                     <label class="col-lg-3">Server Type</label>
                                                     <div class="col-lg-4">
                                                         <!-- select class="selectpicker"   corresponding to bootstrap-select.js not being used right now -->
-                                                        <select data-bind="value: key_server_type">
+                                                        <select data-bind="value: kms_key_provider">
                                                             <option value="kmip">KMIP</option>
                                                             <option value="barbican">OpenStack Barbican</option>
                                                         </select>
                                                     </div>
                                                 </div>
 
-                                                <div data-bind="visible: key_server_type() == 'kmip'">
+                                                <div data-bind="visible: kms_key_provider() == 'kmip'">
                                                     <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                         <label class="col-lg-3">KMIP Server URL</label>
-                                                        <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kmip_endpoint_url"/>
+                                                        <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_kmip_url"/>
                                                             <p>Example for a KMIP4J server: https://kmip4j.example.com:8443/KMIPWebAppServer/KMIPServlet</p>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div data-bind="visible: key_server_type() == 'barbican'">
+                                                <div data-bind="visible: kms_key_provider() == 'barbican'">
                                                     <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                         <label class="col-lg-3">Barbican Project ID</label>
-                                                        <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: barbican_project_id"/>
+                                                        <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_barbican_project"/>
                                                             <p>Example: 12345</p>
                                                         </div>
                                                     </div>
                                                     <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                         <label class="col-lg-3">Barbican Server URL</label>
-                                                        <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: barbican_endpoint_url"/>
+                                                        <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_barbican_url"/>
                                                             <p>Example: http://openstack.example.com:9311</p>
                                                         </div>
 
@@ -297,23 +297,23 @@
                                             <form  data-bind="with: settings">
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                     <label class="col-lg-3">Glance Hostname or IP address</label>
-                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: glance_ip"/></div>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_host"/></div>
                                                 </div>
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                     <label class="col-lg-3">Glance Port Number</label>
-                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: glance_port"/></div>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_port"/></div>
                                                 </div>
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                     <label class="col-lg-3">Glance Username</label>
-                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: glance_image_store_username"/></div>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_username"/></div>
                                                 </div>
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                     <label class="col-lg-3">Glance Password</label>
-                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: glance_image_store_password" type="password"/></div>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_password" type="password"/></div>
                                                 </div>
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                     <label class="col-lg-3">OpenStack Tenant Name</label>
-                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: glance_tenant_name"/></div>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_tenant"/></div>
                                                 </div>
                                             </form>
                                         </div>
@@ -358,16 +358,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!--
-                                                <label>SSH Port Number</label>
-                                                <input class="form-control input-sm" data-bind="value: port"/>
-                                                <br/>
-                                                -->
-                                                <!--
-                                                <label>SSH Username</label>
-                                                <input class="form-control input-sm" data-bind="value: glance_image_store_username"/>
-                                                <br/>
-                                                -->
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                     <label class="col-lg-3">Host check</label>
                                                     <div class="col-lg-4">
@@ -1068,15 +1058,15 @@
 
                 self.settings = {
                     "saml_validity_seconds": ko.observable("900"),
-                    "glance_ip": ko.observable(""),
-                    "glance_port": ko.observable(""),
-                    "glance_image_store_username": ko.observable(""),
-                    "glance_image_store_password": ko.observable(""),
-                    "glance_tenant_name": ko.observable(""),
-                    "key_server_type": ko.observable("kmip"),
-                    "kmip_endpoint_url": ko.observable(""),
-                    "barbican_endpoint_url": ko.observable(""),
-                    "barbican_project_id": ko.observable("")
+                    "director_glance_host": ko.observable(""),
+                    "director_glance_port": ko.observable(""),
+                    "director_glance_username": ko.observable(""),
+                    "director_glance_password": ko.observable(""),
+                    "director_glance_tenant": ko.observable(""),
+                    "kms_key_provider": ko.observable("kmip"),
+                    "kms_kmip_url": ko.observable(""),
+                    "kms_barbican_url": ko.observable(""),
+                    "kms_barbican_project": ko.observable("")
                 };
                 //self.credentials = ko.observableArray([]);
                 //self.credentials = ko.observableArray([new WizardHostSSH({host:"localhost"}), new WizardHostSSH({host:"x.y.z",port:1922,username:"jonathan",password:"abc"})]);
@@ -1257,7 +1247,9 @@
                     var settingCount = settingNames.length;
                     for (var i = 0; i < settingCount; i++) {
                         var settingName = settingNames[i];
-                        data.settings[ settingName ] = settings[ settingName ];
+                        // convert setting names like saml_validity_seconds to saml.validity.seconds for the server
+                        var serverSettingName = settingName.replace(/_/g, ".");
+                        data.settings[ serverSettingName ] = settings[ settingName ];
                     }
 
                     console.log("Ready to deploy with data: %O", data);
@@ -1360,7 +1352,9 @@
                     self.progress.order.tasks_open(false);
                     self.progress.order.faults([]);
                  
-                
+                    // reset main progress bar
+                    $(document).trigger("mtwilson-quickstart-wizard:progress", [{"current": 0, "max": 1, "status": "PENDING"}]);
+                    
                 };
 
                 self.checkProgress = function() {
@@ -1408,6 +1402,9 @@
                                 // if the server reports the order is done, has errors, or is cancelled,  then stop checking for updates because there won't be any more.
                                 if (responseJsonContent.status == "DONE" || responseJsonContent.status == "ERROR" || responseJsonContent.status == "CANCELLED") {
                                     clearInterval(self.progress.interval);
+                                }
+                                if( responseJsonContent.status == "DONE" || responseJsonContent.status == "CANCELLED" ) {
+                                    self.progress.taskView.visible(false); // hide the details 
                                 }
                             }
 
@@ -1518,6 +1515,8 @@
                 $(document).on("mtwilson-quickstart-wizard:start", function(e) {
                     console.log("Caught start event");
                     self.start();
+                    // TEMPORARY:  show the task details when we start a task;  in production we would keep this hidden and user can show if s/he wants to.
+                    self.progress.taskView.visible(true);
                 });
                 $(document).on("mtwilson-quickstart-wizard:cancel", function(e) {
                     console.log("Caught cancel event");

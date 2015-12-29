@@ -7,6 +7,7 @@ package com.intel.mtwilson.deployment;
 import com.intel.mtwilson.util.task.Dependencies;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  *
@@ -16,7 +17,8 @@ public class Feature implements Dependencies<Feature> {
     private final String name;
     private final ArrayList<SoftwarePackage> softwarePackages = new ArrayList<>();
     private final ArrayList<Feature> dependencies = new ArrayList<>();
-
+    private final ArrayList<String> requiredSettings = new ArrayList<>();
+    
     public Feature(String name) {
         this.name = name;
     }
@@ -26,12 +28,17 @@ public class Feature implements Dependencies<Feature> {
         return dependencies;
     }
 
-    public ArrayList<SoftwarePackage> getSoftwarePackages() {
+    public Collection<SoftwarePackage> getSoftwarePackages() {
         return softwarePackages;
     }
 
     public String getName() {
         return name;
     }
+
+    public Collection<String> getRequiredSettings() {
+        return requiredSettings;
+    }
+    
     
 }

@@ -28,7 +28,7 @@ public class PreconfigureKeyBrokerProxy extends AbstractPreconfigureTask impleme
      */
     public PreconfigureKeyBrokerProxy() {
         super(); // initializes taskDirectory
-        envFile = new File(taskDirectory.getAbsolutePath() + File.separator + "kmsproxy.env");
+        envFile = getTaskDirectory().toPath().resolve("kmsproxy.env").toFile();
         manifest = new ArrayList<>();
         manifest.add(new FileTransferDescriptor(envFile, envFile.getName()));
     }

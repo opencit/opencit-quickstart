@@ -23,7 +23,7 @@ public class PreconfigureAttestationService extends AbstractPreconfigureTask imp
      */    
     public PreconfigureAttestationService() {
         super(); // initializes taskDirectory
-        envFile = new File(taskDirectory.getAbsolutePath() + File.separator + "mtwilson.env");
+        envFile = getTaskDirectory().toPath().resolve("mtwilson.env").toFile();
         manifest = new ArrayList<>();
         manifest.add(new FileTransferDescriptor(envFile, envFile.getName()));
     }

@@ -5,10 +5,12 @@
 package com.intel.mtwilson.deployment.task;
 
 import com.intel.dcsg.cpg.crypto.RandomUtil;
+import com.intel.dcsg.cpg.validation.Fault;
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.deployment.SSHClientWrapper;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
+import com.intel.mtwilson.util.exec.Result;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -52,38 +54,23 @@ public class CreateTrustDirectorUserInKeyBroker extends AbstractPostconfigureTas
             order.getSettings().put("director.kms.password", directorPassword);
         }
 
-        // command to execute on attestation service to create the trust director user;  TODO:  if we can just call an API, that would be better than ssh+command.;  see also bug #4866
-        // TODO:  escape the director username and password
-        // TODO:  refine set of permissions to only what director  actually needs to have
-        String cmdCreateTrustDirectorUser = "/opt/kms/bin/kms login-password " + directorUsername + " " + directorPassword + " --permissions *:*";
-
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
             client.connect();
             try (Session session = client.session()) {
-                Session.Command command = session.exec(cmdCreateTrustDirectorUser);
-                InputStream stdout = command.getInputStream();
-                InputStream stderr = command.getErrorStream();
-                String stdoutText = IOUtils.toString(stdout, "UTF-8");
-
-                // we don't need the output when successfull
-                // REST OF THIS SECTION IS JUST TO RECORD THE OUTPUT FOR DEBUGGING
-
-                String stderrText = IOUtils.toString(stderr, "UTF-8");
-                log.debug("result: {}", stdoutText);
-
                 // ensure output directory exists
                 File outputDirectory = new File(Folders.repository("tasks") + File.separator + getId());
                 outputDirectory.mkdirs();
                 log.debug("Output directory: {}", outputDirectory.getAbsolutePath());
-
-                // store the stdout into a file
-                File stdoutFile = new File(Folders.repository("tasks") + File.separator + getId() + File.separator + "stdout.log");
-                FileUtils.writeStringToFile(stdoutFile, stdoutText, Charset.forName("UTF-8"));
-
-                // store the stderr into a file
-                File stderrFile = new File(Folders.repository("tasks") + File.separator + getId() + File.separator + "stderr.log");
-                FileUtils.writeStringToFile(stderrFile, stderrText, Charset.forName("UTF-8"));
-
+                
+                // command to execute on attestation service to create the trust director user;  TODO:  if we can just call an API, that would be better than ssh+command.;  see also bug #4866
+                // TODO:  escape the director username and password
+                // TODO:  refine set of permissions to only what director  actually needs to have
+                String cmdCreateTrustDirectorUser = "/opt/kms/bin/kms password " + directorUsername + " " + directorPassword + " --permissions *:*";
+                Result result = sshexec(session, cmdCreateTrustDirectorUser);
+                if( result.getExitCode() != 0 ) {
+                    log.error("Failed to create kms user: {}", directorUsername);
+                    fault(new Fault("Cannot create user for Trust Director"));
+                }
             }
             client.disconnect();
         } catch (Exception e) {

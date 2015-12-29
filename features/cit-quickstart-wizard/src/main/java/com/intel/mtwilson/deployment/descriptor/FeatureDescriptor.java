@@ -5,6 +5,7 @@
 package com.intel.mtwilson.deployment.descriptor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  *
@@ -14,17 +15,23 @@ public class FeatureDescriptor {
     private String name;
     private ArrayList<String> softwarePackages;
     private ArrayList<String> dependencies;
+    private ArrayList<String> requiredSettings;
 
     public String getName() {
         return name;
     }
 
-    public ArrayList<String> getSoftwarePackages() {
+    public Collection<String> getSoftwarePackages() {
         return softwarePackages;
     }
 
-    public ArrayList<String> getDependencies() {
+    public Collection<String> getDependencies() {
         return dependencies;
     }
+
+    public Collection<String> getRequiredSettings() {
+        return requiredSettings;
+    }
+    
     
 }

@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.deployment.task;
 
-import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.deployment.OrderAware;
 import com.intel.mtwilson.deployment.SoftwarePackage;
 import com.intel.mtwilson.deployment.SoftwarePackageRepository;
@@ -25,7 +24,7 @@ import org.stringtemplate.v4.ST;
  * 
  * @author jbuhacoff
  */
-public abstract class AbstractPreconfigureTask extends AbstractTaskWithId implements OrderAware, TargetAware, SoftwarePackageRepositoryAware {
+public abstract class AbstractPreconfigureTask extends AbstractRemoteTask implements OrderAware, TargetAware, SoftwarePackageRepositoryAware {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AbstractPreconfigureTask.class);
 
     /**
@@ -51,15 +50,9 @@ public abstract class AbstractPreconfigureTask extends AbstractTaskWithId implem
      * which is used when rendering templates
      */
     protected HashMap<String, Object> data = new HashMap<>();
-    /**
-     * A directory where the task can store temporary files for the order.
-     * This is initialized in the constructor.
-     */
-    protected File taskDirectory;
     
     public AbstractPreconfigureTask() {
         super();
-        taskDirectory = new File(Folders.repository("tasks") + File.separator + getId());
     }
     
     

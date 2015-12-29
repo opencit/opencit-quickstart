@@ -18,15 +18,22 @@ public class FeatureRepositoryFactory {
     private static final Object instanceLock = new Object();
     private static JsonFeatureRepository instance;
     
-    public static FeatureRepository getInstance() throws IOException {
+    /**
+     * 
+     * @param edition must be the name (without .json extension) of a file in the "cit-features" directory; currently one of "PRIVATE", "PROVIDER", or "SUBSCRIBER"
+     * @return
+     * @throws IOException 
+     */
+    public static FeatureRepository getInstance(String edition) throws IOException {
         SoftwarePackageRepository softwarePackageRepository = SoftwarePackageRepositoryFactory.getInstance();
         synchronized(instanceLock) {
             if( instance == null ) {
-                File file = new File(Folders.repository("cit-features") + File.separator + "cit-features.json");
+                File file = new File(Folders.repository("cit-features") + File.separator + edition + ".json");
                 instance = new JsonFeatureRepository(new FileInputStream(file), softwarePackageRepository);
             }
         }
         return instance;
     }
 
+    
 }

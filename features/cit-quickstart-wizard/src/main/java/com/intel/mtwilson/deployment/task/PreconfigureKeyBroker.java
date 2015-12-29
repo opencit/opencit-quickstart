@@ -4,6 +4,7 @@
  */
 package com.intel.mtwilson.deployment.task;
 
+import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.mtwilson.deployment.FileTransferDescriptor;
 import com.intel.mtwilson.deployment.FileTransferManifestProvider;
 import java.io.File;
@@ -26,7 +27,7 @@ public class PreconfigureKeyBroker extends AbstractPreconfigureTask implements F
      */
     public PreconfigureKeyBroker() {
         super(); // initializes taskDirectory
-        envFile = new File(taskDirectory.getAbsolutePath() + File.separator + "kms.env");
+        envFile = getTaskDirectory().toPath().resolve("kms.env").toFile();
         manifest = new ArrayList<>();
         manifest.add(new FileTransferDescriptor(envFile, envFile.getName()));
     }
@@ -39,6 +40,20 @@ public class PreconfigureKeyBroker extends AbstractPreconfigureTask implements F
         data.put("JETTY_PORT", order.getSettings().get("kms.port.http"));
         data.put("JETTY_SECURE_PORT", order.getSettings().get("kms.port.https"));
 
+        // the admin username and password are generated here and stored in settings
+        // but not added to .env file because key broker .env does not support
+        // creating the admin user that way. so we create it later in the postconfigure task.
+        String username = order.getSettings().get("kms.admin.username");
+        if (username == null || username.isEmpty()) {
+            order.getSettings().put("kms.admin.username", "admin");
+        }
+        String password = order.getSettings().get("kms.admin.password");
+        if (password == null || password.isEmpty()) {
+            int lengthBytes = 16;
+            password = RandomUtil.randomBase64String(lengthBytes).replace("=", "");
+            order.getSettings().put("kms.admin.password", password);
+        }
+        
         // generate the .env file using pre-configuration data
         render("kms.env.st4", envFile);
     }

@@ -24,6 +24,7 @@
         "com_intel_mtwilson_deployment_task_PreconfigureOpenstackExtensions": "Configuring $t(quickstart:packages.openstack_extensions) on {{host}}",
         "com_intel_mtwilson_deployment_task_PreconfigureTrustAgent": "Configuring $t(quickstart:packages.trust_agent) on {{host}}",
         "com_intel_mtwilson_deployment_task_PreconfigureTrustDirector": "Configuring $t(quickstart:packages.trust_director) on {{host}}",
-        "com_intel_mtwilson_deployment_task_SynchronizeSoftwarePackageTargets": "Synchronizing $t(quickstart:packages.{{package_name}})"
+        "com_intel_mtwilson_deployment_task_SynchronizeSoftwarePackageTargets": "Synchronizing $t(quickstart:packages.{{package_name}})",
+        "com_intel_mtwilson_deployment_task_ImportAttestationServiceCertificatesToKeyBroker": "Importing $t(quickstart:packages.attestation_service) certificates to $t(quickstart:packages.key_broker)"
     }
 }

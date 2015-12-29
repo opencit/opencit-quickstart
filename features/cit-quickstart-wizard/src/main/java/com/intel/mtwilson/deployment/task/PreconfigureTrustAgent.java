@@ -28,7 +28,7 @@ public class PreconfigureTrustAgent extends AbstractPreconfigureTask implements 
      */
     public PreconfigureTrustAgent() {
         super(); // initializes taskDirectory
-        envFile = new File(taskDirectory.getAbsolutePath() + File.separator + "trustagent.env");
+        envFile = getTaskDirectory().toPath().resolve("trustagent.env").toFile();
         manifest = new ArrayList<>();
         manifest.add(new FileTransferDescriptor(envFile, envFile.getName()));
     }

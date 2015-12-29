@@ -27,7 +27,7 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
      */
     public PreconfigureTrustDirector() {
         super(); // initializes taskDirectory
-        envFile = new File(taskDirectory.getAbsolutePath() + File.separator + "director.env");
+        envFile = getTaskDirectory().toPath().resolve("director.env").toFile();
         manifest = new ArrayList<>();
         manifest.add(new FileTransferDescriptor(envFile, envFile.getName()));
     }
@@ -68,9 +68,9 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
         // optional:
         // IF openstack integration is enabled, these settings must be avaiable:
         // openstack.tenant.name, openstack.glance.host, openstack.glance.port, openstack.glance.username, openstack.glance.password
-        data.put("OPENSTACK_TENANT_NAME", order.getSettings().get("openstack.tenant.name"));
-        data.put("OPENSTACK_GLANCE_HOST", order.getSettings().get("openstack.glance.host"));
-        data.put("OPENSTACK_GLANCE_PORT", order.getSettings().get("openstack.glance.port")); // TODO:  is this http or https?  should make the property name specific , and also if https we will need tls cert sha1 fingerprint
+        data.put("OPENSTACK_TENANT_NAME", order.getSettings().get("director.glance.tenant"));
+        data.put("OPENSTACK_GLANCE_HOST", order.getSettings().get("director.glance.host"));
+        data.put("OPENSTACK_GLANCE_PORT", order.getSettings().get("director.glance.port")); // TODO:  is this http or https?  should make the property name specific , and also if https we will need tls cert sha1 fingerprint
         data.put("DIRECTOR_GLANCE_USERNAME", order.getSettings().get("director.glance.username"));
         data.put("DIRECTOR_GLANCE_PASSWORD", order.getSettings().get("director.glance.password"));
 

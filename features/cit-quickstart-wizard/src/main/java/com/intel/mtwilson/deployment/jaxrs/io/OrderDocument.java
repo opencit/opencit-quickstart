@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.intel.dcsg.cpg.validation.Fault;
 import com.intel.dcsg.cpg.validation.Faults;
+import com.intel.mtwilson.deployment.descriptor.NetworkRole;
 import com.intel.mtwilson.deployment.descriptor.Target;
 import com.intel.mtwilson.jaxrs2.Document;
 import com.intel.mtwilson.util.task.Task;
@@ -39,6 +40,8 @@ public class OrderDocument extends Document implements Faults {
     private final HashSet<FaultDescriptor> faultDescriptors = new HashSet<>();
     private Set<String> features;
     private Set<Target> targets;
+    private NetworkRole networkRole;
+    
     /**
      * The "settings" map is initialized with user input settings and is updated
      * by various tasks as they generate settings for different software
@@ -122,6 +125,16 @@ public class OrderDocument extends Document implements Faults {
         this.progressMax = progressMax;
     }
 
+    public NetworkRole getNetworkRole() {
+        return networkRole;
+    }
+
+    public void setNetworkRole(NetworkRole networkRole) {
+        this.networkRole = networkRole;
+    }
+    
+    
+
     /**
      * NOTE: the result collection is NOT modifiable!
      */
@@ -150,9 +163,11 @@ public class OrderDocument extends Document implements Faults {
         Set<String> otherFeatures = other.getFeatures();
         Set<Target> otherTargets = other.getTargets();
         Map<String, String> otherSettings = other.getSettings();
+        NetworkRole otherNetworkRole = other.getNetworkRole();
         boolean equalFeatures = false;
         boolean equalTargets = false;
         boolean equalSettings = false;
+        boolean equalNetworkRole = false;
         if (features == null && otherFeatures == null || features != null && otherFeatures != null && features.equals(otherFeatures)) {
             equalFeatures = true;
         }
@@ -162,10 +177,14 @@ public class OrderDocument extends Document implements Faults {
         if (settings == null && otherSettings == null || settings != null && otherSettings != null && settings.equals(otherSettings)) {
             equalSettings = true;
         }
+        if (networkRole == null && otherNetworkRole == null || networkRole != null && otherNetworkRole != null && networkRole.equals(otherNetworkRole)) {
+            equalNetworkRole = true;
+        }
         log.debug("equalFeatures? {}", equalFeatures);
         log.debug("equalTargets? {}", equalTargets);
         log.debug("equalSettings? {}", equalSettings);
-        return equalFeatures && equalTargets && equalSettings;
+        log.debug("equalNetworkRole? {}", equalNetworkRole);
+        return equalFeatures && equalTargets && equalSettings && equalNetworkRole;
     }
 
     @Override

@@ -37,10 +37,15 @@ public class JsonFeatureRepository implements FeatureRepository {
             featuresMap.put(item.getName(), item);
         }
     }
+    public JsonFeatureRepository(FeatureDescriptorCollection descriptorCollection, SoftwarePackageRepository softwarePackageRepository) throws IOException {
+        this.softwarePackageRepository = softwarePackageRepository;
+        List<Feature> list = read(descriptorCollection);
+        for(Feature item : list) {
+            featuresMap.put(item.getName(), item);
+        }
+    }
 
-    
-    private List<Feature> read(InputStream in) throws IOException {
-        FeatureDescriptorCollection descriptorCollection = mapper.readValue(in, FeatureDescriptorCollection.class);
+    private List<Feature> read(FeatureDescriptorCollection descriptorCollection) {
         assert descriptorCollection.getFeatures() != null;
         ArrayList<Feature> featureList = new ArrayList<>();
         
@@ -84,7 +89,13 @@ public class JsonFeatureRepository implements FeatureRepository {
             }
         }
         
-        return featureList;
+        return featureList;        
+    }
+    
+    private List<Feature> read(InputStream in) throws IOException {
+        FeatureDescriptorCollection descriptorCollection = mapper.readValue(in, FeatureDescriptorCollection.class);
+        return read(descriptorCollection);
+
     }
 
     @Override

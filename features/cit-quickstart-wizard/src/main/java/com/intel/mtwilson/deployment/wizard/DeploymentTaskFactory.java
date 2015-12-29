@@ -17,17 +17,21 @@ import com.intel.mtwilson.deployment.SoftwarePackageRepositoryAware;
 import com.intel.mtwilson.deployment.SoftwarePackageRepositoryFactory;
 import com.intel.mtwilson.deployment.SoftwarePackageUtils;
 import com.intel.mtwilson.deployment.TargetAware;
+import com.intel.mtwilson.deployment.conditions.EnvironmentAvailable;
 import com.intel.mtwilson.deployment.conditions.FeatureAvailable;
 import com.intel.mtwilson.deployment.conditions.FeatureDependenciesIncluded;
 import com.intel.mtwilson.deployment.conditions.FeatureRequiredSoftwarePackagesIncluded;
 import com.intel.mtwilson.deployment.conditions.SoftwarePackageAvailable;
 import com.intel.mtwilson.deployment.conditions.SoftwarePackageDependenciesIncluded;
+import com.intel.mtwilson.deployment.descriptor.NetworkRole;
 import com.intel.mtwilson.deployment.descriptor.Target;
+import com.intel.mtwilson.deployment.jaxrs.faults.Null;
 import com.intel.mtwilson.deployment.jaxrs.io.OrderDocument;
 import com.intel.mtwilson.deployment.task.CreateTrustAgentUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInKeyBroker;
 import com.intel.mtwilson.deployment.task.FileTransfer;
+import com.intel.mtwilson.deployment.task.ImportAttestationServiceCertificatesToKeyBroker;
 import com.intel.mtwilson.deployment.task.PostconfigureAttestationService;
 import com.intel.mtwilson.deployment.task.PostconfigureKeyBroker;
 import com.intel.mtwilson.deployment.task.PreconfigureAttestationService;
@@ -83,7 +87,15 @@ public class DeploymentTaskFactory extends AbstractTask {
 
     public DeploymentTaskFactory(OrderDocument request) throws IOException {
         softwarePackageRepository = SoftwarePackageRepositoryFactory.getInstance();
-        featureRepository = FeatureRepositoryFactory.getInstance();
+        
+        // precondition:  we have a configured feature set for the selected environment  (PRIVATE, PROVIDER, or SUBSCRIBER)
+        NetworkRole networkRole = order.getNetworkRole();
+        if( networkRole == null ) {
+            fault(new Null("network_role"));
+            throw new IllegalArgumentException();
+        }
+        precondition(new EnvironmentAvailable(networkRole.name()));
+        featureRepository = FeatureRepositoryFactory.getInstance(networkRole.name());
 
         order = request;
 
@@ -207,6 +219,12 @@ public class DeploymentTaskFactory extends AbstractTask {
             PostconfigureKeyBroker postconfigureKeyBroker = new PostconfigureKeyBroker(target);
             postconfigureKeyBroker.getDependencies().add(remoteInstall);
             tasks.add(postconfigureKeyBroker);
+            // IF the order includes attestation service, get the data bundle... otherwise... TODO: need user to upload it in UI
+            if( selectedSoftwarePackageMap.containsKey("attestation_service")) {
+                ImportAttestationServiceCertificatesToKeyBroker importDataBundle = new ImportAttestationServiceCertificatesToKeyBroker();
+                importDataBundle.getDependencies().add(postconfigureKeyBroker);
+                tasks.add(importDataBundle);
+            }
             // IF the order includes trust director too (any target host), then we need to create a user for director to connect to key broker (see bug #4866)
             if( selectedSoftwarePackageMap.containsKey("trust_director") ) {
                 CreateTrustDirectorUserInKeyBroker createDirectorUser = new CreateTrustDirectorUserInKeyBroker(target);
