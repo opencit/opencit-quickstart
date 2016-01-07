@@ -40,16 +40,16 @@ public class CreateTrustAgentUserInAttestationService extends AbstractPostconfig
     @Override
     public void execute() {
 
-        String trustagentUsername = order.getSettings().get("trustagent.mtwilson.username"); // TODO:  generate random uuid after it, like kmsproxy does... and this should really be moved to director setup as a registration request w/ mtwilson, so all we should have to do here is get that username from director and then go to mtwilson to approve it.
-        if (trustagentUsername == null || trustagentUsername.isEmpty()) {
+        String trustagentUsername = setting("trustagent.mtwilson.username"); // TODO:  generate random uuid after it, like kmsproxy does... and this should really be moved to director setup as a registration request w/ mtwilson, so all we should have to do here is get that username from director and then go to mtwilson to approve it.
+        if (trustagentUsername.isEmpty()) {
             trustagentUsername = "trustagent-" + UUID.randomUUID().toString();
-            order.getSettings().put("trustagent.mtwilson.username", trustagentUsername);
+            setting("trustagent.mtwilson.username", trustagentUsername);
         }
-        String trustagentPassword = order.getSettings().get("trustagent.mtwilson.password");
-        if (trustagentPassword == null || trustagentPassword.isEmpty()) {
+        String trustagentPassword = setting("trustagent.mtwilson.password");
+        if (trustagentPassword.isEmpty()) {
             int lengthBytes = 16;
             trustagentPassword = RandomUtil.randomBase64String(lengthBytes).replace("=", "");
-            order.getSettings().put("trustagent.mtwilson.password", trustagentPassword);
+            setting("trustagent.mtwilson.password", trustagentPassword);
         }
 
         // command to execute on attestation service to create the trust director user;  TODO:  if we can just call an API, that would be better than ssh+command.

@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author jbuhacoff
  */
 public class SynchronizeSoftwarePackageTargets extends AbstractTaskWithId {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SynchronizeSoftwarePackageTargets.class);
 
     private SoftwarePackage softwarePackage;
     private Collection<Target> targets;
@@ -28,7 +29,7 @@ public class SynchronizeSoftwarePackageTargets extends AbstractTaskWithId {
 
     @Override
     public void execute() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        log.debug("Synchronizing {}", softwarePackage.getPackageName());
     }
 
     public String getPackageName() {

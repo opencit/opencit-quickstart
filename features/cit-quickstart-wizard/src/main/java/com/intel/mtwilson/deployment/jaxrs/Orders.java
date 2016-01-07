@@ -11,15 +11,11 @@ import com.intel.mtwilson.deployment.jaxrs.io.OrderDocumentRepository;
 import com.intel.mtwilson.deployment.jaxrs.io.OrderFilterCriteria;
 import com.intel.mtwilson.deployment.jaxrs.io.OrderLocator;
 import com.intel.mtwilson.deployment.threads.OrderDispatchQueue;
-import com.intel.mtwilson.deployment.wizard.DeploymentTaskFactory;
 import com.intel.mtwilson.jaxrs2.NoLinks;
 import com.intel.mtwilson.jaxrs2.Patch;
 import com.intel.mtwilson.jaxrs2.mediatype.DataMediaType;
 import com.intel.mtwilson.jaxrs2.server.resource.AbstractJsonapiResource;
 import com.intel.mtwilson.launcher.ws.ext.V2;
-import com.intel.mtwilson.util.task.TaskManager;
-import com.intel.mtwilson.util.validation.faults.Thrown;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
@@ -29,9 +25,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -108,13 +102,15 @@ public class Orders extends AbstractJsonapiResource<OrderDocument, OrderDocument
         clean.setProgress(order.getProgress());
         clean.setProgressMax(order.getProgressMax());
         clean.setStatus(order.getStatus());
+        clean.setNetworkRole(order.getNetworkRole());
+        clean.setSettings(order.getSettings()); // settings may have input or generated passwords for services but user needs to know these
         Set<Target> targets = order.getTargets();
         if( targets != null ) {
             HashSet<Target> cleanTargets = new HashSet<>();
             for(Target target : targets) {
                 Target cleanTarget = new Target();
                 cleanTarget.setHost(target.getHost());
-                cleanTarget.setNetworkRole(target.getNetworkRole());
+//                cleanTarget.setNetworkRole(target.getNetworkRole());
                 cleanTarget.setPackages(target.getPackages());
                 cleanTarget.setPackagesInstalled(target.getPackagesInstalled());
                 cleanTarget.setPassword(null); // intentional
@@ -157,9 +153,13 @@ public class Orders extends AbstractJsonapiResource<OrderDocument, OrderDocument
     @Path("{id}/cancel")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public OrderDocument cancelOrder(@BeanParam OrderLocator locator) {
+    public OrderDocument cancelOrder(@BeanParam OrderLocator locator, @Context HttpServletRequest httpServletRequest, @Context  HttpServletResponse httpServletResponse) {
         OrderDispatchQueue.cancelOrder(locator.id.toString());
         OrderDocument order = repository.retrieve(locator);
+        if( order == null ) {
+            httpServletResponse.setStatus(Response.Status.NOT_FOUND.getStatusCode());
+            return null;
+        }
         order.setStatus("CANCELLING");
         return sanitize(order);
     }
@@ -170,6 +170,7 @@ public class Orders extends AbstractJsonapiResource<OrderDocument, OrderDocument
     @Override
     public OrderDocument retrieveOne(@BeanParam OrderLocator locator, @Context HttpServletRequest httpServletRequest, @Context  HttpServletResponse httpServletResponse) {
         OrderDocument order = super.retrieveOne(locator, httpServletRequest, httpServletResponse);
+        if( order == null ) { return null; }
         return sanitize(order);
     }
 

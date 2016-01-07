@@ -67,6 +67,19 @@
                 content: '\e067';
             }
 
+            form label {
+                font-size: 1.2em;
+            }
+            form p.hint {
+                font-size: 0.8em;
+                color: #777;
+            }
+            
+            span.copy-box {
+                border: 1px solid gray;
+                padding-left: 2px;
+                padding-right: 2px;
+            }
 
         </style>
 
@@ -94,10 +107,10 @@
                             <div class="navbar-inner">
                                 <ul class="nav nav-pills">
                                     <li><a href="#setup_start" data-toggle="tab" data-step="0">Start</a></li>
-                                    <li><a href="#setup_features" data-toggle="tab" data-step="1">Features</a></li>
-                                    <li><a href="#setup_environment" data-toggle="tab" data-step="2">Environment</a></li>
-                                    <li><a href="#setup_layout" data-toggle="tab" data-step="3">Layout</a></li>
-                                    <li><a href="#setup_settings" data-toggle="tab" data-step="4">Settings</a></li>
+                                    <li><a href="#setup_environment" data-toggle="tab" data-step="1">Environment</a></li>
+                                    <li><a href="#setup_features" data-toggle="tab" data-step="2">Features</a></li>
+                                    <li><a href="#setup_settings" data-toggle="tab" data-step="3">Settings</a></li>
+                                    <li><a href="#setup_layout" data-toggle="tab" data-step="4">Layout</a></li>
                                     <li><a href="#setup_credentials" data-toggle="tab" data-step="5">Credentials</a></li>
                                     <li><a href="#setup_summary" data-toggle="tab" data-step="6">Preview</a></li>
                                 </ul>
@@ -108,75 +121,24 @@
                             <div class="tab-pane fade in active" id="setup_start">
                                 <div class="well"> 
                                     <p>This wizard will guide you through the steps necessary to deploy Intel&reg; Cloud Integrity Technology 3.0</p>
+                                    <p>NOTE: Load-balanced and high-availability configurations are not currently supported.</p>
                                 </div>
-                                <a class="btn btn-default btn-lg next" href="#">Continue</a>
-                            </div>
-                            <div class="tab-pane fade" id="setup_features">
-
-                                <div class="well"> 
-                                    <form data-bind="with: features">
-                                        <label>Attestation</label>
-                                        <div class="checkbox">
-                                            <label><input type="checkbox" name="attestation-host" data-bind="checked: attestation_host.checked, disable: attestation_host.disable, click: $parent.update_features"/>Host BIOS, kernel, hypervisor</label>
-                                            <p>Verifies Linux KVM, Xen, or VMware&reg; ESXi hypervisor. Verifies asset tags.</p>
-                                        </div>
-                                        <div class="checkbox">
-                                            <label><input type="checkbox" name="attestation-host-xm" data-bind="checked: attestation_host_xm.checked, disable: attestation_host_xm.disable, click: $parent.update_features"/>Host operating system, applications, drivers, configuration</label>
-                                            <p>Can attest Docker engine but not individual containers.</p>
-                                        </div>
-                                        <div class="checkbox">
-                                            <label><input type="checkbox" name="attestation-vm" data-bind="checked: attestation_vm.checked, disable: attestation_vm.disable, click: $parent.update_features"/>Virtual machines</label>
-                                            <p>Measure and enforce trust policy for VMs before launching on a trusted host.</p>
-                                        </div>
-                                        <!--
-                                        <div class="checkbox">
-                                          <label><input type="checkbox" name="attestation-container" data-bind="checked: attestation_container.checked, disable: attestation_container.disable, click: $parent.update_features"/>Docker containers</label>
-                                          <p>Measure and enforce trust policy for containers before launching on a trusted Docker engine.</p>
-                                        </div>
-                                        -->
-                                        <label>Enforcement</label>
-                                        <div class="checkbox">
-                                            <label><input type="checkbox" name="enforcement-vm-encryption" data-bind="checked: enforcement_vm_encryption.checked, disable: enforcement_vm_encryption.disable, click: $parent.update_features"/>Workload confidentiality and location</label>
-                                            <p>Encrypted workloads run only on trusted hosts</p>
-                                        </div>
-
-                                        <label>Integrations</label>
-                                        <div class="checkbox">
-                                            <label><input type="checkbox" name="integration-openstack" data-bind="checked: integration_openstack.checked, disable: integration_openstack.disable, click: $parent.update_features">OpenStack</label>
-                                            <p>Nova trust scheduler and patches to Horizon to expose trust in dashboard</p>
-                                        </div>
-
-                                        <!--
-                                        <label>Security Question 1</label>
-                                        <select class="form-control input-lg">
-                                            <option value="What was the name of your first pet?">What was the name of your first pet?</option>
-                                            <option value="Where did you first attend school?">Where did you first attend school?</option>
-                                            <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
-                                            <option value="What is your favorite car model?">What is your favorite car model?</option>
-                                        </select>
-                                        <br>
-                                        <label>Enter Response</label>
-                                        <input class="form-control input-lg">
-                                        -->
-                                    </form>
-                                </div>
-
                                 <a class="btn btn-default btn-lg next" href="#">Continue</a>
                             </div>
                             <div class="tab-pane fade" id="setup_environment">
                                 <div class="well"> 
                                     <form data-bind="with: environment">
                                         <div class="radio">
-                                            <label><input type="radio" name="environment" value="PRIVATE" data-bind="checked: network_role, click: $parent.update_environment"/>Private Network (Enterprise or Datacenter)</label>
-                                            <p>All components will be installed for an stand-alone deployment</p>
+                                            <label><input type="radio" name="network_role" value="PRIVATE" data-bind="checked: network_role, click: $parent.update_network_role"/>Private Network (Enterprise or Datacenter)</label>
+                                            <p class="hint">All components will be installed for an stand-alone deployment</p>
                                         </div>
                                         <div class="radio">
-                                            <label><input type="radio" name="environment" value="PROVIDER" data-bind="checked: network_role, click: $parent.update_environment"/>Cloud Service Provider</label>
-                                            <p>Installs Intel&reg; Cloud Integrity Technology attestation server, Trust Director (for host attestation), OpenStack integration (if applicable), Key Broker Proxy (if applicable)</p>
+                                            <label><input type="radio" name="network_role" value="PROVIDER" data-bind="checked: network_role, click: $parent.update_network_role"/>Cloud Service Provider</label>
+                                            <p class="hint">Installs Intel&reg; Cloud Integrity Technology attestation server, Trust Director (for host attestation), OpenStack integration (if applicable), Key Broker Proxy (if applicable)</p>
                                         </div>
                                         <div class="radio">
-                                            <label><input type="radio" name="environment" value="SUBSCRIBER" data-bind="checked: network_role, click: $parent.update_environment"/>Enterprise</label>
-                                            <p>Installs Trust Director (for workload attestation), Key Broker (if applicable)</p>
+                                            <label><input type="radio" name="network_role" value="SUBSCRIBER" data-bind="checked: network_role, click: $parent.update_network_role"/>Enterprise</label>
+                                            <p class="hint">Installs Trust Director (for workload attestation), Key Broker (if applicable)</p>
                                         </div>
 
 
@@ -197,33 +159,142 @@
                                 </div>
                                 <a class="btn btn-default btn-lg next" href="#">Continue</a>
                             </div>
-                            <div class="tab-pane fade" id="setup_layout">
-                                <div class="well">
-                                    <form data-bind="with: environment">
-                                        <h2>Network Layout</h2>
+                            <div class="tab-pane fade" id="setup_features">
+
+                                <div class="well" data-bind="visible: environment.network_role() == 'PRIVATE'"> 
+                                    <form data-bind="with: features">
+                                        <label>Attestation</label>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-host" data-bind="checked: attestation_host.checked, disable: attestation_host.disable, click: $parent.update_features"/>Host BIOS, kernel, hypervisor</label>
+                                            <p class="hint">Verifies Linux KVM, Xen, or VMware&reg; ESXi hypervisor. Verifies asset tags</p>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-host-xm" data-bind="checked: attestation_host_xm.checked, disable: attestation_host_xm.disable, click: $parent.update_features"/>Host operating system, applications, drivers, configuration</label>
+                                            <p class="hint">Additional verification for static files such as executables, libraries, and configuration</p>
+                                        </div>
+                                        <label>Workload Protection</label>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-vm" data-bind="checked: attestation_vm.checked, disable: attestation_vm.disable, click: $parent.update_features"/>VM integrity</label>
+                                            <p class="hint">Measure and enforce trust policy for VMs before launching on a trusted host</p>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="enforcement-vm-encryption" data-bind="checked: encryption_vm.checked, disable: encryption_vm.disable, click: $parent.update_features"/>VM encryption</label>
+                                            <p class="hint">Encrypted workloads run only on trusted hosts</p>
+                                        </div>
+
+                                        <label>Integrations</label>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="integration-openstack" data-bind="checked: integration_openstack_nova.checked, disable: integration_openstack_nova.disable, click: $parent.update_features">OpenStack Nova &amp; Horizon</label>
+                                            <p class="hint">Nova trust scheduler and patches to Horizon to expose trust in dashboard</p>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="integration-openstack-glance" data-bind="checked: integration_openstack_glance.checked, disable: integration_openstack_glance.disable, click: $parent.update_features">OpenStack Glance</label>
+                                            <p class="hint">Nova trust scheduler and patches to Horizon to expose trust in dashboard</p>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="integration-openstack-barbican" data-bind="checked: integration_openstack_barbican.checked, disable: integration_openstack_barbican.disable, click: $parent.update_features">OpenStack Barbican Key Server</label>
+                                            <p class="hint">Use OpenStack Barbican as the key server for VM encryption</p>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="integration-kmip" data-bind="checked: integration_kmip.checked, disable: integration_kmip.disable, click: $parent.update_features">KMIP-compatible Key Server</label>
+                                            <p class="hint">Use a KMIP-compatible key server for VM encryption</p>
+                                        </div>
+
                                         <!--
-                                        <div class="radio">
-                                          <label><input type="radio" name="layout" value="LOCALHOST" data-bind="checked: layout, click: $parent.update_environment"/>All-in-one, localhost</label>
-                                          <p>All components will be installed on a single host or VM. This is the simplest option, but not recommended for production.</p>
-                                        </div>
-                                        -->
-                                        <div class="radio">
-                                            <label><input type="radio" name="layout" value="SINGLE_HOST" data-bind="checked: layout, click: $parent.update_environment"/>All-in-one, remote host</label>
-                                            <p>All components will be installed on a single host or VM. This is the simplest option, but not recommended for production.</p>
-                                        </div>
-                                        <div class="radio">
-                                            <label><input type="radio" name="layout" value="ONE_PACKAGE_PER_HOST" data-bind="checked: layout, click: $parent.update_environment"/>One package per remote host</label>
-                                            <p>Each component will be installed on a separate host or VM.</p>
-                                        </div>
-                                        <!-- the custom component layout is disabled until the credentials screen is ready to enable a customized layout -->
-                                        <!--
-                                        <div class="radio">
-                                          <label><input type="radio" name="layout" value="CUSTOM" data-bind="checked: layout, click: $parent.update_environment"/>Custom component layout</label>
-                                          <p>Installs each component on a separate host or VM.</p>
-                                        </div>
+                                        <label>Security Question 1</label>
+                                        <select class="form-control input-lg">
+                                            <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                                            <option value="Where did you first attend school?">Where did you first attend school?</option>
+                                            <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                                            <option value="What is your favorite car model?">What is your favorite car model?</option>
+                                        </select>
+                                        <br>
+                                        <label>Enter Response</label>
+                                        <input class="form-control input-lg">
                                         -->
                                     </form>
                                 </div>
+                                <div class="well" data-bind="visible: environment.network_role() == 'PROVIDER'"> 
+                                    <form data-bind="with: features">
+                                        <label>Attestation</label>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-host" data-bind="checked: attestation_host.checked, disable: attestation_host.disable, click: $parent.update_features"/>Host BIOS, kernel, hypervisor</label>
+                                            <p class="hint">Verifies Linux KVM, Xen, or VMware&reg; ESXi hypervisor. Verifies asset tags</p>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-host-xm" data-bind="checked: attestation_host_xm.checked, disable: attestation_host_xm.disable, click: $parent.update_features"/>Host operating system, applications, drivers, configuration</label>
+                                            <p class="hint">Additional verification for static files such as executables, libraries, and configuration</p>
+                                        </div>
+                                        <label>Workload Protection</label>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-vm" data-bind="checked: attestation_vm.checked, disable: attestation_vm.disable, click: $parent.update_features"/>VM integrity</label>
+                                            <p class="hint">Measure and enforce trust policy for VMs before launching on a trusted host</p>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="enforcement-vm-encryption" data-bind="checked: encryption_vm.checked, disable: encryption_vm.disable, click: $parent.update_features"/>VM encryption</label>
+                                            <p class="hint">Encrypted workloads run only on trusted hosts</p>
+                                        </div>
+
+                                        <label>Integrations</label>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="integration-openstack" data-bind="checked: integration_openstack_nova.checked, disable: integration_openstack_nova.disable, click: $parent.update_features">OpenStack Nova &amp; Horizon</label>
+                                            <p class="hint">Nova trust scheduler and patches to Horizon to expose trust in dashboard</p>
+                                        </div>
+
+                                        <!--
+                                        <label>Security Question 1</label>
+                                        <select class="form-control input-lg">
+                                            <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                                            <option value="Where did you first attend school?">Where did you first attend school?</option>
+                                            <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                                            <option value="What is your favorite car model?">What is your favorite car model?</option>
+                                        </select>
+                                        <br>
+                                        <label>Enter Response</label>
+                                        <input class="form-control input-lg">
+                                        -->
+                                    </form>
+                                </div>
+                                <div class="well" data-bind="visible: environment.network_role() == 'SUBSCRIBER'"> 
+                                    <form data-bind="with: features">
+                                        <label>Workload Protection</label>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-vm" data-bind="checked: attestation_vm.checked, disable: attestation_vm.disable, click: $parent.update_features"/>VM integrity</label>
+                                            <p class="hint">Measure and enforce trust policy for VMs before launching on a trusted host.</p>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="enforcement-vm-encryption" data-bind="checked: encryption_vm.checked, disable: encryption_vm.disable, click: $parent.update_features"/>VM encryption</label>
+                                            <p class="hint">Encrypted workloads run only on trusted hosts</p>
+                                        </div>
+                                        <label>Integrations</label>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="integration-openstack-glance" data-bind="checked: integration_openstack_glance.checked, disable: integration_openstack_glance.disable, click: $parent.update_features">OpenStack Glance</label>
+                                            <p class="hint">Upload VM images to OpenStack Glance</p>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="integration-openstack-barbican" data-bind="checked: integration_openstack_barbican.checked, disable: integration_openstack_barbican.disable, click: $parent.update_features">OpenStack Barbican Key Server</label>
+                                            <p class="hint">Use OpenStack Barbican as the key server for VM encryption</p>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="integration-kmip" data-bind="checked: integration_kmip.checked, disable: integration_kmip.disable, click: $parent.update_features">KMIP-compatible Key Server</label>
+                                            <p class="hint">Use a KMIP-compatible key server for VM encryption</p>
+                                        </div>
+
+                                        <!--
+                                        <label>Security Question 1</label>
+                                        <select class="form-control input-lg">
+                                            <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                                            <option value="Where did you first attend school?">Where did you first attend school?</option>
+                                            <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                                            <option value="What is your favorite car model?">What is your favorite car model?</option>
+                                        </select>
+                                        <br>
+                                        <label>Enter Response</label>
+                                        <input class="form-control input-lg">
+                                        -->
+                                    </form>
+                                </div>
+
                                 <a class="btn btn-default btn-lg next" href="#">Continue</a>
                             </div>
                             <div class="tab-pane fade" id="setup_settings">
@@ -244,19 +315,20 @@
                                                             <option value="1800">30 min</option>
                                                             <option value="3600">60 min</option>
                                                         </select>
+                                                        <p>Controls how often host attestations must be refreshed</p>
                                                     </div>
                                                 </div>      
                                             </form>
                                         </div>
                                     </div>
-                                    <div class="panel panel-primary-subdued" data-bind="visible: features.enforcement_vm_encryption.checked">
+                                    <!--
+                                    <div class="panel panel-primary-subdued" data-bind="visible: features.encryption_vm.checked">
                                         <div class="panel-heading"><h3 class="panel-title">Key Server</h3></div>
                                         <div class="panel-body">
                                             <form data-bind="with: settings">
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                     <label class="col-lg-3">Server Type</label>
                                                     <div class="col-lg-4">
-                                                        <!-- select class="selectpicker"   corresponding to bootstrap-select.js not being used right now -->
                                                         <select data-bind="value: kms_key_provider">
                                                             <option value="kmip">KMIP</option>
                                                             <option value="barbican">OpenStack Barbican</option>
@@ -291,24 +363,96 @@
                                             </form>
                                         </div>
                                     </div>
-                                    <div class="panel panel-primary-subdued" data-bind="visible: features.integration_openstack.checked">
-                                        <div class="panel-heading"><h3 class="panel-title">OpenStack Integration</h3></div>
+                                    -->
+                                    <div class="panel panel-primary-subdued" data-bind="visible: features.integration_kmip.checked">
+                                        <div class="panel-heading"><h3 class="panel-title">Key Server: KMIP Integration</h3></div>
+                                        <div class="panel-body">
+                                            <form data-bind="with: settings">
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">KMIP Server URL</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_kmip_url"/>
+                                                        <p>Example for a KMIP4J server: https://kmip4j.example.com:8443/KMIPWebAppServer/KMIPServlet</p>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-primary-subdued" data-bind="visible: features.integration_openstack_barbican.checked">
+                                        <div class="panel-heading"><h3 class="panel-title">Key Server: OpenStack Barbican Integration</h3></div>
+                                        <div class="panel-body">
+                                            <form data-bind="with: settings">
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Barbican Project ID</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_barbican_project"/>
+                                                        <p>Example: 12345</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Barbican Server URL</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_barbican_url"/>
+                                                        <p>Example: http://openstack.example.com:9311</p>
+                                                    </div>
+
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-primary-subdued" data-bind="visible: features.attestation_vm.checked() && environment.network_role() === 'SUBSCRIBER'">
+                                        <div class="panel-heading"><h3 class="panel-title">Attesation Service</h3></div>
+                                        <div class="panel-body">
+                                            <form data-bind="with: settings">
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Hostname or IP address</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: mtwilson_host"/>
+                                                        <p>Example: cit.example.com</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Port Number</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: mtwilson_port_https"/>
+                                                        <p>Example: 8443</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">TLS Certificate SHA-1 Fingerprint</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: mtwilson_tls_cert_sha1"/>
+                                                        <p>Example: 3c5fd6beb6f82169ed267a5d0a9039511c93b6f6</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Username</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_mtwilson_username"/>
+                                                        <p>Example: director</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Password</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_mtwilson_password" type="password"/>
+                                                        <p>Example: ********</p>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-primary-subdued" data-bind="visible: features.integration_openstack_glance.checked">
+                                        <div class="panel-heading"><h3 class="panel-title">OpenStack Glance Integration</h3></div>
                                         <div class="panel-body">
                                             <form  data-bind="with: settings">
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
-                                                    <label class="col-lg-3">Glance Hostname or IP address</label>
+                                                    <label class="col-lg-3">Hostname or IP address</label>
                                                     <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_host"/></div>
+                                                    <!-- <span data-bind="visible: director_glance_host.error, text: director_glance_host.faults()"></span> -->
                                                 </div>
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
-                                                    <label class="col-lg-3">Glance Port Number</label>
+                                                    <label class="col-lg-3">Port Number</label>
                                                     <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_port"/></div>
                                                 </div>
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
-                                                    <label class="col-lg-3">Glance Username</label>
+                                                    <label class="col-lg-3">Username</label>
                                                     <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_username"/></div>
                                                 </div>
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
-                                                    <label class="col-lg-3">Glance Password</label>
+                                                    <label class="col-lg-3">Password</label>
                                                     <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_password" type="password"/></div>
                                                 </div>
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
@@ -319,10 +463,41 @@
                                         </div>
                                     </div>
                                 </div>
+                                <a class="btn btn-default btn-lg next" href="#" data-bind="click: validate_settings">Continue</a>
+                            </div>
+                            <div class="tab-pane fade" id="setup_layout">
+                                <div class="well">
+                                    <p>Choose how to deploy the software:</p>
+                                    <form data-bind="with: environment">
+                                        <!-- <h2>Network Layout</h2> -->
+                                        <!--
+                                        <div class="radio">
+                                          <label><input type="radio" name="layout" value="LOCALHOST" data-bind="checked: layout, click: $parent.update_layout"/>All-in-one, localhost</label>
+                                          <p class="hint">All components will be installed on a single host or VM. This is the simplest option, but not recommended for production.</p>
+                                        </div>
+                                        -->
+                                        <div class="radio">
+                                            <label><input type="radio" name="layout" value="SINGLE_HOST" data-bind="checked: layout, click: $parent.update_layout"/>All-in-one, remote host</label>
+                                            <p class="hint">All components will be installed on a single host or VM. This is the simplest option, but not recommended for production.</p>
+                                        </div>
+                                        <div class="radio">
+                                            <label><input type="radio" name="layout" value="ONE_PACKAGE_PER_HOST" data-bind="checked: layout, click: $parent.update_layout"/>One package per remote host</label>
+                                            <p class="hint">Each component will be installed on a separate host or VM.</p>
+                                        </div>
+                                        <!-- the custom component layout is disabled until the credentials screen is ready to enable a customized layout -->
+                                        <!--
+                                        <div class="radio">
+                                          <label><input type="radio" name="layout" value="CUSTOM" data-bind="checked: layout, click: $parent.update_layout"/>Custom component layout</label>
+                                          <p class="hint">Installs each component on a separate host or VM.</p>
+                                        </div>
+                                        -->
+                                    </form>
+                                </div>
                                 <a class="btn btn-default btn-lg next" href="#">Continue</a>
                             </div>
                             <div class="tab-pane fade" id="setup_credentials">
                                 <div class="well"> 
+                                    <p>Enter the address or hostname of each host where software will be installed:</p>
                                     <form data-bind="foreach: targets">
                                         <div class="panel panel-primary-subdued">
                                             <div class="panel-heading"><h3 class="panel-title">Host</h3></div>
@@ -416,22 +591,29 @@
                                                 <div class="checkbox">
                                                     <label><input type="checkbox" data-bind="checked: features.attestation_host_xm.checked" disabled/>Host apps, drivers, configuration</label>
                                                 </div>
+                                                <label>Workload Protection</label>
                                                 <div class="checkbox">
-                                                    <label><input type="checkbox" data-bind="checked: features.attestation_vm.checked" disabled/>Virtual machines</label>
+                                                    <label><input type="checkbox" data-bind="checked: features.attestation_vm.checked" disabled/>VM integrity</label>
                                                 </div>
-                                                <!--
                                                 <div class="checkbox">
-                                                  <label><input type="checkbox" data-bind="checked: features.attestation_container.checked" disabled/>Docker containers</label>
+                                                    <label><input type="checkbox" data-bind="checked: features.encryption_vm.checked" disabled/>VM encryption</label>
                                                 </div>
-                                                -->
-                                                <label>Enforcement</label>
-                                                <div class="checkbox">
-                                                    <label><input type="checkbox" data-bind="checked: features.enforcement_vm_encryption.checked" disabled/>Workload confidentiality and location</label>
-                                                </div>
-
                                                 <label>Integrations</label>
                                                 <div class="checkbox">
-                                                    <label><input type="checkbox" data-bind="checked: features.integration_openstack.checked" disabled/>OpenStack</label>
+                                                    <label><input type="checkbox" data-bind="checked: features.integration_openstack_nova.checked" disabled/>OpenStack Nova &amp; Horizon</label>
+                                                    <!-- <p>Nova trust scheduler and patches to Horizon to expose trust in dashboard</p> -->
+                                                </div>
+                                                <div class="checkbox">
+                                                    <label><input type="checkbox" data-bind="checked: features.integration_openstack_glance.checked" disabled>OpenStack Glance</label>
+                                                    <!-- <p>Nova trust scheduler and patches to Horizon to expose trust in dashboard</p> -->
+                                                </div>
+                                                <div class="checkbox">
+                                                    <label><input type="checkbox" data-bind="checked: features.integration_openstack_barbican.checked" disabled>OpenStack Barbican Key Server</label>
+                                                    <!-- <p>Use OpenStack Barbican as the key server for VM encryption</p> -->
+                                                </div>
+                                                <div class="checkbox">
+                                                    <label><input type="checkbox" data-bind="checked: features.integration_kmip.checked" disabled>KMIP-compatible Key Server</label>
+                                                    <!-- <p>Use a KMIP-compatible key server for VM encryption</p> -->
                                                 </div>
 
                                             </div>
@@ -441,15 +623,15 @@
                                                 <h3>Environment</h3>
                                                 <div class="radio">
                                                     <label><input type="radio" name="preview_network_role" value="PRIVATE" data-bind="checked: environment.network_role" disabled/>Private Network (Enterprise or Datacenter)</label>
-                                                    <p>All components will be installed for an stand-alone deployment</p>
+                                                    <p class="hint">All components will be installed for an stand-alone deployment</p>
                                                 </div>
                                                 <div class="radio">
                                                     <label><input type="radio" name="preview_network_role" value="PROVIDER" data-bind="checked: environment.network_role" disabled/>Cloud Service Provider</label>
-                                                    <p>Installs Intel&reg; Cloud Integrity Technology attestation server, Trust Director (for host attestation), OpenStack integration (if applicable), Key Broker Proxy (if applicable)</p>
+                                                    <p class="hint">Installs Intel&reg; Cloud Integrity Technology attestation server, Trust Director (for host attestation), OpenStack integration (if applicable), Key Broker Proxy (if applicable)</p>
                                                 </div>
                                                 <div class="radio">
                                                     <label><input type="radio" name="preview_network_role" value="SUBSCRIBER" data-bind="checked:environment. network_role" disabled/>Enterprise</label>
-                                                    <p>Installs Trust Director (for workload attestation), Key Broker (if applicable)</p>
+                                                    <p class="hint">Installs Trust Director (for workload attestation), Key Broker (if applicable)</p>
                                                 </div>
 
                                             </div>
@@ -464,11 +646,11 @@
                                                 -->
                                                 <div class="radio">
                                                     <label><input type="radio" name="preview_layout" value="SINGLE_HOST" data-bind="checked: environment.layout" disabled/>All-in-one, remote host</label>
-                                                    <p>All components will be installed on a single host or VM. This is the simplest option, but not recommended for production.</p>
+                                                    <p class="hint">All components will be installed on a single host or VM. This is the simplest option, but not recommended for production.</p>
                                                 </div>
                                                 <div class="radio">
                                                     <label><input type="radio" name="preview_layout" value="ONE_PACKAGE_PER_HOST" data-bind="checked: environment.layout"/>One package per remote host</label>
-                                                    <p>Each component will be installed on a separate host or VM.</p>
+                                                    <p class="hint">Each component will be installed on a separate host or VM.</p>
                                                 </div>
 
                                                 <!-- the custom component layout is disabled until the credentials screen is ready to enable a customized layout -->
@@ -505,7 +687,7 @@
 
                     <div class="panel-body" id="deploy_panel" style="display: none;">
 
-                        <div class="progress quickstart-order-progress">
+                        <div class="progress quickstart-order-progress" data-bind="visible: progress.order.status() == 'ACTIVE' || progress.order.status() == 'DONE' || progress.order.status() == 'CANCELLING' || progress.order.status() == 'CANCELLED'">
                             <!-- content of this div is shown when page loads; then it's dynamically set as user clicks "next";  the width here is the initial progress displayed and changes with the current step -->
                             <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
 
@@ -550,7 +732,18 @@
                                         <td>
 
                                             <ul class="list-unstyled icon-list" data-bind="foreach: packages.sort()">
-                                                <li data-bind="text: i18n.t('quickstart:packages.'+$data), css: { checkmark: $parent.packages_installed().indexOf($data) >= 0 }"></li>
+                                                <li>
+                                                    <span class="glyphicon glyphicon-check" data-bind="visible: $parent.packages_installed().indexOf($data) >= 0"></span>
+                                                    <span class="glyphicon glyphicon-unchecked" data-bind="visible: $parent.packages_installed().indexOf($data) == -1"></span>
+                                                    <span data-bind="text: i18n.t('quickstart:packages.'+$data)"></span>
+                                                    
+                                                    <div data-bind="if: $parent.endpoints[$data]">
+                                                        <a data-bind="text: $parent.endpoints[$data].url, attr: { href: $parent.endpoints[$data].url }"></a>
+                                                        Username: <span class="copy-box" data-bind="text: $parent.endpoints[$data].username"></span>
+                                                        Password: <span class="copy-box" data-bind="text: $parent.endpoints[$data].password"></span>
+                                                    </div>
+                                                    
+                                                </li>
                                             </ul>
                                             <!--
                                             <div class="alert alert-info" data-bind="visible: type() == 'package'">
@@ -573,13 +766,21 @@
                                 
                                 <table class="table table-bordered" data-bind="visible: progress.taskView.visible">
                                 <thead>
-                                    <tr><th>Task</th><th>Progress</th></tr>
+                                    <tr><th class="col-md-8">Task</th><th class="col-md-4">Progress</th></tr>
                                 </thead>
                                 <tbody data-bind="foreach: progress.order.tasks">
                                     
                                     <!-- id attr looks like this: id="task-99bdc661-ff30-43d1-bbcc-c2750d7af228" -->
                                     <tr class="quickstart-order-task" data-bind="attr: { id: 'task-'+id() }">
-                                        <td data-bind="text: display_name"></td>
+                                        <td>
+                                            <span data-bind="text: display_name"></span>
+                                            <ul data-bind="visible: faults().length > 0, foreach: faults">
+                                                <li class="alert alert-danger">
+                                                    <i class="glyphicon glyphicon-exclamation-sign icon-error"></i>
+                                                    <span data-bind="text: description"></span>
+                                                </li>
+                                            </ul>
+                                        </td>
                                         <td>
                                             <!--
                                             percent: <span data-bind="text: percent"></span> <br/>
@@ -607,7 +808,7 @@
                             <a class="btn btn-danger btn-lg cancel" href="#">Cancel</a>                            
                         </div>
                         <div data-bind="visible: progress.order.status() == 'DONE'">
-                            <a class="btn btn-danger btn-lg restart" href="#">Start Again</a>                            
+                            <a class="btn btn-success btn-lg restart" href="#">Start Again</a>                            
                         </div>
 
 
@@ -659,6 +860,9 @@
              self.wizardViewModel = new SettingListViewModel();
              }
              */
+
+
+
 
             /**
              * Represents a single feature checkbox in the features tab.
@@ -726,6 +930,15 @@
                 self.force_if = function(condition) {
                     if (condition) {
                         self.force(true);
+                    }
+                    else {
+                        self.release();
+                    }
+                };
+
+                self.suppress_if = function(condition) {
+                    if (condition) {
+                        self.force(false);
                     }
                     else {
                         self.release();
@@ -907,7 +1120,9 @@
                             else {
                                 self.reset("hostValid"); // HMM... for host but doesn't cover password yet...  
                             }
-                            self.publicKeyDigest(responseJsonContent.data.public_key_digest);
+                            if( typeof responseJsonContent.data["public_key_digest"] === "string" ) {
+                                self.publicKeyDigest(responseJsonContent.data.public_key_digest);
+                            }
                             self.publicKeyDigestConfirmed(false);
                         },
                         error: function(xhr, status, errorMessage) {
@@ -999,7 +1214,6 @@
                 });
                 self.packages = ko.observableArray(init.packages);
                 self.packages_csv = ko.computed(function() {
-                    console.log("CALLING I18N");
                     var packages = self.packages();
                     var packagesTranslated = [];
                     for (var i = 0; i < packages.length; i++) {
@@ -1027,20 +1241,29 @@
                 var self = this;
 
                 self.features = {
-                    "attestation_host": new WizardFeature({checked: true, disable: true}), /* always disabled because this feature is required */
-                    "attestation_host_xm": new WizardFeature({checked: true, disable: false}),
-                    "attestation_vm": new WizardFeature({checked: true, disable: false}),
-                    "attestation_container": new WizardFeature({checked: false, disable: false}), /* currently disabled in the UI because server doesn't support containers yet */
-                    "enforcement_vm_encryption": new WizardFeature({checked: false, disable: false}),
-                    "integration_openstack": new WizardFeature({checked: false, disable: false})
-
+                    "attestation_host": new WizardFeature({checked: false, disable: false}),
+                    "attestation_host_xm": new WizardFeature({checked: false, disable: false}),
+                    "attestation_vm": new WizardFeature({checked: false, disable: false}),
+                    "attestation_container": new WizardFeature({checked: false, disable: false}),
+                    "encryption_vm": new WizardFeature({checked: false, disable: false}),
+                    "integration_openstack_nova": new WizardFeature({checked: false, disable: false}), 
+                    "integration_openstack_glance": new WizardFeature({checked: false, disable: false}), 
+                    "integration_openstack_barbican": new WizardFeature({checked: false, disable: false}),
+                    "integration_kmip": new WizardFeature({checked: false, disable: false})
                 };
-                self.update_features = function() {
-                    self.features.attestation_vm.force_if(self.features.enforcement_vm_encryption.checked());
+                self.update_features = function() {                    
+                    // order matters here... the "forcing" should cascade from the "least dependent" option to the "most dependent" option (in terms of number of things that could force it to be on or off)
+                    // these two options are mutually exclusive
+                    self.features.integration_openstack_barbican.suppress_if(self.features.integration_kmip.checked() ); 
+                    self.features.integration_kmip.suppress_if(self.features.integration_openstack_barbican.checked() );
+                    // rest of these are dependency relationships
+                    self.features.encryption_vm.force_if(self.features.integration_openstack_barbican.checked() || self.features.integration_kmip.checked());
+                    self.features.attestation_vm.force_if(self.features.encryption_vm.checked() || self.environment.network_role() === "SUBSCRIBER"); // for subscriber, the minimum install is trust director with vm integrity
                     self.features.attestation_host_xm.force_if(self.features.attestation_vm.checked() || self.features.attestation_container.checked());
                     self.features.attestation_host.force_if(self.features.attestation_host_xm.checked());
-                    // adding or removing features will affect what needs to be deployed so update the environment
-                    self.update_environment();
+                    
+                    // adding or removing features will affect what needs to be deployed
+                    self.update_targets();
                     return true;
                 };
 
@@ -1049,25 +1272,111 @@
                     "layout": ko.observable("SINGLE_HOST")
                 };
 
-                self.update_environment = function() {
+                self.update_network_role = function() {
+                    // when the user selects a new network role, first we release all obligations... then start over with defaults appropriate to that role
+                    var packageNames = ["attestation_host","attestation_host_xm","attestation_vm","encryption_vm","integration_kmip","integration_openstack_nova","integration_openstack_glance","integration_openstack_barbican"];
+                    for(var i=0; i<packageNames.length; i++) {
+                        var packageName = packageNames[i];
+                        self.features[packageName].release();
+                        self.features[packageName].checked(false);
+                        self.features[packageName].disable(false);
+                    }
+                    // now check and/or disable individual feature defaults based on the network role
+                    if( self.environment.network_role() === "PRIVATE" ) {
+                        self.features.attestation_host.checked(true);                     
+                        self.features.attestation_host.disable(true);                     
+                        self.features.attestation_host_xm.checked(true);
+//                        self.features.attestation_host_xm.disable(true);                     
+                        self.features.attestation_vm.checked(true);
+                        self.features.integration_openstack_nova.checked(true);
+                        self.features.integration_openstack_glance.checked(true);
+                    }
+                    if( self.environment.network_role() === "PROVIDER" ) {
+                        self.features.attestation_host.checked(true);                     
+                        self.features.attestation_host.disable(true);                     
+                        self.features.attestation_host_xm.checked(true);
+//                        self.features.attestation_host_xm.disable(true);                     
+                        self.features.attestation_vm.checked(true);
+                        self.features.integration_openstack_nova.checked(true);
+                        self.features.integration_openstack_glance.checked(true);
+                    }
+                    if( self.environment.network_role() === "SUBSCRIBER" ) {
+                        self.features.attestation_vm.checked(true);
+                        self.features.integration_openstack_glance.checked(true);
+                    }
+                    // updating network layout affects which features are displayed
+                    self.update_features();
+                    
+                    return true;
+                };
+                
+                self.update_layout = function() {
+                    // network layout will affect what needs to be deployed
+                    self.update_targets();
+                    return true;
+                };
+                
+                self.update_targets = function() {
                     var packages = self.networkRoleManagers[ self.environment.network_role() ]();
                     var targets = self.layoutManagers[ self.environment.layout() ](packages);
-                    self.targets(targets);
-                    return true;
+                    self.targets(targets); // this triggers ssh-login calls for the hosts that are updated
+                    return true;                    
                 };
 
                 self.settings = {
                     "saml_validity_seconds": ko.observable("900"),
-                    "director_glance_host": ko.observable(""),
-                    "director_glance_port": ko.observable(""),
+                    "director_port_http": ko.observable(""),
+                    "director_port_https": ko.observable(""),
+                    "director_tls_cert_sha1": ko.observable(""),
+                    "director_glance_host": ko.observable(""), // .extend({faults: "director_glance_host"}),
+                    "director_glance_port": ko.observable("9292"), // openstack default port for glance api. reference: http://docs.openstack.org/kilo/config-reference/content/firewalls-default-ports.html
                     "director_glance_username": ko.observable(""),
                     "director_glance_password": ko.observable(""),
                     "director_glance_tenant": ko.observable(""),
-                    "kms_key_provider": ko.observable("kmip"),
+                    "kms_host": ko.observable(""),
+                    "kms_port_http": ko.observable(""),
+                    "kms_port_https": ko.observable(""),
+                    "kms_tls_cert_sha1": ko.observable(""),
+                    //"kms_key_provider": ko.observable("kmip"),
+                    "kms_key_provider": ko.computed(function() {
+                        if( self.features.integration_openstack_barbican.checked() ) {
+                            return "com.intel.kms.barbican.client.BarbicanKeyManager";
+                        }
+                        if( self.features.integration_kmip.checked() ) {
+                            return "com.intel.kms.kmip.client.KMIPKeyManager";
+                        }
+                        return "";
+                    }),
                     "kms_kmip_url": ko.observable(""),
                     "kms_barbican_url": ko.observable(""),
-                    "kms_barbican_project": ko.observable("")
+                    "kms_barbican_project": ko.observable(""),
+                    "kmsproxy_host": ko.observable(""),
+                    "kmsproxy_port_http": ko.observable(""),
+                    "kmsproxy_port_https": ko.observable(""),
+                    "mtwilson_host": ko.observable(""),
+                    "mtwilson_port_http": ko.observable(""),
+                    "mtwilson_port_https": ko.observable(""),
+                    "mtwilson_tls_cert_sha1": ko.observable(""),
+                    "director_mtwilson_username": ko.observable(""),
+                    "director_mtwilson_password": ko.observable(""),
                 };
+                
+                self.validate_settings = function() {
+                    // we only validate settings that are required for selected features
+                    if( self.features.integration_openstack_glance.checked() ) {
+                        // director_glance_host, director_glance_port, director_glance_username, director_glance_password, director_glance_tenant
+                        if( self.settings.director_glance_host() === "" ) {
+                            //self.settings.director_glance_host.faults.push("required");
+                        }
+                    }
+                    if( self.features.integration_openstack_barbican.checked() ) {
+                        // kms_barbican_url, kms_barbican_project
+                    }
+                    if( self.features.integration_kmip.checked() ) {
+                        // kms_kmip_url
+                    }
+                };
+                
                 //self.credentials = ko.observableArray([]);
                 //self.credentials = ko.observableArray([new WizardHostSSH({host:"localhost"}), new WizardHostSSH({host:"x.y.z",port:1922,username:"jonathan",password:"abc"})]);
                 self.targets = ko.observableArray([]);
@@ -1079,18 +1388,19 @@
                         var packages = {};
                         if (self.features.attestation_host.checked()) {
                             packages.attestation_service = true;
-                            packages.trust_agent = true;
+                            //packages.trust_agent = true; // TODO... best with custom layout so it doesn't need to be w/ attestation service 
                         }
                         if (self.features.attestation_host_xm.checked()) { /*packages.trust_agent_tbootxm = true;*/
+                            packages.trust_director = true;
                         }
                         if (self.features.attestation_vm.checked()) {
                             packages.trust_director = true; /*packages.trust_agent_vrtm = true; packages.policy_agent = true;*/
                         }
-                        if (self.features.enforcement_vm_encryption.checked()) {
+                        if (self.features.encryption_vm.checked()) {
                             packages.key_broker = true;
                             packages.key_broker_proxy = true;
                         }
-                        if (self.features.integration_openstack.checked()) {
+                        if (self.features.integration_openstack_nova.checked()) {
                             packages.openstack_extensions = true;
                         }
                         return packages;
@@ -1100,17 +1410,18 @@
                         var packages = {};
                         if (self.features.attestation_host.checked()) {
                             packages.attestation_service = true;
-                            packages.trust_agent = true;
+                            //packages.trust_agent = true; // TODO... best with custom layout so it doesn't need to be w/ attestation service 
                         }
                         if (self.features.attestation_host_xm.checked()) { /*packages.trust_agent_tbootxm = true;*/
+                            packages.trust_director = true;
                         }
                         if (self.features.attestation_vm.checked()) {
-                            packages.trust_director = true; /*packages.trust_agent_vrtm = true; packages.policy_agent = true;*/
+                            //packages.trust_director = true; /*packages.trust_agent_vrtm = true; packages.policy_agent = true;*/
                         }
-                        if (self.features.enforcement_vm_encryption.checked()) { /*packages.key_broker = true;*/
+                        if (self.features.encryption_vm.checked()) { /*packages.key_broker = true;*/
                             packages.key_broker_proxy = true;
                         }
-                        if (self.features.integration_openstack.checked()) {
+                        if (self.features.integration_openstack_nova.checked()) {
                             packages.openstack_extensions = true;
                         }
                         return packages;
@@ -1123,7 +1434,7 @@
                         if (self.features.attestation_vm.checked()) {
                             packages.trust_director = true; /*packages.trust_agent_vrtm = true; packages.policy_agent = true;*/
                         }
-                        if (self.features.enforcement_vm_encryption.checked()) {
+                        if (self.features.encryption_vm.checked()) {
                             packages.key_broker = true; /*packages.key_broker_proxy = true;*/
                         }
 //            if( self.features.integration_openstack.checked() ) { packages.openstack_extensions = true; }
@@ -1190,7 +1501,8 @@
                     "targets": ko.observableArray([]),
                     "tasks": ko.observableArray([]),
                     "tasks_open": ko.observable(false),
-                    "faults": ko.observableArray([])
+                    "faults": ko.observableArray([]),
+                    "settings": ko.observable({})
                 };
                 self.progress.taskView = {
                     visible: ko.observable(true),
@@ -1206,7 +1518,7 @@
                     var data = {};
                     data.features = []; // only the selected feature names
 
-                    var featureNames = Object.keys(features); // attestation_host, attestation_host_xm, attestation_vm, attestation_container, enforcement_vm_encryption, integration_openstack
+                    var featureNames = Object.keys(features); // attestation_host, attestation_host_xm, attestation_vm, attestation_container, encryption_vm, integration_openstack_nova, ...
                     var featureCount = featureNames.length;
                     for (var i = 0; i < featureCount; i++) {
                         var featureName = featureNames[i];
@@ -1215,7 +1527,7 @@
                         }
                     }
 
-                    //data.networkRole = self.environment.network_role;// get observable value
+                    data.network_role = networkRole; // self.environment.network_role;// get observable value
                     //data.layout = self.environment.layout();// get observable value  /////  not needed by server
 
                     data.targets = [];
@@ -1229,12 +1541,12 @@
                         target.username = targetsrc.ssh.username;
                         target.password = targetsrc.ssh.password;
                         target.public_key_digest = targetsrc.ssh.publicKeyDigest;
-                        target.network_role = networkRole;
+                        //target.network_role = networkRole;
                         target.packages = [];
 
                         var packagesCount = targetsrc.packages.length;
-                        for (var i = 0; i < packagesCount; i++) {
-                            target.packages.push(targetsrc.packages[i]);
+                        for (var j = 0; j < packagesCount; j++) {
+                            target.packages.push(targetsrc.packages[j]);
                         }
 
                         data.targets.push(target);
@@ -1351,6 +1663,7 @@
                     self.progress.order.tasks([]);
                     self.progress.order.tasks_open(false);
                     self.progress.order.faults([]);
+                    self.progress.order.settings({});
                  
                     // reset main progress bar
                     $(document).trigger("mtwilson-quickstart-wizard:progress", [{"current": 0, "max": 1, "status": "PENDING"}]);
@@ -1400,11 +1713,23 @@
                             if (responseJsonContent.status) {
                                 self.progress.order.status(responseJsonContent.status);
                                 // if the server reports the order is done, has errors, or is cancelled,  then stop checking for updates because there won't be any more.
+                                // (opposite of that would be... keep checking progress when status is PENDING, ACTIVE, or CANCELLING)
                                 if (responseJsonContent.status == "DONE" || responseJsonContent.status == "ERROR" || responseJsonContent.status == "CANCELLED") {
                                     clearInterval(self.progress.interval);
                                 }
                                 if( responseJsonContent.status == "DONE" || responseJsonContent.status == "CANCELLED" ) {
                                     self.progress.taskView.visible(false); // hide the details 
+                                }
+                                if( responseJsonContent.status == "DONE" && typeof responseJsonContent["settings"] === "object") {
+                                    // display the final settings,  converting dots to underscores to make it easier for knockout
+                                    var settings = {};
+                                    for(var p in responseJsonContent.settings) {
+                                        if( responseJsonContent.settings.hasOwnProperty(p) ) {
+                                            var name = p.replace(/\./g, "_");
+                                            settings[name] = responseJsonContent.settings[p];
+                                        }
+                                    }
+                                    ko.mapping.fromJS(settings, {}, self.progress.order.settings);
                                 }
                             }
 
@@ -1425,10 +1750,13 @@
                                     if( typeof responseJsonContent.targets[i]["packages_installed"] === "undefined" ) {
                                         responseJsonContent.targets[i].packages_installed = [];
                                     }
+                                    if( typeof responseJsonContent.targets[i]["endpoints"] === "undefined" ) {
+                                        responseJsonContent.targets[i].endpoints = {};
+                                    }
                                 }
                                 //self.progress.order.targets(responseJsonContent.targets);
-                                ko.mapping.fromJS(responseJsonContent.targets, {}, self.progress.order.targets);
                             }
+                            
                             /*
                              {
                              "id": ko.observable(""),
@@ -1450,8 +1778,79 @@
                                     responseJsonContent.tasks[i].display_name = i18n.t('quickstart:tasks.' + underscore_name, responseJsonContent.tasks[i].data); // second argument provides a data object from the task status object for interpolation into the translated text
                                     responseJsonContent.tasks[i].percent = Math.round(responseJsonContent.tasks[i].progress_max == 0 ? 0 : (parseInt(responseJsonContent.tasks[i].progress) / responseJsonContent.tasks[i].progress_max) * 100);
                                     responseJsonContent.tasks[i].display_percent = responseJsonContent.tasks[i].percent + '%';
+                                    // make sure there's a "data" object and "faults" array 
+                                    if( typeof responseJsonContent.tasks[i]["data"] === "undefined" ) {
+                                        responseJsonContent.tasks[i].data = {};
+                                    }
+                                    if( typeof responseJsonContent.tasks[i]["faults"] === "undefined" ) {
+                                        responseJsonContent.tasks[i].faults = [];
+                                    }
                                 }
                                 responseJsonContent.tasks.sort(sortBy('+sequence', '-percent', '+display_name'));
+                            }
+                            
+                            // now figure out which packages have been installed successfully on which targets...
+                            if( responseJsonContent.targets && responseJsonContent.tasks ) {
+                                for(var i=0; i < responseJsonContent.tasks.length; i++) {
+                                    var task = responseJsonContent.tasks[i];
+                                    // look for com.intel.mtwilson.deployment.task.RemoteInstall with status done 
+                                    if( task.name === "com.intel.mtwilson.deployment.task.RemoteInstall" && task.done ) {
+                                        var packageName = task.data.package_name;
+                                        for(var j=0; j < responseJsonContent.targets.length; j++) {
+                                            var target = responseJsonContent.targets[j];
+                                            if( target.host === task.data.host ) {
+                                                target.packages_installed.push(packageName);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // a map of package name to the settings that provide access details; we assume setting names already replaced . with _
+                            var login_settings = {
+                                "attestation_service": {
+                                    "url": "mtwilson.endpoint.portal",  /* there's also mtwilson.endpoint.url for the API,  so you do mtwilson.endpoint.url/v1 or mtwilson.endpoint.url/v2 */
+                                    "username": "mtwilson.admin.username",
+                                    "password": "mtwilson.admin.password"
+                                },
+                                "key_broker": {
+                                    "url": "kms.endpoint.url",
+                                    "username": "kms.admin.username",
+                                    "password": "kms.admin.password"
+                                },
+                                "trust_director": {
+                                    "url": "director.endpoint.url",
+                                    "username": "director.admin.username",
+                                    "password": "director.admin.password"
+                                },
+                                "openstack_extensions": {
+                                    "url": "openstack.horizon.url",
+                                    "username": "openstack.admin.username",
+                                    "password": "openstack.admin.password"
+                                }
+                            };
+                            // precondition: every target has a packages_installed array (empty ok)
+                            if( responseJsonContent.targets && responseJsonContent.settings ) {
+                                for(var i=0; i<responseJsonContent.targets.length; i++) {
+                                    var packages = responseJsonContent.targets[i].packages_installed;
+                                    for(var j=0; j<packages.length; j++) {
+                                        var packageName = packages[j];
+                                        if( login_settings[packageName] ) {
+                                            console.log("login settings for package %s: url %s username %s password %s", packageName, login_settings[packageName].url, login_settings[packageName].username, login_settings[packageName].password);
+                                            var url = responseJsonContent.settings[ login_settings[packageName].url ];
+                                            var username = responseJsonContent.settings[ login_settings[packageName].username ];
+                                            var password = responseJsonContent.settings[ login_settings[packageName].password ];
+                                            console.log("target %s package %s url %s username %s password %s", responseJsonContent.targets[i].host, packageName, url, username, password);
+                                            if( url && username && password ) {
+                                                responseJsonContent.targets[i].endpoints[packageName] = { url: url, username: username, password: password };
+                                            }
+                                        }
+                                    }
+                                }
+                            }                            
+                            
+                            // map the response data to the view model
+                            if( responseJsonContent.tasks ) {
                                 ko.mapping.fromJS(responseJsonContent.tasks, {}, self.progress.order.tasks);
                                 // also, calculate "tasks_open" which is:  if any tasks are incomplete, it should be "true",  but if all tasks are done then it should be "false"
                                 var tasks_open = false;
@@ -1459,6 +1858,10 @@
                                     tasks_open = tasks_open || responseJsonContent.tasks[i].percent < 100;
                                 }
                                 self.progress.order.tasks_open(tasks_open);
+                            }
+                            
+                            if( responseJsonContent.targets ) {
+                                ko.mapping.fromJS(responseJsonContent.targets, {}, self.progress.order.targets);
                             }
 
                             //typeof responseJsonContent["faults"] === "object" && typeof responseJsonContent["faults"]["length"] !== "undefined" 
@@ -1542,6 +1945,48 @@
                 // NOTE:  the onload function provided is called whether or not the translation was found; for example if you specify a non-existent namespace like "doesnotexist", the call to /v1/html5/public/merge?path=/mtwilson-core-html5/locales/doesnotexist.en-US.json   will return an empty object { } , NOT  a 404,  so the response is valid but empty of data.
                 i18n.loadNamespaces('quickstart', function() {
 
+/*
+                // setup validation routines for knockout
+                ko.extenders.faults = function(target, param) {
+                    target.faults = ko.observableArray([]);
+                    target.error = ko.computed(function() {
+                        return target.faults().length > 0;
+                    });
+                    // return original observable
+                    return target;
+                };
+                ko.extenders.required = function(target, isRequired) {
+                    function validate(newValue) {
+                        if( isRequired ) {
+                            if( typeof newValue === "undefined" || newValue === null || newValue === "" ) {
+                                target.faults.push("required");
+                            }
+                        }
+                    }
+                    // initial validation
+                    validate(target());
+                    // trigger validation on every change
+                    target.subscribe(validate);
+                    // return original observable
+                    return target;
+                };
+                ko.extenders.url = function(target, errorMessage) {
+                    function validate(newValue) {
+                        var result = URI.parse(newValue);
+                        var hasProtocol = result.protocol === "http" || result.protocol === "https";
+                        var hasHost = result.host !== null && result.host !== "";
+                        if( !hasProtocol || !hasHost ) {
+                            target.faults.push("url");
+                        }
+                    }
+                    // initial validation
+                    validate(target());
+                    // trigger validation on every change
+                    target.subscribe(validate);
+                    // return original observable
+                    return target;
+                };
+                */
 
 // NOTE: use document.getElementById is the quickest and easiest way to get a handle on our tab
 // because the tab has dots in the name, which are valid HTML but not supported by jquery $("#id")
@@ -1651,7 +2096,8 @@
                     //mainViewModel.wizardViewModel.searchSettings({});
 
                     // initialize
-                    mainViewModel.wizardViewModel.update_features(); // calls update_environment()
+                    mainViewModel.wizardViewModel.update_network_role(); // calls update_features()
+                    mainViewModel.wizardViewModel.update_layout(); // calls update_features()
                     //mainViewModel.wizardViewModel.update_environment();
 
                     /**

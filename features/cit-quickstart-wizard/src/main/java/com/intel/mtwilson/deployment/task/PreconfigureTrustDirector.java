@@ -4,6 +4,7 @@
  */
 package com.intel.mtwilson.deployment.task;
 
+import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.mtwilson.deployment.FileTransferDescriptor;
 import com.intel.mtwilson.deployment.FileTransferManifestProvider;
 import java.io.File;
@@ -38,28 +39,37 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
         // MTWILSON_HOST, MTWILSON_PORT, and MTWILSON_TLS_CERT_SHA1 must be set ;  note that if using a load balanced mtwilson, the tls cert is for the load balancer
         // the host and port are set by PreconfigureAttestationService, but the tls sha1 fingerprint is set by PostconfigureAttestationService.
         // either way, the sync task forces all attestation service tasks to complete before key broker proxy tasks start, so these settings should be present.
-        if (!order.getSettings().containsKey("mtwilson.host") || !order.getSettings().containsKey("mtwilson.port.https") || !order.getSettings().containsKey("mtwilson.tls.cert.sha1")) {
+        if (setting("mtwilson.host").isEmpty() || setting("mtwilson.port.https").isEmpty() || setting("mtwilson.tls.cert.sha1").isEmpty()) {
             throw new IllegalStateException("Missing required settings"); // TODO:  rewrite as a precondition
         }
 
         // precondition:
         // DIRECTOR_MTWILSON_USERNAME and DIRECTOR_MTWILSON_PASSWORD must be set (and corresponding user actually created in mtwilson) 
         // these are done by a separate integration task that must run before this one
-        if (!order.getSettings().containsKey("director.mtwilson.username") || !order.getSettings().containsKey("director.mtwilson.password")) {
+        if (setting("director.mtwilson.username").isEmpty() || setting("director.mtwilson.password").isEmpty()) {
             throw new IllegalStateException("Missing required settings"); // TODO:  rewrite as a precondition
         }
 
+        setting("director.host", target.getHost());
+        
         port();
-        data.put("JETTY_PORT", order.getSettings().get("director.port.http"));
-        data.put("JETTY_SECURE_PORT", order.getSettings().get("director.port.https"));
+        
+        String endpointUrl = setting("director.endpoint.url");
+        if( endpointUrl.isEmpty() ) {
+            setting("director.endpoint.url", "https://" + setting("director.host") + ":" + setting("director.port.https"));   
+        }
+        
+        
+        data.put("DIRECTOR_PORT_HTTP", setting("director.port.http"));
+        data.put("DIRECTOR_PORT_HTTPS", setting("director.port.https"));
 
 
         // make these global settings available to director.env.st4 template
-        data.put("MTWILSON_HOST", order.getSettings().get("mtwilson.host"));
-        data.put("MTWILSON_PORT", order.getSettings().get("mtwilson.port.https"));
-        data.put("MTWILSON_TLS_CERT_SHA1", order.getSettings().get("mtwilson.tls.cert.sha1"));
-        data.put("DIRECTOR_MTWILSON_USERNAME", order.getSettings().get("director.mtwilson.username"));
-        data.put("DIRECTOR_MTWILSON_PASSWORD", order.getSettings().get("director.mtwilson.password"));
+        data.put("MTWILSON_HOST", setting("mtwilson.host"));
+        data.put("MTWILSON_PORT", setting("mtwilson.port.https"));
+        data.put("MTWILSON_TLS_CERT_SHA1", setting("mtwilson.tls.cert.sha1"));
+        data.put("DIRECTOR_MTWILSON_USERNAME", setting("director.mtwilson.username"));
+        data.put("DIRECTOR_MTWILSON_PASSWORD", setting("director.mtwilson.password"));
         data.put("DIRECTOR_ID", "director-" + target.getHost());
 
         // TODO:   generate DIRECTOR_DB_USERNAME, DIRECTOR_DB_PASSWORD 
@@ -68,21 +78,35 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
         // optional:
         // IF openstack integration is enabled, these settings must be avaiable:
         // openstack.tenant.name, openstack.glance.host, openstack.glance.port, openstack.glance.username, openstack.glance.password
-        data.put("OPENSTACK_TENANT_NAME", order.getSettings().get("director.glance.tenant"));
-        data.put("OPENSTACK_GLANCE_HOST", order.getSettings().get("director.glance.host"));
-        data.put("OPENSTACK_GLANCE_PORT", order.getSettings().get("director.glance.port")); // TODO:  is this http or https?  should make the property name specific , and also if https we will need tls cert sha1 fingerprint
-        data.put("DIRECTOR_GLANCE_USERNAME", order.getSettings().get("director.glance.username"));
-        data.put("DIRECTOR_GLANCE_PASSWORD", order.getSettings().get("director.glance.password"));
+        data.put("OPENSTACK_TENANT_NAME", setting("director.glance.tenant"));
+        data.put("OPENSTACK_GLANCE_HOST", setting("director.glance.host"));
+        data.put("OPENSTACK_GLANCE_PORT", setting("director.glance.port")); // TODO:  is this http or https?  should make the property name specific , and also if https we will need tls cert sha1 fingerprint
+        data.put("DIRECTOR_GLANCE_USERNAME", setting("director.glance.username"));
+        data.put("DIRECTOR_GLANCE_PASSWORD", setting("director.glance.password"));
 
         // optional:
         // IF key broker is enabled, these settings must be available:
         // kms.host, kms.port, kms.username, kms.password, kms.tls.cert.sha1
-        data.put("KMS_HOST", order.getSettings().get("kms.host"));
-        data.put("KMS_PORT", order.getSettings().get("kms.port.https"));
-        data.put("KMS_TLS_CERT_SHA1", order.getSettings().get("kms.tls.cert.sha1")); // or a name from PropertiesTlsPolicyFactory like tls.policy.certificate.sha1
-        data.put("DIRECTOR_KMS_LOGIN_BASIC_USERNAME", order.getSettings().get("director.kms.username"));
-        data.put("DIRECTOR_KMS_LOGIN_BASIC_PASSWORD", order.getSettings().get("director.kms.password"));
+        data.put("KMS_HOST", setting("kms.host"));
+        data.put("KMS_PORT", setting("kms.port.https"));
+        data.put("KMS_TLS_CERT_SHA1", setting("kms.tls.cert.sha1")); // or a name from PropertiesTlsPolicyFactory like tls.policy.certificate.sha1
+        data.put("DIRECTOR_KMS_LOGIN_BASIC_USERNAME", setting("director.kms.username"));
+        data.put("DIRECTOR_KMS_LOGIN_BASIC_PASSWORD", setting("director.kms.password"));
 
+        // the admin username and password are generated here and stored in settings
+        // but not added to .env file because key broker .env does not support
+        // creating the admin user that way. so we create it later in the postconfigure task.
+        String username = setting("director.admin.username");
+        if ( username.isEmpty()) {
+            setting("director.admin.username", "admin");
+        }
+        String password = setting("director.admin.password");
+        if ( password.isEmpty()) {
+            int lengthBytes = 16;
+            password = RandomUtil.randomBase64String(lengthBytes).replace("=", "");
+            setting("director.admin.password", password);
+        }
+        
         // generate the .env file using pre-configuration data
         render("director.env.st4", envFile);
     }
@@ -90,13 +114,13 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
     private void port() {
         // if the target has more than one software package to be installed on it,
         // use our alternate port
-        if (!order.getSettings().containsKey("director.port.http") || !order.getSettings().containsKey("director.port.https")) {
+        if (setting("director.port.http").isEmpty() || setting("director.port.https").isEmpty()) {
             if (target.getPackages().size() == 1) {
-                order.getSettings().put("director.port.http", "80");
-                order.getSettings().put("director.port.https", "443");
+                setting("director.port.http", "80");
+                setting("director.port.https", "443");
             } else {
-                order.getSettings().put("director.port.http", "19080");
-                order.getSettings().put("director.port.https", "19443");
+                setting("director.port.http", "19080");
+                setting("director.port.https", "19443");
             }
         }
     }

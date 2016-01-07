@@ -5,6 +5,7 @@
 package com.intel.mtwilson.deployment.wizard;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.deployment.Feature;
 import com.intel.mtwilson.deployment.FeatureRepository;
 import com.intel.mtwilson.deployment.FeatureRepositoryFactory;
@@ -30,10 +31,13 @@ import com.intel.mtwilson.deployment.jaxrs.io.OrderDocument;
 import com.intel.mtwilson.deployment.task.CreateTrustAgentUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInKeyBroker;
+import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInOpenstack;
 import com.intel.mtwilson.deployment.task.FileTransfer;
 import com.intel.mtwilson.deployment.task.ImportAttestationServiceCertificatesToKeyBroker;
 import com.intel.mtwilson.deployment.task.PostconfigureAttestationService;
 import com.intel.mtwilson.deployment.task.PostconfigureKeyBroker;
+import com.intel.mtwilson.deployment.task.PostconfigureOpenstack;
+import com.intel.mtwilson.deployment.task.PostconfigureTrustDirector;
 import com.intel.mtwilson.deployment.task.PreconfigureAttestationService;
 import com.intel.mtwilson.deployment.task.PreconfigureKeyBroker;
 import com.intel.mtwilson.deployment.task.PreconfigureKeyBrokerProxy;
@@ -86,8 +90,9 @@ public class DeploymentTaskFactory extends AbstractTask {
     private ArrayList<Task> output;
 
     public DeploymentTaskFactory(OrderDocument request) throws IOException {
+        order = request;
         softwarePackageRepository = SoftwarePackageRepositoryFactory.getInstance();
-        
+
         // precondition:  we have a configured feature set for the selected environment  (PRIVATE, PROVIDER, or SUBSCRIBER)
         NetworkRole networkRole = order.getNetworkRole();
         if( networkRole == null ) {
@@ -96,8 +101,6 @@ public class DeploymentTaskFactory extends AbstractTask {
         }
         precondition(new EnvironmentAvailable(networkRole.name()));
         featureRepository = FeatureRepositoryFactory.getInstance(networkRole.name());
-
-        order = request;
 
         // setup preconditions to validate input before execution
 
@@ -173,13 +176,18 @@ public class DeploymentTaskFactory extends AbstractTask {
     private List<Task> createSoftwarePackageTargetTasks(SoftwarePackage softwarePackage, Target target) {
         ArrayList<Task> tasks = new ArrayList<>();
 
-        // copy the installer...  currently this is a generic step for each package.
-        File packageFile = softwarePackage.getFile(); // must have already been validated by precondition; if precondition wasn't checked there could be NPE here
-        String remoteFilePath = packageFile.getName();
-        FileTransfer fileTransfer = new FileTransfer(target, new FileTransferDescriptor(packageFile, remoteFilePath));
+        // copy the installer, marker file, and monitor script...  currently this is a generic step for each package.
+        ArrayList<FileTransferDescriptor> packageList = new ArrayList<>();
+        File packageInstallerFile = softwarePackage.getFile(); // must have already been validated by precondition; if precondition wasn't checked there could be NPE here
+        packageList.add(new FileTransferDescriptor(packageInstallerFile, packageInstallerFile.getName()));
+        File packageInstallerMarkerFile = packageInstallerFile.toPath().resolveSibling(packageInstallerFile.getName()+".mark").toFile();
+        packageList.add(new FileTransferDescriptor(packageInstallerMarkerFile, packageInstallerMarkerFile.getName()));
+        File packageInstallerMonitorScriptFile = new File(Folders.repository("scripts") + File.separator + "monitor.sh");
+        packageList.add(new FileTransferDescriptor(packageInstallerMonitorScriptFile, packageInstallerMonitorScriptFile.getName()));
+        FileTransfer fileTransfer = new FileTransfer(target, packageList);
         tasks.add(fileTransfer);
         // remote install task ... we initialize it here so that when we make the file transfer & pre-configuration tasks below they can add themselves to this as dependencies
-        RemoteInstall remoteInstall = new RemoteInstall(target, softwarePackage);
+        RemoteInstall remoteInstall = new RemoteInstall(target, softwarePackage); // assumes /bin/bash,  a .mark file, and a monitor.sh file
         remoteInstall.getDependencies().add(fileTransfer);
         tasks.add(remoteInstall);
         // generate the env file... we need a different class for each package but each of them behaves the same by generating the file and then creating a manifest for file transfer
@@ -249,6 +257,10 @@ public class DeploymentTaskFactory extends AbstractTask {
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
             tasks.add(fileTransferEnvFile);
             remoteInstall.getDependencies().add(fileTransferEnvFile);
+            // create an admin user in trust director
+            PostconfigureTrustDirector postconfigureTrustDirector = new PostconfigureTrustDirector(target);
+            postconfigureTrustDirector.getDependencies().add(remoteInstall);
+            tasks.add(postconfigureTrustDirector);            
         }
         if( softwarePackage.getPackageName().equals("trust_agent")) {
             PreconfigureTrustAgent generateEnvFile = new PreconfigureTrustAgent();
@@ -267,6 +279,16 @@ public class DeploymentTaskFactory extends AbstractTask {
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
             tasks.add(fileTransferEnvFile);
             remoteInstall.getDependencies().add(fileTransferEnvFile);
+            // create an admin user in openstack
+            PostconfigureOpenstack postconfigureOpenstackExtensions = new PostconfigureOpenstack(target);
+            postconfigureOpenstackExtensions.getDependencies().add(remoteInstall);
+            tasks.add(postconfigureOpenstackExtensions);
+            // create a director user in openstack
+            if( selectedSoftwarePackageMap.containsKey("trust_director") ) {
+                CreateTrustDirectorUserInOpenstack createDirectorUserInOpenstack = new CreateTrustDirectorUserInOpenstack(target);
+                createDirectorUserInOpenstack.getDependencies().add(postconfigureOpenstackExtensions);
+                tasks.add(createDirectorUserInOpenstack);
+            }
         }
         
         // provide context to tasks according to their needs
@@ -292,6 +314,18 @@ public class DeploymentTaskFactory extends AbstractTask {
     private Task createSoftwarePackageSyncTask(SoftwarePackage softwarePackage, Collection<Target> targets) {
         SynchronizeSoftwarePackageTargets task = new SynchronizeSoftwarePackageTargets(softwarePackage, targets);
         return task;
+        /**
+         * this needs to be more like this:
+         * <pre>
+         *         if( softwarePackage.getPackageName().equals("attestation_service")) {
+         *             SynchronizeAttestationService task = new SynchronizeAttestationService(softwarePackage, targets);
+         *             return task;
+         *         }
+         *         if( softwarePackage.getPackageName().equals("trust_director")) {
+         *             ...
+         *         }
+         * </pre>
+         */
     }
 
 

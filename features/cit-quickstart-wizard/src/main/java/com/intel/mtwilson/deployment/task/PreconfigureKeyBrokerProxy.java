@@ -39,20 +39,22 @@ public class PreconfigureKeyBrokerProxy extends AbstractPreconfigureTask impleme
         // MTWILSON_HOST, MTWILSON_PORT, and MTWILSON_TLS_CERT_SHA1 must be set ;  note that if using a load balanced mtwilson, the tls cert is for the load balancer
         // the host and port are set by PreconfigureAttestationService, but the tls sha1 fingerprint is set by PostconfigureAttestationService.
         // either way, the sync task forces all attestation service tasks to complete before key broker proxy tasks start, so these settings should be present.
-        if( !order.getSettings().containsKey("mtwilson.host") || !order.getSettings().containsKey("mtwilson.port.https")|| !order.getSettings().containsKey("mtwilson.tls.cert.sha1") ) {
+        if( setting("mtwilson.host").isEmpty() || setting("mtwilson.port.https").isEmpty() || setting("mtwilson.tls.cert.sha1").isEmpty() ) {
             throw new IllegalStateException("Missing required settings"); // TODO:  rewrite as a precondition
         }
+
+        setting("kmsproxy.host", target.getHost());
         
         // key broker proxy settings
         port();
-        data.put("JETTY_PORT", order.getSettings().get("kmsproxy.port.http"));
-        data.put("JETTY_SECURE_PORT", order.getSettings().get("kmsproxy.port.https"));
+        data.put("JETTY_PORT", setting("kmsproxy.port.http"));
+        data.put("JETTY_SECURE_PORT", setting("kmsproxy.port.https"));
         
         // the PreconfigureAttestationService task must already be executed 
-        data.put("MTWILSON_HOST", order.getSettings().get("mtwilson.host"));
-        data.put("MTWILSON_PORT", order.getSettings().get("mtwilson.port.https"));
+        data.put("MTWILSON_HOST", setting("mtwilson.host"));
+        data.put("MTWILSON_PORT", setting("mtwilson.port.https"));
         // the PostconfigureAttestationService task must already be executed 
-        data.put("MTWILSON_TLS_CERT_SHA1", order.getSettings().get("mtwilson.tls.cert.sha1"));
+        data.put("MTWILSON_TLS_CERT_SHA1", setting("mtwilson.tls.cert.sha1"));
         // generate the .env file using pre-configuration data
         render("kmsproxy.env.st4", envFile);
     }
@@ -60,13 +62,13 @@ public class PreconfigureKeyBrokerProxy extends AbstractPreconfigureTask impleme
     private void port() {
         // if the target has more than one software package to be installed on it,
         // use our alternate port
-        if (!order.getSettings().containsKey("kmsproxy.port.http") || !order.getSettings().containsKey("kmsproxy.port.https")) {
+        if (setting("kmsproxy.port.http").isEmpty() || setting("kmsproxy.port.https").isEmpty()) {
             if (target.getPackages().size() == 1) {
-                order.getSettings().put("kmsproxy.port.http", "80");
-                order.getSettings().put("kmsproxy.port.https", "443");
+                setting("kmsproxy.port.http", "80");
+                setting("kmsproxy.port.https", "443");
             } else {
-                order.getSettings().put("kmsproxy.port.http", "21080");
-                order.getSettings().put("kmsproxy.port.https", "21443");
+                setting("kmsproxy.port.http", "21080");
+                setting("kmsproxy.port.https", "21443");
             }
         }
     }

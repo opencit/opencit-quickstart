@@ -4,26 +4,23 @@
  */
 package com.intel.mtwilson.deployment.task;
 
-import com.intel.mtwilson.Folders;
+import com.intel.dcsg.cpg.crypto.RandomUtil;
+import com.intel.dcsg.cpg.performance.AlarmClock;
 import com.intel.mtwilson.deployment.SSHClientWrapper;
 import com.intel.mtwilson.deployment.SoftwarePackage;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
-import com.intel.mtwilson.util.task.AbstractTask;
+import com.intel.mtwilson.util.exec.Result;
 import java.io.File;
-import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 import net.schmizz.sshj.connection.channel.direct.Session;
-import net.schmizz.sshj.connection.channel.direct.Session.Command;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
 /**
  * Runs an installer on a remote host
  *
  * @author jbuhacoff
  */
-public class RemoteInstall extends AbstractTaskWithId {
+public class RemoteInstall extends AbstractRemoteTask {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RemoteInstall.class);
     private SSH remote;
@@ -36,6 +33,7 @@ public class RemoteInstall extends AbstractTaskWithId {
         this.softwarePackage = softwarePackage;
         this.executablePath = softwarePackage.getFile().getName();
     }
+
     public RemoteInstall(SSH remote, SoftwarePackage softwarePackage, String executablePath) {
         super();
         this.remote = remote;
@@ -47,28 +45,66 @@ public class RemoteInstall extends AbstractTaskWithId {
     public void execute() {
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
             client.connect();
-            try (Session session = client.session()) {
 
-                Command command = session.exec("/bin/ls " + executablePath); // TODO ....    INSTALL IT.
-                InputStream stdout = command.getInputStream();
-                InputStream stderr = command.getErrorStream();
-                String stdoutText = IOUtils.toString(stdout, "UTF-8");
-                String stderrText = IOUtils.toString(stderr, "UTF-8");
-                log.debug("result: {}", stdoutText);
-
-                // ensure output directory exists
-                File outputDirectory = new File(Folders.repository("tasks") + File.separator + getId());
-                outputDirectory.mkdirs();
-                log.debug("Output directory: {}", outputDirectory.getAbsolutePath());
-                
-                // store the stdout into a file
-                File stdoutFile = new File(Folders.repository("tasks") + File.separator + getId() + File.separator + "stdout.log");                
-                FileUtils.writeStringToFile(stdoutFile, stdoutText, Charset.forName("UTF-8"));
-                
-                // store the stderr into a file
-                File stderrFile = new File(Folders.repository("tasks") + File.separator + getId() + File.separator + "stderr.log");                
-                FileUtils.writeStringToFile(stderrFile, stderrText, Charset.forName("UTF-8"));
+            /*
+            String chmod = "/bin/chmod +x " + executablePath;
+            Result chmodResult = sshexec(client, chmod);
+            if (chmodResult.getExitCode() != 0) {
+                log.warn("chmod failed on host: {} file: {}", remote.getHost(), executablePath);
             }
+            */
+
+            //Result installResult = sshexec(client, "./"+executablePath+" 1>"+executablePath+".out 2>"+executablePath+".err &", 1, TimeUnit.MINUTES); // give 1 minutes max for the install because it will be in background... we'll login later to check status!
+            // this should return right away since we are starting it in the background.
+            String id = RandomUtil.randomHexString(8);
+            String workingDirectory = "/tmp/cit/monitor/"+id;
+            Result installResult = sshexec(client, "/bin/bash monitor.sh "+executablePath+" "+executablePath+".mark "+workingDirectory+" >/dev/null &", 1, TimeUnit.MINUTES); // the redirection to /dev/null is so that we won't get the console text-based progress bar, which would hold up our connection and prevent us from then checking the progress output files below.
+            if (installResult.getExitCode() != 0) {
+                log.error("Install failed on host: {}  file: {}", remote.getHost(), executablePath);
+            }
+            
+            AlarmClock delay = new AlarmClock(1, TimeUnit.SECONDS);
+            
+            // first wait until the monitor script has parsed the marker file
+            // and created the "status" and "max" files. we only need to get "max" once.
+            String progressMax = null;
+            while( progressMax == null || progressMax.isEmpty() ) {
+                log.debug("getting progress max...");
+                Result progressMaxResult = sshexec(client, "/bin/cat "+workingDirectory+File.separator+"max", 1, TimeUnit.MINUTES);
+                progressMax = progressMaxResult.getStdout();
+                if( progressMax != null && !progressMax.isEmpty() ) {
+                    log.debug("updating progress max: {}", progressMax);
+                    max(Integer.valueOf(progressMax.trim()));
+                    break;
+                }
+                delay.sleep();
+            }
+            
+            // now get progress updates periodically while we wait for the installer to finish            
+            // which will be marked by status 'DONE' or 'ERROR' or 'CANCELLED'
+            String status = null;
+            String progress;
+            while( status == null || "PENDING".equalsIgnoreCase(status) || "ACTIVE".equalsIgnoreCase(status) ) {
+                log.debug("getting progress...");
+                Result progressResult = sshexec(client, "/bin/cat "+workingDirectory+File.separator+"progress", 1, TimeUnit.MINUTES);
+                progress = progressResult.getStdout();
+                if( progress != null && !progress.isEmpty() ) {
+                    log.debug("updating progress: {}", progress);
+                    current(Integer.valueOf(progress.trim()));
+                }
+                Result statusResult = sshexec(client, "/bin/cat "+workingDirectory+File.separator+"status", 1, TimeUnit.MINUTES);
+                status = statusResult.getStdout();
+                if( status != null && !status.isEmpty() ) {
+                    status = status.trim();
+                    log.debug("got status: {}", status);
+                }
+                else {
+                    log.debug("status is null or empty");
+                }
+                delay.sleep();
+            }
+            
+            
             client.disconnect();
         } catch (Exception e) {
             log.error("Connection failed", e);
@@ -79,14 +115,12 @@ public class RemoteInstall extends AbstractTaskWithId {
     public String getPackageName() {
         return softwarePackage.getPackageName();
     }
-    
+
     public String getHost() {
         return remote.getHost();
     }
-    
+
     public String getExecutablePath() {
         return executablePath;
     }
-    
-    
 }

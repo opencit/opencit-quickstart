@@ -1,19 +1,19 @@
 {
   "features": [
       {
-          "name": "enforcement_vm_encryption",
+          "name": "encryption_vm",
           "software_packages": [
-              "key_broker_proxy", "trust_director", "attestation_service"
+              "key_broker_proxy", "attestation_service"
           ],
           "dependencies": [
               "attestation_vm", "attestation_host_xm"
           ],
           "required_settings": [
-              
+
           ]
       },
       {
-          "name": "integration_openstack",
+          "name": "integration_openstack_nova",
           "software_packages": [
               "openstack_extensions"
           ],
@@ -27,7 +27,7 @@
       {
           "name": "attestation_vm",
           "software_packages": [
-              "trust_director", "attestation_service"
+              "attestation_service"
           ],
           "dependencies": [
               "attestation_host_xm"

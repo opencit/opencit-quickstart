@@ -72,7 +72,7 @@ public class TaskManager extends AbstractTask {
                     current(it.getValue());
                 }
                 else {
-                    log.debug("Task {} execution faults: {}", task.getClass().getName(), faults.size());
+                    log.debug("Task {} execution faults: {}", task.getClass().getName(), faults.size());                    
                     for(Fault fault : faults) {
                         log.debug("Fault {}: {}", fault.getClass().getName(), fault.getDescription());
                         log.debug("Fault: {}", mapper.writeValueAsString(fault));

@@ -1,7 +1,7 @@
 {
   "features": [
       {
-          "name": "enforcement_vm_encryption",
+          "name": "encryption_vm",
           "software_packages": [
               "key_broker", "key_broker_proxy", "trust_director", "attestation_service"
           ],

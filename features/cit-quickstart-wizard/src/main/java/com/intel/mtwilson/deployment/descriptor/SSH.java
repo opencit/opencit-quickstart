@@ -4,6 +4,8 @@
  */
 package com.intel.mtwilson.deployment.descriptor;
 
+import com.intel.dcsg.cpg.validation.Regex;
+import com.intel.dcsg.cpg.validation.RegexPatterns;
 import java.util.Objects;
 
 /**
@@ -27,6 +29,7 @@ public class SSH {
         this.publicKeyDigest = publicKeyDigest;
     }
 
+    @Regex(RegexPatterns.IPADDR_FQDN)
     public String getHost() {
         return host;
     }
@@ -39,11 +42,12 @@ public class SSH {
         return username;
     }
 
-    
+    @Regex(RegexPatterns.PASSWORD)
     public String getPassword() {
         return password;
     }
 
+    @Regex(RegexPatterns.HEX_WITH_OPTIONAL_SEPARATOR)
     public String getPublicKeyDigest() {
         return publicKeyDigest;
     }
@@ -51,7 +55,6 @@ public class SSH {
     public Integer getTimeout() {
         return timeout;
     }
-
 
     public void setHost(String host) {
         this.host = host;

@@ -40,16 +40,16 @@ public class CreateTrustDirectorUserInAttestationService extends AbstractPostcon
     @Override
     public void execute() {
 
-        String directorUsername = order.getSettings().get("director.mtwilson.username"); // TODO:  generate random uuid after it, like kmsproxy does... and this should really be moved to director setup as a registration request w/ mtwilson, so all we should have to do here is get that username from director and then go to mtwilson to approve it.
-        if (directorUsername == null || directorUsername.isEmpty()) {
+        String directorUsername = setting("director.mtwilson.username"); // TODO:  generate random uuid after it, like kmsproxy does... and this should really be moved to director setup as a registration request w/ mtwilson, so all we should have to do here is get that username from director and then go to mtwilson to approve it.
+        if (directorUsername.isEmpty()) {
             directorUsername = "director-" + UUID.randomUUID().toString();
-            order.getSettings().put("director.mtwilson.username", directorUsername);
+            setting("director.mtwilson.username", directorUsername);
         }
-        String directorPassword = order.getSettings().get("director.mtwilson.password");
-        if (directorPassword == null || directorPassword.isEmpty()) {
+        String directorPassword = setting("director.mtwilson.password");
+        if (directorPassword.isEmpty()) {
             int lengthBytes = 16;
             directorPassword = RandomUtil.randomBase64String(lengthBytes).replace("=", "");
-            order.getSettings().put("director.mtwilson.password", directorPassword);
+            setting("director.mtwilson.password", directorPassword);
         }
 
         // command to execute on attestation service to create the trust director user;  TODO:  if we can just call an API, that would be better than ssh+command.

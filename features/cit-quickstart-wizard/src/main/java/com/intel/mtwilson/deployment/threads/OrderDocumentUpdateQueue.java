@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
@@ -133,13 +134,15 @@ public class OrderDocumentUpdateQueue implements ServletContextListener {
         private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TaskProgressUpdate.class);
         private UUID orderId;
         private String taskId, name;
+        private boolean done;
         private long progress, progressMax;
         private ArrayList<Fault> faults = new ArrayList<>();
 
-        public TaskProgressUpdate(UUID orderId, String taskId, String name, long progress, long progressMax) {
+        public TaskProgressUpdate(UUID orderId, String taskId, String name, boolean done, long progress, long progressMax) {
             this.orderId = orderId;
             this.taskId = taskId;
             this.name = name;
+            this.done = done;
             this.progress = progress;
             this.progressMax = progressMax;
         }
@@ -150,6 +153,10 @@ public class OrderDocumentUpdateQueue implements ServletContextListener {
 
         public String getName() {
             return name;
+        }
+
+        public boolean isDone() {
+            return done;
         }
         
         public long getProgress() {
@@ -185,6 +192,7 @@ public class OrderDocumentUpdateQueue implements ServletContextListener {
                 tasks.add(found);
             }
             found.setName(name);
+            found.setDone(done);
             found.setProgress(progress);
             found.setProgressMax(progressMax);
             found.getFaults().addAll(faults);
@@ -247,6 +255,32 @@ public class OrderDocumentUpdateQueue implements ServletContextListener {
         
     }
     
+    public static class OrderSettingsUpdate implements OrderDocumentUpdate {
+        private UUID orderId;
+        private Map<String,String> settings = new HashMap<>();
+
+        public OrderSettingsUpdate(UUID orderId, Map<String, String> settings) {
+            this.orderId = orderId;
+            this.settings.putAll(settings); // make a copy
+        }
+
+        @Override
+        public UUID getOrderId() {
+            return orderId;
+        }
+
+        public Map<String, String> getSettings() {
+            return settings;
+        }
+        
+        @Override
+        public void update(OrderDocument order) {
+            if( settings != null ) {
+                order.getSettings().putAll(settings);
+            }
+        }        
+    }
+    
     /**
      * Updates status, progress, and progressMax for the entire order. 
      * Status is a keyword like "PENDING", "ACTIVE", etc.
@@ -257,18 +291,28 @@ public class OrderDocumentUpdateQueue implements ServletContextListener {
         private UUID orderId;
         private String status;
         private Long progress, progressMax;
+        private Collection<Fault> faults;
 
         public OrderStatusUpdate(UUID orderId, String status) {
             this.orderId = orderId;
             this.status = status;
             this.progress = null;
             this.progressMax = null;
+            this.faults = null;
+        }
+        public OrderStatusUpdate(UUID orderId, String status, Collection<Fault> faults) {
+            this.orderId = orderId;
+            this.status = status;
+            this.progress = null;
+            this.progressMax = null;
+            this.faults = faults;
         }
         public OrderStatusUpdate(UUID orderId, String status, Long progress, Long progressMax) {
             this.orderId = orderId;
             this.status = status;
             this.progress = progress;
             this.progressMax = progressMax;
+            this.faults = null;
         }
 
         public String getStatus() {
@@ -293,6 +337,7 @@ public class OrderDocumentUpdateQueue implements ServletContextListener {
             if( status != null ) { order.setStatus(status); }
             if( progress != null ) { order.setProgress(progress); }
             if( progressMax != null ) { order.setProgressMax(progressMax); }
+            if( faults != null ) { order.getFaults().addAll(faults); }
         }
         
     }

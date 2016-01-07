@@ -75,6 +75,7 @@ public abstract class AbstractTask implements Task, Progress, Preconditions, Pos
         try {
             execute();
         } catch (RuntimeException e) {
+            log.error("Execution failed", e);
             faults.add(new ExecutionFailed(e));
         } 
         
@@ -88,7 +89,10 @@ public abstract class AbstractTask implements Task, Progress, Preconditions, Pos
             return;
         }
 
-        done = true;
+        // done is only on successful completion
+        if( faults.isEmpty() ) {
+            done = true;
+        }
     }
 
     abstract public void execute();
@@ -107,6 +111,7 @@ public abstract class AbstractTask implements Task, Progress, Preconditions, Pos
         for (Condition precondition : preconditions) {
             try {
                 if (!precondition.test()) {
+                    log.debug("Precondition failed: {}", precondition.getClass().getName());
                     fault(new PreconditionFailed(precondition));
                     ok = false;
                 }
@@ -124,6 +129,7 @@ public abstract class AbstractTask implements Task, Progress, Preconditions, Pos
         for (Condition postcondition : postconditions) {
             try {
                 if (!postcondition.test()) {
+                    log.debug("Postcondition failed: {}", postcondition.getClass().getName());
                     fault(new PostconditionFailed(postcondition));
                     ok = false;
                 }

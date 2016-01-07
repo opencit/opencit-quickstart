@@ -1,7 +1,7 @@
 {
   "features": [
       {
-          "name": "enforcement_vm_encryption",
+          "name": "encryption_vm",
           "software_packages": [
               "key_broker", "key_broker_proxy", "trust_director", "attestation_service"
           ],
@@ -13,7 +13,19 @@
           ]
       },
       {
-          "name": "integration_openstack",
+          "name": "integration_openstack_nova",
+          "software_packages": [
+              "openstack_extensions"
+          ],
+          "dependencies": [
+              "attestation_host"
+          ],
+          "required_settings": [
+              
+          ]
+      },
+      {
+          "name": "integration_openstack_glance",
           "software_packages": [
               "openstack_extensions"
           ],
@@ -22,6 +34,24 @@
           ],
           "required_settings": [
               "director.glance.tenant", "director.glance.host", "director.glance.port", "director.glance.username", "director.glance.password"
+          ]
+      },
+      {
+          "name": "integration_openstack_barbican",
+          "software_packages": [
+              "key_broker"
+          ],
+          "required_settings": [
+              "kms.barbican.project", "kms.barbican.url"
+          ]
+      },
+      {
+          "name": "integration_kmip",
+          "software_packages": [
+              "key_broker"
+          ],
+          "required_settings": [
+              "kms.kmip.url"
           ]
       },
       {

@@ -33,4 +33,16 @@ public abstract class AbstractPostconfigureTask extends AbstractRemoteTask imple
         return target.getHost();
     }
     
+    protected String setting(String key) {
+        String value = order.getSettings().get(key);
+        if( value == null ) {
+            return "";
+        }
+        return value;
+    }
+    
+    protected void setting(String key, String value) {
+        order.getSettings().put(key, value);
+    }
+    
 }

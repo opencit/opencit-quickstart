@@ -24,7 +24,7 @@ public class Target extends SSH {
     /**
      * The network role of this target host may affect its configuration
      */
-    private NetworkRole networkRole;
+//    private NetworkRole networkRole;
     
     /**
      * The unique names of packages that are installed on this target host
@@ -41,9 +41,11 @@ public class Target extends SSH {
         return packages;
     }
 
+    /*
     public NetworkRole getNetworkRole() {
         return networkRole;
     }
+    */
 
     public Set<String> getPackagesInstalled() {
         return packagesInstalled;
@@ -55,9 +57,11 @@ public class Target extends SSH {
         this.packages = packages;
     }
 
+    /*
     public void setNetworkRole(NetworkRole networkRole) {
         this.networkRole = networkRole;
     }
+    */
 
     public void setPackagesInstalled(Set<String> packagesInstalled) {
         this.packagesInstalled = packagesInstalled;
@@ -71,16 +75,18 @@ public class Target extends SSH {
         }
         Target other = (Target) obj;
         Set<String> otherPackages = other.getPackages();
-        NetworkRole otherNetworkRole = other.getNetworkRole();
+//        NetworkRole otherNetworkRole = other.getNetworkRole();
         boolean equalPackages = false;
-        boolean equalNetworkRole = false;
+//        boolean equalNetworkRole = false;
         if (packages == null && otherPackages == null || packages != null && otherPackages != null && packages.equals(otherPackages)) {
             equalPackages = true;
         }
+        /*
         if (networkRole == null && otherNetworkRole == null || networkRole != null && otherNetworkRole != null && networkRole.equals(otherNetworkRole)) {
             equalNetworkRole = true;
         }
-        return equalPackages && equalNetworkRole && super.equals(obj);
+        */
+        return equalPackages && /*equalNetworkRole &&*/ super.equals(obj);
     }
 
     @Override
@@ -88,7 +94,7 @@ public class Target extends SSH {
         int hash = 7;
         hash = 57 * hash + super.hashCode();
         hash = 57 * hash + Objects.hashCode(this.packages);
-        hash = 57 * hash + Objects.hashCode(this.networkRole);
+//        hash = 57 * hash + Objects.hashCode(this.networkRole);
         return hash;
     }
 }

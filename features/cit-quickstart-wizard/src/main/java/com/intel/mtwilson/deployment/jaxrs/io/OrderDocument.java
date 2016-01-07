@@ -14,8 +14,6 @@ import com.intel.dcsg.cpg.validation.Faults;
 import com.intel.mtwilson.deployment.descriptor.NetworkRole;
 import com.intel.mtwilson.deployment.descriptor.Target;
 import com.intel.mtwilson.jaxrs2.Document;
-import com.intel.mtwilson.util.task.Task;
-import com.intel.mtwilson.util.task.TaskManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

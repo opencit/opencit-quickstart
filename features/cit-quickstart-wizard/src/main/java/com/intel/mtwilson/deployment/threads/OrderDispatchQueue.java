@@ -11,9 +11,11 @@ import com.intel.dcsg.cpg.io.UUID;
 import com.intel.dcsg.cpg.performance.BackgroundThread;
 import com.intel.mtwilson.configuration.ConfigurationFactory;
 import com.intel.mtwilson.deployment.Id;
+import com.intel.mtwilson.deployment.OrderTaskManager;
 import com.intel.mtwilson.deployment.jaxrs.io.OrderDocument;
 import com.intel.mtwilson.deployment.jaxrs.io.OrderDocumentRepository;
 import com.intel.mtwilson.deployment.jaxrs.io.TaskDocument;
+import com.intel.mtwilson.deployment.threads.OrderDocumentUpdateQueue.OrderSettingsUpdate;
 import com.intel.mtwilson.deployment.threads.OrderDocumentUpdateQueue.OrderStatusUpdate;
 import com.intel.mtwilson.deployment.wizard.DeploymentTaskFactory;
 import com.intel.mtwilson.jaxrs2.provider.JacksonObjectMapperProvider;
@@ -133,7 +135,6 @@ public class OrderDispatchQueue implements ServletContextListener {
                         OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderStatusUpdate(nextOrder.getId(), "ACTIVE", 0L, Integer.valueOf(generatedTasks.size()).longValue()));
                     } else {
                         log.error("TaskManager did not generate tasks for this order: {}", orderId);
-                        ObjectMapper mapper = JacksonObjectMapperProvider.createDefaultMapper();
                         log.debug("DeploymentTaskFactory faults: {}", mapper.writeValueAsString(taskFactory));
                         OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderStatusUpdate(nextOrder.getId(), "ERROR", 0L, 0L));
                     }
@@ -174,6 +175,7 @@ public class OrderDispatchQueue implements ServletContextListener {
                     // note that the attribute keys we get back from PropertyUtils are in camelCase  , like "packageName"  ;  we translate to lowercase_with_underscores later
                     Map<String, Object> attributes = PropertyUtils.describe(task);
                     attributes.remove("id");  // unnecessary overlap with id in top level
+                    attributes.remove("done"); // unnecessary overlap with done in top level
                     attributes.remove("current"); // unnecessary overlap with progress in top level
                     attributes.remove("max"); // unnecessary overlap with progressMax in top level
                     attributes.remove("class"); // unnecessary overlap with name in top level
@@ -240,7 +242,8 @@ public class OrderDispatchQueue implements ServletContextListener {
         currentOrders.remove(orderId);
 
         // submit an update request to the order record
-        OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderStatusUpdate(dispatch.getOrderDocument().getId(), "CANCELLED", null, null));
+        OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderStatusUpdate(dispatch.getOrderDocument().getId(), "CANCELLED"));
+        OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderSettingsUpdate(dispatch.getOrderDocument().getId(), dispatch.getOrderDocument().getSettings()));
     }
     
     public static class OrderDispatch {

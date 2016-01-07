@@ -1,7 +1,7 @@
 {
   "features": [
       {
-          "name": "enforcement_vm_encryption",
+          "name": "encryption_vm",
           "software_packages": [
               "key_broker_proxy", "trust_director", "attestation_service"
           ],
@@ -9,11 +9,11 @@
               "attestation_vm", "attestation_host_xm"
           ],
           "required_settings": [
-              
+              "kms.key.provider"
           ]
       },
       {
-          "name": "integration_openstack",
+          "name": "integration_openstack_nova",
           "software_packages": [
               "openstack_extensions"
           ],

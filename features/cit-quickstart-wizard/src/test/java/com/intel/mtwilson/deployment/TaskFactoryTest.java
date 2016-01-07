@@ -30,9 +30,15 @@ public class TaskFactoryTest {
         }
     }
     
+    /**
+     * [{"description":"Precondition failed: com.intel.mtwilson.deployment.conditions.FeatureRequiredSoftwarePackagesIncluded@6e68bc46","precondition":{"not_included":["trust_director"]},"faults":[]}]
+     * 
+     * @throws IOException 
+     */
+    
     @Test
     public void testCreateTasks() throws IOException {
-        OrderDocument order = readOrder("/order4.json");
+        OrderDocument order = readOrder("/order_private_host_attestation.json");
         
                 // generate the tasks that will execute the order;
                 // this includes input validation on selected features and software packages
@@ -50,4 +56,5 @@ public class TaskFactoryTest {
                     log.debug("no generated tasks.  faults: {}", mapper.writeValueAsString(taskFactory.getFaults()));
                 }
     }
+    
 }

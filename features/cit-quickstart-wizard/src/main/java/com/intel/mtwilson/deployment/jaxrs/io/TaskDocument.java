@@ -30,6 +30,7 @@ public class TaskDocument extends Document implements Faults {
     private String name;
     // the sequence number of the task;  this is optional but is useful when need to convey an order of tasks to client when they may be out of order in the response
     private int sequence = 0;
+    private boolean done;
     private long progress, progressMax;
     private Map<String,Object> data;
 
@@ -37,6 +38,10 @@ public class TaskDocument extends Document implements Faults {
         this.name = name;
     }
 
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+    
     public void setProgress(long progress) {
         this.progress = progress;
     }
@@ -47,6 +52,10 @@ public class TaskDocument extends Document implements Faults {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isDone() {
+        return done;
     }
 
     public long getProgress() {

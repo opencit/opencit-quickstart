@@ -2,32 +2,32 @@
   "software_packages": [
      {
        "package_name": "key_broker_proxy",
-       "file_name": "kmsproxy.bin",
+       "file_name": "kmsproxy-0.1-SNAPSHOT.bin",
        "dependencies": [ "attestation_service" ]
      },
      {
        "package_name": "attestation_service",
-       "file_name": "attestation_service.bin",
+       "file_name": "mtwilson-server-3.0-SNAPSHOT-jdk_glassfish_monit.bin",
        "dependencies": [  ]
      },
      {
        "package_name": "key_broker",
-       "file_name": "kms.bin",
-       "dependencies": [ "attestation_service" ]
+       "file_name": "kms-0.1-SNAPSHOT.bin",
+       "dependencies": [ "attestation_service", "openstack_extensions" ]
      },
      {
        "package_name": "openstack_extensions",
-       "file_name": "openstack_extensions.bin",
+       "file_name": "mtwilson-openstack-controller-0.1-SNAPSHOT.bin",
        "dependencies": [ "attestation_service" ]
      },
      {
        "package_name": "trust_agent",
-       "file_name": "trust_agent.bin",
+       "file_name": "trustagent-fake.bin",
        "dependencies": [ "attestation_service", "key_broker_proxy" ]
      },
      {
        "package_name": "trust_director",
-       "file_name": "trust_director.bin",
+       "file_name": "director-0.1-SNAPSHOT.bin",
        "dependencies": [ "attestation_service", "key_broker", "openstack_extensions" ]
      }
   ]

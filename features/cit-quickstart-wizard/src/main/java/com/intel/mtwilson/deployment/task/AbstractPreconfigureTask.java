@@ -100,6 +100,18 @@ public abstract class AbstractPreconfigureTask extends AbstractRemoteTask implem
             throw new IllegalStateException();
         }
     }
+    
+    protected String setting(String key) {
+        String value = order.getSettings().get(key);
+        if( value == null ) {
+            return "";
+        }
+        return value;
+    }
+    
+    protected void setting(String key, String value) {
+        order.getSettings().put(key, value);
+    }
 
     @Override
     public void setOrderDocument(OrderDocument order) {

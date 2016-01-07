@@ -21,7 +21,7 @@ public class SoftwarePackageRepositoryFactory {
     public static SoftwarePackageRepository getInstance() throws IOException {
         synchronized(instanceLock) {
             if( instance == null ) {
-                File file = new File(Folders.repository("software-packages") + File.separator + "software-packages.json");
+                File file = new File(Folders.repository("packages") + File.separator + "packages.json");
                 instance = new JsonSoftwarePackageRepository(new FileInputStream(file));
             }
         }

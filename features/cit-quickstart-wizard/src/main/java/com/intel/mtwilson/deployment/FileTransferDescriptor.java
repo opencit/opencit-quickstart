@@ -21,6 +21,12 @@ public class FileTransferDescriptor {
         this.permissions = null;
     }
 
+    public FileTransferDescriptor(File source) {
+        this.source = source;
+        this.targetPath = source.getName();
+        this.permissions = null;
+    }
+    
     public FileTransferDescriptor(File source, String targetPath) {
         this.source = source;
         this.targetPath = targetPath;

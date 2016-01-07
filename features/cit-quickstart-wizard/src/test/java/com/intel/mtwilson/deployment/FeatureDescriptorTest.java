@@ -69,8 +69,9 @@ return softwarePackageRepository;
     
     /**
      * Expected:
-     * feature names: [enforcement_vm_encryption, attestation_vm, integration_openstack, attestation_host, attestation_host_xm]
-     *  required software packages: [trust_director, key_broker_proxy, attestation_service, openstack_extensions, key_broker]
+     * feature names: [encryption_vm, attestation_vm, integration_openstack_barbican, integration_openstack_nova, integration_kmip, attestation_host, attestation_host_xm, integration_openstack_glance]
+     * required software packages: [trust_director, key_broker_proxy, attestation_service, openstack_extensions, key_broker]
+     * required settings: [] 
      * @throws IOException 
      */
     @Test
@@ -93,8 +94,9 @@ Collection<String> requiredSoftwarePackages = getRequiredSoftwarePackges(feature
     /**
      * 
      * Expected:
-     * feature names: [enforcement_vm_encryption, attestation_vm, integration_openstack, attestation_host, attestation_host_xm]
-     *  required software packages: [trust_director, key_broker_proxy, attestation_service, openstack_extensions]
+     * feature names: [encryption_vm, attestation_vm, integration_openstack_nova, attestation_host, attestation_host_xm]
+     * required software packages: [trust_director, key_broker_proxy, attestation_service, openstack_extensions]
+     * required settings: [kms.key.provider] 
      * 
      * @throws IOException 
      */
@@ -114,9 +116,14 @@ Collection<String> requiredSoftwarePackages = getRequiredSoftwarePackges(feature
    
     /**
      * Expected:
-     * feature names: [enforcement_vm_encryption, attestation_vm, integration_openstack, attestation_host, attestation_host_xm]
-     *  required software packages: [trust_director, key_broker]
-     * 
+     * feature names: [encryption_vm, attestation_vm, integration_openstack_barbican, integration_kmip, integration_openstack_glance]
+     * required software packages: [trust_director, key_broker]
+     * required settings: [director.mtwilson.password, 
+     * director.mtwilson.username, kms.barbican.project, 
+     * director.glance.username, kms.barbican.url, mtwilson.host, 
+     * mtwilson.tls.cert.sha1, director.glance.port, director.glance.host, 
+     * kms.key.provider, director.glance.tenant, mtwilson.port.https, 
+     * director.glance.password]
      * @throws IOException 
      */
    @Test

@@ -35,6 +35,7 @@ public class SSHClientWrapper implements Closeable {
         if( client != null && client.isConnected() ) {
             throw new IllegalStateException("Already connected to "+remote.getHost());
         }
+        log.debug("remote host: {} ssh public key fingerprint: {}", remote.getHost(), remote.getPublicKeyDigest());
         RemoteHostKeyDigestVerifier hostKeyVerifier = new RemoteHostKeyDigestVerifier("MD5", remote.getPublicKeyDigest()); // md5 is insecure but this is done for compatibility with command-line ssh clients that show md5 hash of remote host public key for user to verify
         client = new SSHClient();
         client.addHostKeyVerifier(hostKeyVerifier); // this accepts all remote public keys, then you have to verify the remote host key before continuing!!!
@@ -43,6 +44,17 @@ public class SSHClientWrapper implements Closeable {
         client.authPassword(remote.getUsername(), remote.getPassword());
     }
     
+    public SSHClient client() {
+        return client;
+    }
+    
+    /**
+     * NOTE: you need to start a new "session" for EVERY command. Counter-intuitive.
+     * 
+     * @return
+     * @throws ConnectionException
+     * @throws TransportException 
+     */
     public Session session() throws ConnectionException, TransportException {
         return client.startSession();
     }

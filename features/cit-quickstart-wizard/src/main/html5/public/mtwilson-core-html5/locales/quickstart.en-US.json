@@ -8,7 +8,8 @@
         "trust_director": "Trust Director",
         "key_broker": "Key Broker",
         "key_broker_proxy": "Key Broker Proxy",
-        "openstack_extensions": "OpenStack Extensions"
+        "openstack_extensions": "OpenStack Extensions",
+        "openstack": "OpenStack"
     },
     "tasks": {
         "com_intel_mtwilson_deployment_task_RemoteInstall": "Installing $t(quickstart:packages.{{package_name}}) on {{host}}",
@@ -25,6 +26,12 @@
         "com_intel_mtwilson_deployment_task_PreconfigureTrustAgent": "Configuring $t(quickstart:packages.trust_agent) on {{host}}",
         "com_intel_mtwilson_deployment_task_PreconfigureTrustDirector": "Configuring $t(quickstart:packages.trust_director) on {{host}}",
         "com_intel_mtwilson_deployment_task_SynchronizeSoftwarePackageTargets": "Synchronizing $t(quickstart:packages.{{package_name}})",
-        "com_intel_mtwilson_deployment_task_ImportAttestationServiceCertificatesToKeyBroker": "Importing $t(quickstart:packages.attestation_service) certificates to $t(quickstart:packages.key_broker)"
+        "com_intel_mtwilson_deployment_task_ImportAttestationServiceCertificatesToKeyBroker": "Importing $t(quickstart:packages.attestation_service) certificates to $t(quickstart:packages.key_broker)",
+        "com_intel_mtwilson_deployment_task_PostconfigureOpenstack": "Finishing $t(quickstart:packages.openstack) configuration on {{host}}",
+        "com_intel_mtwilson_deployment_task_CreateTrustDirectorUserInOpenstack": "Creating $t(quickstart:packages.trust_director) credential in $t(quickstart:packages.openstack) on {{host}}",
+        "com_intel_mtwilson_deployment_task_PostconfigureTrustDirector": "Finishing $t(quickstart:packages.trust_director) configuration on {{host}}"
+    },
+    "faults": {
+        "com_intel_mtwilson_deployment_jaxrs_faults_Connection": "Connection failed"
     }
 }

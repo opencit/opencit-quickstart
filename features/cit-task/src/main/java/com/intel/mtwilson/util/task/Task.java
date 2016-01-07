@@ -20,7 +20,7 @@ public interface Task extends Runnable, Faults, Dependencies<Task> {
     
     /**
      * 
-     * @return true if the task was completed; false if it was not started yet, or canceled, or interrupted due to an error
+     * @return true if the task was completed successfully; false if it was not started yet, or canceled, or interrupted due to an error
      */
     boolean isDone();
     

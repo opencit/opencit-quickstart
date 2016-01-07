@@ -7,6 +7,7 @@ package com.intel.mtwilson.deployment;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.Module;
 import com.intel.dcsg.cpg.validation.Fault;
+import com.intel.mtwilson.util.task.Condition;
 
 /**
  *
@@ -27,6 +28,7 @@ public class JacksonModule extends Module {
     @Override
     public void setupModule(SetupContext sc) {
         sc.setMixInAnnotations(Fault.class, FaultTypeMixIn.class);
+        sc.setMixInAnnotations(Condition.class, ConditionTypeMixIn.class);
     }
     
 }
