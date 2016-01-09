@@ -54,7 +54,7 @@ public class CreateTrustDirectorUserInAttestationService extends AbstractPostcon
 
         // command to execute on attestation service to create the trust director user;  TODO:  if we can just call an API, that would be better than ssh+command.
         // TODO:  escape the director username and password
-        String cmdCreateTrustDirectorUser = "/opt/mtwilson/bin/mtwilson login-password " + directorUsername + " " + directorPassword + " --permissions vm_manifests:certify";
+        String cmdCreateTrustDirectorUser = "/opt/mtwilson/bin/mtwilson login-password " + directorUsername + " " + directorPassword + " --permissions trust_policies:certify";
 
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
             client.connect();
