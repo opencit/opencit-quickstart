@@ -309,7 +309,8 @@
                                 <div class="well">
                                     <p>Choose how to deploy the software:</p>
                                     <form data-bind="with: environment">
-                                        <!-- <h2>Network Layout</h2> -->
+                                         <label>Preset Layouts</label>
+                                       <!-- <h2>Network Layout</h2> -->
                                         <!--
                                         <div class="radio">
                                           <label><input type="radio" name="layout" value="LOCALHOST" data-bind="checked: layout, click: $parent.update_layout"/>All-in-one, localhost</label>
@@ -331,6 +332,19 @@
                                           <p class="hint">Installs each component on a separate host or VM.</p>
                                         </div>
                                         -->
+                                        
+                                        <div data-bind="visible: $parent.features.integration_openstack_glance.checked() || $parent.features.integration_openstack_barbican.checked()">
+                                        <label>Layout Options</label>
+                                        <div class="checkbox" data-bind="visible: $parent.features.integration_openstack_glance.checked">
+                                            <label><input type="checkbox" data-bind="checked: layout_options.existing_openstack_glance.checked, disable: layout_options.existing_openstack_glance.disable, click: $parent.update_layout">OpenStack Glance installed separately</label>
+                                            <p class="hint">Configure Trust Director to use an existing OpenStack Glance.</p>
+                                        </div>
+                                        <div class="checkbox" data-bind="visible: $parent.features.integration_openstack_barbican.checked">
+                                            <label><input type="checkbox" data-bind="checked: layout_options.existing_openstack_barbican.checked, disable: layout_options.existing_openstack_barbican.disable, click: $parent.update_layout">OpenStack Barbican installed separately</label>
+                                            <p class="hint">Configure Key Broker to use an existing OpenStack Barbican.</p>
+                                        </div>
+                                        </div>
+                                        
                                     </form>
                                 </div>
                                 <a class="btn btn-default btn-lg next" href="#">Continue</a>
@@ -415,7 +429,9 @@
                                             </form>
                                         </div>
                                     </div>
-                                    <div class="panel panel-primary-subdued" data-bind="visible: features.integration_openstack_barbican.checked">
+                                    
+                                    <!-- visible: features.integration_openstack_barbican.checked -->
+                                    <div class="panel panel-primary-subdued" data-bind="visible: environment.layout_options.existing_openstack_barbican.checked">
                                         <div class="panel-heading"><h3 class="panel-title">Key Server: OpenStack Barbican Integration</h3></div>
                                         <div class="panel-body">
                                             <form data-bind="with: settings">
@@ -436,7 +452,7 @@
                                         </div>
                                     </div>
                                     <div class="panel panel-primary-subdued" data-bind="visible: features.attestation_vm.checked() && environment.network_role() === 'SUBSCRIBER'">
-                                        <div class="panel-heading"><h3 class="panel-title">Attesation Service</h3></div>
+                                        <div class="panel-heading"><h3 class="panel-title">Attestation Service</h3></div>
                                         <div class="panel-body">
                                             <form data-bind="with: settings">
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
@@ -472,7 +488,8 @@
                                             </form>
                                         </div>
                                     </div>
-                                    <div class="panel panel-primary-subdued" data-bind="visible: features.integration_openstack_glance.checked">
+                                    <!-- visible: features.integration_openstack_glance.checked  -->
+                                    <div class="panel panel-primary-subdued" data-bind="visible: environment.layout_options.existing_openstack_glance.checked">
                                         <div class="panel-heading"><h3 class="panel-title">OpenStack Glance Integration</h3></div>
                                         <div class="panel-body">
                                             <form  data-bind="with: settings">
@@ -508,17 +525,25 @@
                                     <p>Enter the address or hostname of each host where software will be installed:</p>
                                     <form data-bind="foreach: targets">
                                         <div class="panel panel-primary-subdued">
-                                            <div class="panel-heading"><h3 class="panel-title">Host</h3></div>
-                                            <div class="panel-body">
-                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title">
+                                                    <span data-bind="visible: !ssh.publicKeyDigestConfirmed()">Edit Host</span>
+                                                    <span data-bind="visible: ssh.publicKeyDigestConfirmed, text: ssh.host"></span>
+                                                    <i class="glyphicon glyphicon-edit" data-bind="visible: ssh.publicKeyDigestConfirmed, click: editHost"></i>
+                                                </h3>
+                                            </div>
+                                            <div class="panel-body" data-bind="visible: !ssh.hostValid() || !ssh.publicKeyDigestConfirmed() || !ssh.passwordValid()">
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;" data-bind="visible: ssh.host().length == 0 || !ssh.publicKeyDigestConfirmed()">
                                                     <label class="col-lg-3">Hostname or IP address</label>
                                                     <div class="col-lg-4">
                                                         <div class="inner-addon right-addon">
-                                                            <input class="form-control input-sm" data-bind="value: host"/>
+                                                            <input class="form-control input-sm" data-bind="value: ssh.host"/>
                                                             <i class="glyphicon glyphicon-ok" data-bind="visible: ssh.hostValid"></i>
                                                             <i class="glyphicon glyphicon-exclamation-sign" data-bind="visible: ssh.hostError"></i>
                                                             <i class="glyphicon glyphicon-hourglass" data-bind="visible: ssh.hostCheckWait"></i>
                                                             <i class="glyphicon glyphicon-lock" data-bind="visible: ssh.hostPasswordRequired"></i>
+                                                            
+                                                            <a class="btn btn-default btn-sm" href="#" data-bind="click: ssh.check_host">Check</a>
                                                             <!-- glyphicon-lock, glyphicon-exclamation-sign , glyphicon-warning-sign ,  glyphicon-alert , glyphicon-hourglass, glyphicon-pencil , glyphicon-edit , glyphicon-check  -->
                                                         </div>
 
@@ -541,14 +566,14 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;" data-bind="visible: ssh.hostValid() && ssh.publicKeyDigest().length && !ssh.passwordValid()">
                                                     <label class="col-lg-3">Host check</label>
                                                     <div class="col-lg-4">
                                                         <p data-bind="text: ssh.publicKeyDigest"></p>
                                                         <label><input type="checkbox" data-bind="checked: ssh.publicKeyDigestConfirmed, enable: ssh.publicKeyDigest().length"/>Accept this SSH key fingerprint</label>
                                                     </div>
                                                 </div>
-                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;" data-bind="visible: ssh.publicKeyDigestConfirmed() && !ssh.passwordValid()">
                                                     <label class="col-lg-3">SSH Password</label>
                                                     <div class="col-lg-4">
                                                         <div class="inner-addon right-addon">
@@ -556,6 +581,7 @@
                                                             <i class="glyphicon glyphicon-ok" data-bind="visible: ssh.passwordValid"></i>
                                                             <i class="glyphicon glyphicon-exclamation-sign" data-bind="visible: ssh.passwordError"></i>
                                                             <i class="glyphicon glyphicon-hourglass" data-bind="visible: ssh.passwordCheckWait"></i>
+                                                            <a class="btn btn-default btn-sm" href="#" data-bind="click: ssh.check_password">Check</a>
                                                         </div>
                                                         <div class="alert alert-info" data-bind="visible: ssh.passwordCheckWait">
                                                             <div class="glyphicon glyphicon-hourglass icon-error"></div>
@@ -1078,15 +1104,11 @@
                     self.password(fn(update.password));
                     self.update_ssh_in_progress = false;
                 };
-
-                self.host.subscribe(function(newValue) {
-                    // the update may have happened as a result of using a previously validated cache entry; if so, the hostValid flag would have already been set. 
-                    // so when hostValid is true, we don't need to do anything here.
-                    // this check is inside isHostValidFormat so that if host is updated because user typed something, we don't skip
-                    if (self.update_ssh_in_progress) {
-                        return;
-                    }
-
+                
+                self.check_host = function() {
+                    var newValue = self.host();
+                    console.log("NEW HOST VALUE: %s", newValue);
+                    
                     if (!isHostFormatValid(newValue)) {
                         self.reset("hostFormatInvalid", "hostError");
                         return;
@@ -1149,19 +1171,25 @@
 
                     });
 
+                    
+                };
 
-                });
-
-                // when user updates the password, check to see if it works.
-                // we mark a host as valid (and update the cache) when we can
-                // connect and have the right password.
-                self.password.subscribe(function(newValue) {
+                /*
+                self.host.subscribe(function(newValue) {
                     // the update may have happened as a result of using a previously validated cache entry; if so, the hostValid flag would have already been set. 
                     // so when hostValid is true, we don't need to do anything here.
+                    // this check is inside isHostValidFormat so that if host is updated because user typed something, we don't skip
                     if (self.update_ssh_in_progress) {
                         return;
                     }
+                    
+                    self.check_host(newValue);
 
+                });
+                */
+
+                self.check_password = function() {
+                    var newValue = self.password();
                     if (self.publicKeyDigest() && self.publicKeyDigestConfirmed()) {
                         self.reset("hostValid", "passwordCheckWait"); // maybe inappropriate to assume hostValid here; does this mean we need two separate reset functions?
 
@@ -1203,7 +1231,24 @@
                     else {
                         console.log("Password is updated but public key digest is not confirmed - not safe to send password");
                     }
+                    
+                };
+                
+                /*
+                // when user updates the password, check to see if it works.
+                // we mark a host as valid (and update the cache) when we can
+                // connect and have the right password.
+                self.password.subscribe(function(newValue) {
+                    // the update may have happened as a result of using a previously validated cache entry; if so, the hostValid flag would have already been set. 
+                    // so when hostValid is true, we don't need to do anything here.
+                    if (self.update_ssh_in_progress) {
+                        return;
+                    }
+
+                    self.check_password(newValue);
+                    
                 });
+                */
 
             }
 
@@ -1244,11 +1289,22 @@
                 // functions below.    
                 self.ssh = new WizardHostSSH();
 
-                self.host.subscribe(function(newValue) {
-                    self.ssh.host(newValue);
+                self.ssh.host.subscribe(function(newValue) {
+                    self.host(newValue);
                 });
 
                 self.ssh.host(self.host()); // 1) ssh object needs to know, 2) if tied to a UI then UI would be updated with current state
+                
+                self.editHost = function() {
+//                    self.ssh.host("");
+    //                self.ssh.port(22);
+    //                self.ssh.username("root");
+//                    self.ssh.password("");
+//                    self.ssh.publicKeyDigest("");
+                    self.ssh.publicKeyDigestConfirmed(false);
+                    self.ssh.reset();
+                };
+                
             }
 
 
@@ -1277,6 +1333,11 @@
                     self.features.attestation_host_xm.force_if(self.features.attestation_vm.checked() || self.features.attestation_container.checked());
                     self.features.attestation_host.force_if(self.features.attestation_host_xm.checked());
                     
+                    if( self.environment.network_role() === "SUBSCRIBER" ) {
+                        self.environment.layout_options.existing_openstack_glance.force_if(self.features.integration_openstack_glance.checked());
+                        self.environment.layout_options.existing_openstack_barbican.force_if(self.features.integration_openstack_barbican.checked());
+                    }
+                    
                     // adding or removing features will affect what needs to be deployed
                     self.update_targets();
                     return true;
@@ -1284,7 +1345,11 @@
 
                 self.environment = {
                     "network_role": ko.observable("PRIVATE"),
-                    "layout": ko.observable("SINGLE_HOST")
+                    "layout": ko.observable("SINGLE_HOST"),
+                    "layout_options": {
+                        "existing_openstack_glance": new WizardFeature({checked: false, disabled: false}),
+                        "existing_openstack_barbican": new WizardFeature({checked: false, disabled: false})
+                    }
                 };
 
                 self.update_network_role = function() {
@@ -1296,6 +1361,14 @@
                         self.features[packageName].checked(false);
                         self.features[packageName].disable(false);
                     }
+                    var layoutOptionNames = ["existing_openstack_glance","existing_openstack_barbican"];
+                    for(var i=0; i<layoutOptionNames.length; i++) {
+                        var layoutOptionName = layoutOptionNames[i];
+                        self.environment.layout_options[layoutOptionName].release();
+                        self.environment.layout_options[layoutOptionName].checked(false);
+                        self.environment.layout_options[layoutOptionName].disable(false);
+                    }
+                    
                     // now check and/or disable individual feature defaults based on the network role
                     if( self.environment.network_role() === "PRIVATE" ) {
                         self.features.attestation_host.checked(true);                     
@@ -1313,7 +1386,7 @@
 //                        self.features.attestation_host_xm.disable(true);                     
                         self.features.attestation_vm.checked(true);
                         self.features.integration_openstack_nova.checked(true);
-                        self.features.integration_openstack_glance.checked(true);
+//                        self.features.integration_openstack_glance.checked(true);
                     }
                     if( self.environment.network_role() === "SUBSCRIBER" ) {
                         self.features.attestation_vm.checked(true);
@@ -1327,6 +1400,7 @@
                 
                 self.update_layout = function() {
                     // network layout will affect what needs to be deployed
+                    
                     self.update_targets();
                     return true;
                 };
@@ -1460,7 +1534,7 @@
                 self.layoutManagers = {
                     "LOCALHOST": function(packages) {
                         var targets = [];
-                        var target = new WizardTarget({host: "127.0.0.1"});
+                        var target = new WizardTarget({host: ""});
                         targets.push(target); // TO DO: ADD ONE FOR OPENSTACK IF ENABLED
                         return targets;
                     },
@@ -1468,7 +1542,7 @@
                         var targets = [];
                         var packageNames = Object.keys(packages);
                         var countPackages = packageNames.length;
-                        var target = new WizardTarget({host: "127.0.0.1"});
+                        var target = new WizardTarget({host: ""});
                         for (var i = 0; i < countPackages; i++) {
                             target.packages.push(packageNames[i]);
                         }
@@ -1529,6 +1603,7 @@
                     var networkRole = ko.toJS(self.environment.network_role);
                     var targets = ko.toJS(self.targets);
                     var settings = ko.toJS(self.settings);
+                    var layoutOptions = ko.toJS(self.environment.layout_options);
 
                     var data = {};
                     data.features = []; // only the selected feature names
@@ -1577,6 +1652,15 @@
                         // convert setting names like saml_validity_seconds to saml.validity.seconds for the server
                         var serverSettingName = settingName.replace(/_/g, ".");
                         data.settings[ serverSettingName ] = settings[ settingName ];
+                    }
+                    
+                    var layoutOptionNames = Object.keys(layoutOptions);
+                    var layoutOptionCount = layoutOptionNames.length;
+                    for(var i=0; i<layoutOptionCount; i++) {
+                        var layoutOptionName = layoutOptionNames[i];
+                        // convert layout options to layout settings, so existing_openstack_glance becomes layout.existing.openstack.glance
+                        var serverSettingName = "layout." + layoutOptionName.replace(/_/g, "."); 
+                        data.settings[ serverSettingName ] = layoutOptions[ layoutOptionName ].checked ? "true" : "false";
                     }
 
                     console.log("Ready to deploy with data: %O", data);
