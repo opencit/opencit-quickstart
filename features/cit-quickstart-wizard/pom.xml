@@ -93,6 +93,14 @@
             <optional>true</optional>
         </dependency>
     
+        <dependency>
+            <!-- Purpose: scheduling tasks to run in background -->
+            <!-- URL: https://quartz-scheduler.org -->
+            <!-- License: Apache 2.0 -->
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.2.2</version>
+        </dependency>
 
         <dependency>
             <!-- Purpose: processing template documents to generate .env files -->
