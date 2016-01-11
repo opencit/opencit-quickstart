@@ -238,6 +238,11 @@ else
   crontab -u $CIT_USERNAME -l | cat - $CIT_CONFIGURATION/crontab | crontab -u $CIT_USERNAME -
 fi
 
+# add log rotation
+if [ -d /etc/logrotate.d ]; then
+  echo -e "$CIT_LOGS/*.log {\n  daily\n  missingok\n  compress\n  notifempty\n  copytruncate\n  rotate 7\n  size 10m\n}" > /etc/logrotate.d/cit
+fi
+
 # setup the cit, unless the NOSETUP variable is defined
 if [ -z "$CIT_NOSETUP" ]; then
 

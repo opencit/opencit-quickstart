@@ -49,14 +49,14 @@ import org.apache.commons.beanutils.PropertyUtils;
  */
 @WebListener
 public class OrderDispatchQueue implements ServletContextListener {
-    
+
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OrderDispatchQueue.class);
     private static final ConcurrentLinkedQueue<OrderDocument> dispatchQueue = new ConcurrentLinkedQueue<>();
     private static final ConcurrentHashMap<String, OrderDispatch> currentOrders = new ConcurrentHashMap<>();
     private static final BackgroundThread dispatchThread = new BackgroundThread();
 //    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static final ExecutorService executor = Executors.newCachedThreadPool();
-    
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         log.debug("OrderDispatchQueue contextInitialized");
@@ -74,7 +74,7 @@ public class OrderDispatchQueue implements ServletContextListener {
         dispatchThread.start();
         log.debug("OrderDispatchQueue started dispatch thread");
     }
-    
+
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         log.debug("OrderDispatchQueue contextInitialized");
@@ -88,7 +88,7 @@ public class OrderDispatchQueue implements ServletContextListener {
      * OrderDocument asynchronously
      */
     public static class OrderDispatchPeriodicTask implements Runnable {
-        
+
         private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OrderDispatchPeriodicTask.class);
         private final OrderDocumentRepository repository = new OrderDocumentRepository();
         private final PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy namingStrategy = new PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy();
@@ -110,43 +110,43 @@ public class OrderDispatchQueue implements ServletContextListener {
 
                     // create the task manager for executing the order
                     List<Task> generatedTasks = taskFactory.getOutput();
-                    
-                    
+
+
                     if (generatedTasks != null && !generatedTasks.isEmpty()) {
                         TaskManager taskManager = new TaskManager(generatedTasks);
                         nextOrder.setTasks(createTaskDocuments(taskManager.getTasks()));
-                        
+
                         if (log.isDebugEnabled()) {
                             log.debug("order document with tasks: {}", mapper.writeValueAsString(nextOrder));
                         }
 
                         // store the order again, this time with task-specific data from createTaskDocuments()
                         repository.store(nextOrder);
-                        
+
                         log.debug("Submitting new order for execution: {}", orderId);
                         Future<String> future = executor.submit(taskManager, orderId);
                         OrderDispatch dispatch = new OrderDispatch(nextOrder, taskManager, future);
                         currentOrders.put(orderId, dispatch);
                         log.debug("Added new order to current orders map: {}", orderId);
-                        
+
                         OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderStatusUpdate(nextOrder.getId(), "ACTIVE", 0L, Integer.valueOf(generatedTasks.size()).longValue()));
                     } else {
                         log.error("TaskManager did not generate tasks for this order: {}", orderId);
                         log.debug("DeploymentTaskFactory faults: {}", mapper.writeValueAsString(taskFactory));
                         OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderStatusUpdate(nextOrder.getId(), "ERROR", 0L, 0L));
                     }
-                    
+
                 } catch (IOException | RuntimeException e) {
                     log.error("Cannot dispatch order", e);
                     nextOrder.getFaults().add(new Thrown(e, "Cannot dispatch order"));
                     repository.store(nextOrder); // store the updated order with the fault
                 }
-                
-                
+
+
                 nextOrder = dispatchQueue.poll();
             }
         }
-        
+
         private List<TaskDocument> createTaskDocuments(Collection<Task> tasks) {
             ArrayList<TaskDocument> taskDocuments = new ArrayList<>();
             int sequence = 0;
@@ -196,7 +196,7 @@ public class OrderDispatchQueue implements ServletContextListener {
                 // add a link to an API that will show any output from the task
                 // such as logs
                 taskDocument.getLinks().put("output", "/v1/quickstart/tasks/" + taskDocument.getId().toString() + "/output");
-                
+
                 taskDocuments.add(taskDocument);
             }
             return taskDocuments;
@@ -214,11 +214,11 @@ public class OrderDispatchQueue implements ServletContextListener {
     public static ConcurrentLinkedQueue<OrderDocument> getDispatchQueue() {
         return dispatchQueue;
     }
-    
+
     public static ConcurrentHashMap<String, OrderDispatch> getCurrentOrders() {
         return currentOrders;
     }
-    
+
     public static void cancelOrder(String orderId) {
         OrderDispatch dispatch = currentOrders.get(orderId);
         if (dispatch == null) {
@@ -242,27 +242,27 @@ public class OrderDispatchQueue implements ServletContextListener {
         OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderStatusUpdate(dispatch.getOrderDocument().getId(), "CANCELLED"));
         OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderSettingsUpdate(dispatch.getOrderDocument().getId(), dispatch.getOrderDocument().getSettings()));
     }
-    
+
     public static class OrderDispatch {
-        
+
         private OrderDocument orderDocument;
         private TaskManager taskManager;
         private Future<String> future;
-        
+
         public OrderDispatch(OrderDocument orderDocument, TaskManager taskManager, Future<String> future) {
             this.orderDocument = orderDocument;
             this.taskManager = taskManager;
             this.future = future;
         }
-        
+
         public OrderDocument getOrderDocument() {
             return orderDocument;
         }
-        
+
         public TaskManager getTaskManager() {
             return taskManager;
         }
-        
+
         public Future<String> getFuture() {
             return future;
         }

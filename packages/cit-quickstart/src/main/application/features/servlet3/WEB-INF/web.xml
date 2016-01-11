@@ -26,6 +26,9 @@
     <listener>
         <listener-class>com.intel.mtwilson.deployment.threads.OrderProgressMonitor</listener-class>
     </listener>
+    <listener>
+        <listener-class>com.intel.mtwilson.deployment.threads.QuartzManager</listener-class>
+    </listener>
     
     <listener>
         <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>

@@ -4,6 +4,7 @@
  */
 package com.intel.mtwilson.task;
 
+import com.intel.dcsg.cpg.io.file.FileOnlyFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intel.mtwilson.jaxrs2.Document;
 import com.intel.mtwilson.repository.RepositoryCreateConflictException;
@@ -56,19 +57,6 @@ public class JsonFileRepository {
             list.add(file.getName());
         }
         return list;
-    }
-    
-    /**
-     * An implementation of {@code java.io.FileFilter} that only accepts files
-     * (not directories).
-     */
-    public static class FileOnlyFilter implements FileFilter {
-
-        @Override
-        public boolean accept(File pathname) {
-            return pathname.isFile();
-        }
-        
     }
     
     /**
