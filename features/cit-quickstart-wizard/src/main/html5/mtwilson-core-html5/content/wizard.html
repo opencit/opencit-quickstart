@@ -1380,9 +1380,15 @@
                     // rest of these are dependency relationships
 //                    self.features.encryption_vm.force_if(self.features.integration_openstack_barbican.checked() || self.features.integration_kmip.checked());
                     self.features.attestation_vm.force_if(self.features.encryption_vm.checked() || self.environment.network_role() === "SUBSCRIBER"); // for subscriber, the minimum install is trust director with vm integrity
-                    self.features.attestation_host_xm.force_if(self.features.attestation_vm.checked() || self.features.attestation_container.checked());
-                    self.features.attestation_host.force_if(self.features.attestation_host_xm.checked());
                     
+                    if( self.environment.network_role() === "PRIVATE" ) {
+                        self.features.attestation_host_xm.force_if(self.features.attestation_vm.checked() || self.features.attestation_container.checked());
+                        self.features.attestation_host.force_if(self.features.attestation_host_xm.checked());
+                    }
+                    if( self.environment.network_role() === "PROVIDER" ) {
+                        self.features.attestation_host_xm.force_if(self.features.attestation_vm.checked() || self.features.attestation_container.checked());
+                        self.features.attestation_host.force_if(self.features.attestation_host_xm.checked());
+                    }
                     if( self.environment.network_role() === "SUBSCRIBER" ) {
                         self.environment.layout_options.existing_openstack_glance.force_if(self.features.integration_openstack_glance.checked());
                         self.environment.layout_options.existing_openstack_barbican.force_if(self.settings.kms_key_provider()==='com.intel.kms.barbican.client.BarbicanKeyManager');
