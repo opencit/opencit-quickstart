@@ -88,37 +88,32 @@ public class QuartzManager implements ServletContextListener {
      */
     public static class QuartzJobRunnableAdaptor implements Job {
 
-        private Runnable runnable;
-
-        public QuartzJobRunnableAdaptor(Runnable runnable) {
-            this.runnable = runnable;
-        }
-
         @Override
         public void execute(JobExecutionContext jec) throws JobExecutionException {
+            String runnableClassName = jec.getJobDetail().getJobDataMap().getString("runnable.class");
             try {
-                if( runnable == null ) {
-                    String runnableClassName = jec.getJobDetail().getJobDataMap().getString("runnable.class");
-                    if(runnableClassName != null ) {
-                        Class runnableClass = Class.forName(runnableClassName);
-                        Object runnableObject = runnableClass.newInstance();
-                        if( runnableObject instanceof Runnable ) {
-                            runnable = (Runnable)runnableObject;
-                        }
-                        else {
-                            log.error("Class {} does not implement Runnable", runnableClassName);
-                            throw new IllegalArgumentException(runnableClassName);
-                        }
+                Runnable runnable = null;
+                if(runnableClassName != null ) {
+                    Class runnableClass = Class.forName(runnableClassName);
+                    Object runnableObject = runnableClass.newInstance();
+                    if( runnableObject instanceof Runnable ) {
+                        runnable = (Runnable)runnableObject;
+                    }
+                    else {
+                        log.error("Class {} does not implement Runnable", runnableClassName);
+                        throw new IllegalArgumentException(runnableClassName);
                     }
                 }
-                if (runnable instanceof Configurable) {
-                    Configuration configuration = ConfigurationFactory.getConfiguration();
-                    Configurable configurable = (Configurable) runnable;
-                    configurable.configure(configuration);
+                if( runnable != null ) {
+                    if (runnable instanceof Configurable) {
+                        Configuration configuration = ConfigurationFactory.getConfiguration();
+                        Configurable configurable = (Configurable) runnable;
+                        configurable.configure(configuration);
+                    }
+                    runnable.run();
                 }
-                runnable.run();
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | IOException e) {
-                log.error("Error while running job class {}", runnable.getClass().getName());
+                log.error("Error while running job class {}", runnableClassName);
                 throw new JobExecutionException(e);
             }
         }

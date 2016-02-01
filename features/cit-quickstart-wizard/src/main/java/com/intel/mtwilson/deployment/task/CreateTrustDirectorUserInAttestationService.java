@@ -5,17 +5,10 @@
 package com.intel.mtwilson.deployment.task;
 
 import com.intel.dcsg.cpg.crypto.RandomUtil;
-import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.deployment.SSHClientWrapper;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
-import java.io.File;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.UUID;
-import net.schmizz.sshj.connection.channel.direct.Session;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
 /**
  * This is an integration task: prior to installing trust director, a user must
@@ -57,34 +50,9 @@ public class CreateTrustDirectorUserInAttestationService extends AbstractPostcon
         String cmdCreateTrustDirectorUser = "/opt/mtwilson/bin/mtwilson login-password " + directorUsername + " " + directorPassword + " --permissions trust_policies:certify";
 
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
-            client.connect();
-            try (Session session = client.session()) {
-                Session.Command command = session.exec(cmdCreateTrustDirectorUser);
-                InputStream stdout = command.getInputStream();
-                InputStream stderr = command.getErrorStream();
-                String stdoutText = IOUtils.toString(stdout, "UTF-8");
-
-                // we don't need the output when successfull
-                // REST OF THIS SECTION IS JUST TO RECORD THE OUTPUT FOR DEBUGGING
-
-                String stderrText = IOUtils.toString(stderr, "UTF-8");
-                log.debug("result: {}", stdoutText);
-
-                // ensure output directory exists
-                File outputDirectory = new File(Folders.repository("tasks") + File.separator + getId());
-                outputDirectory.mkdirs();
-                log.debug("Output directory: {}", outputDirectory.getAbsolutePath());
-
-                // store the stdout into a file
-                File stdoutFile = new File(Folders.repository("tasks") + File.separator + getId() + File.separator + "stdout.log");
-                FileUtils.writeStringToFile(stdoutFile, stdoutText, Charset.forName("UTF-8"));
-
-                // store the stderr into a file
-                File stderrFile = new File(Folders.repository("tasks") + File.separator + getId() + File.separator + "stderr.log");
-                FileUtils.writeStringToFile(stderrFile, stderrText, Charset.forName("UTF-8"));
-
-            }
-            client.disconnect();
+            
+            sshexec(client, cmdCreateTrustDirectorUser);
+            
         } catch (Exception e) {
             log.error("Connection failed", e);
             fault(new Connection(remote.getHost()));

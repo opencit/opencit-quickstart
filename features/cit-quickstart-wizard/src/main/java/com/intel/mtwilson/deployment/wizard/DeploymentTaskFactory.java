@@ -4,7 +4,6 @@
  */
 package com.intel.mtwilson.deployment.wizard;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.deployment.Feature;
 import com.intel.mtwilson.deployment.FeatureRepository;
@@ -23,7 +22,6 @@ import com.intel.mtwilson.deployment.conditions.FeatureAvailable;
 import com.intel.mtwilson.deployment.conditions.FeatureDependenciesIncluded;
 import com.intel.mtwilson.deployment.conditions.FeatureRequiredSoftwarePackagesIncluded;
 import com.intel.mtwilson.deployment.conditions.SoftwarePackageAvailable;
-import com.intel.mtwilson.deployment.conditions.SoftwarePackageDependenciesIncluded;
 import com.intel.mtwilson.deployment.descriptor.NetworkRole;
 import com.intel.mtwilson.deployment.descriptor.Target;
 import com.intel.mtwilson.deployment.jaxrs.faults.Null;
@@ -45,6 +43,7 @@ import com.intel.mtwilson.deployment.task.PreconfigureOpenstackExtensions;
 import com.intel.mtwilson.deployment.task.PreconfigureTrustAgent;
 import com.intel.mtwilson.deployment.task.PreconfigureTrustDirector;
 import com.intel.mtwilson.deployment.task.RemoteInstall;
+import com.intel.mtwilson.deployment.task.RetrieveLinuxOperatingSystemVersion;
 import com.intel.mtwilson.deployment.task.SynchronizeSoftwarePackageTargets;
 import com.intel.mtwilson.util.task.AbstractTask;
 import com.intel.mtwilson.util.task.DependenciesUtil;
@@ -64,10 +63,10 @@ import java.util.Set;
  *
  * create dependencies between products installations:
  * <pre>
- * trust_agent depends on attestation_service
+ * trustagent_ubuntu depends on attestation_service
  * key_broker_proxy depends on attestation_service
  * key_broker depends on attestation_service
- * trust_director depends on attestation_service and key_broker (if present) and openstack_extensions (if present)
+ * director depends on attestation_service and key_broker (if present) and openstack_extensions (if present)
  * openstack_extensions depends on attestation_service
  * attestation_service (does not have dependencies)
  * </pre>
@@ -141,7 +140,7 @@ public class DeploymentTaskFactory extends AbstractTask {
 
     /**
      * <pre>
-     * Set<Target> targets = request.getTargets(); // each one with host, port, username, password, publicKeyDigest, timeout, networkRole, and packages list with any of [key_broker, key_broker_proxy, trust_director, trust_agent, attestation_service, openstack_extensions]
+     * Set<Target> targets = request.getTargets(); // each one with host, port, username, password, publicKeyDigest, timeout, networkRole, and packages list with any of [key_broker, key_broker_proxy, director, trustagent_ubuntu, attestation_service, openstack_extensions]
      *
      * // validate input:  do we support all the specified features?
      * Set<String> selectedfeatureNames = request.getFeatures();
@@ -204,12 +203,12 @@ public class DeploymentTaskFactory extends AbstractTask {
             postconfigureAttestationService.getDependencies().add(remoteInstall);
             tasks.add(postconfigureAttestationService);
             // IF the order includes trust director too (any target host), then we need to create a user for director to connect to mtwilson (see bug #4866)
-            if( selectedSoftwarePackageMap.containsKey("trust_director") ) {
+            if( selectedSoftwarePackageMap.containsKey("director") ) {
                 CreateTrustDirectorUserInAttestationService createDirectorUser = new CreateTrustDirectorUserInAttestationService(target);
                 createDirectorUser.getDependencies().add(postconfigureAttestationService);
                 tasks.add(createDirectorUser);
             }
-            if( selectedSoftwarePackageMap.containsKey("trust_agent") ) {
+            if( selectedSoftwarePackageMap.containsKey("trustagent_ubuntu") ) {
                 CreateTrustAgentUserInAttestationService createTrustagentUser = new CreateTrustAgentUserInAttestationService(target);
                 createTrustagentUser.getDependencies().add(postconfigureAttestationService);
                 tasks.add(createTrustagentUser);
@@ -234,7 +233,7 @@ public class DeploymentTaskFactory extends AbstractTask {
                 tasks.add(importDataBundle);
             }
             // IF the order includes trust director too (any target host), then we need to create a user for director to connect to key broker (see bug #4866)
-            if( selectedSoftwarePackageMap.containsKey("trust_director") ) {
+            if( selectedSoftwarePackageMap.containsKey("director") ) {
                 CreateTrustDirectorUserInKeyBroker createDirectorUser = new CreateTrustDirectorUserInKeyBroker(target);
                 createDirectorUser.getDependencies().add(postconfigureKeyBroker);
                 tasks.add(createDirectorUser);
@@ -249,7 +248,7 @@ public class DeploymentTaskFactory extends AbstractTask {
             tasks.add(fileTransferEnvFile);
             remoteInstall.getDependencies().add(fileTransferEnvFile);
         }
-        if( softwarePackage.getPackageName().equals("trust_director")) {
+        if( softwarePackage.getPackageName().equals("director")) {
             PreconfigureTrustDirector generateEnvFile = new PreconfigureTrustDirector();
             tasks.add(generateEnvFile);
             // copy the env file
@@ -261,15 +260,6 @@ public class DeploymentTaskFactory extends AbstractTask {
             PostconfigureTrustDirector postconfigureTrustDirector = new PostconfigureTrustDirector(target);
             postconfigureTrustDirector.getDependencies().add(remoteInstall);
             tasks.add(postconfigureTrustDirector);            
-        }
-        if( softwarePackage.getPackageName().equals("trust_agent")) {
-            PreconfigureTrustAgent generateEnvFile = new PreconfigureTrustAgent();
-            tasks.add(generateEnvFile);
-            // copy the env file
-            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile.getFileTransferManifest());
-            fileTransferEnvFile.getDependencies().add(generateEnvFile);
-            tasks.add(fileTransferEnvFile);
-            remoteInstall.getDependencies().add(fileTransferEnvFile);
         }
         if( softwarePackage.getPackageName().equals("openstack_extensions")) {
             PreconfigureOpenstackExtensions generateEnvFile = new PreconfigureOpenstackExtensions();
@@ -284,12 +274,37 @@ public class DeploymentTaskFactory extends AbstractTask {
             postconfigureOpenstackExtensions.getDependencies().add(remoteInstall);
             tasks.add(postconfigureOpenstackExtensions);
             // create a director user in openstack
-            if( selectedSoftwarePackageMap.containsKey("trust_director") ) {
+            if( selectedSoftwarePackageMap.containsKey("director") ) {
                 CreateTrustDirectorUserInOpenstack createDirectorUserInOpenstack = new CreateTrustDirectorUserInOpenstack(target);
                 createDirectorUserInOpenstack.getDependencies().add(postconfigureOpenstackExtensions);
                 tasks.add(createDirectorUserInOpenstack);
             }
         }
+        if( softwarePackage.getPackageName().equals("trustagent_ubuntu")) {
+            PreconfigureTrustAgent generateEnvFile = new PreconfigureTrustAgent();
+            tasks.add(generateEnvFile);
+            // copy the env file
+            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile.getFileTransferManifest());
+            fileTransferEnvFile.getDependencies().add(generateEnvFile);
+            tasks.add(fileTransferEnvFile);
+            
+            // currently we don't install trust agent, we just copy the installer and .env files to the host
+            // remoteInstall.getDependencies().add(fileTransferEnvFile);
+            tasks.remove(remoteInstall);  // the remoteInstall task is defined above for all cases, so we remoe it here to not actually run the installer for trust agent... for now.
+            
+            // for trust agent, we need to detect the distribution so we can send appropriate additional files
+            RetrieveLinuxOperatingSystemVersion retrieveLinuxOperatingSystemVersion = new RetrieveLinuxOperatingSystemVersion();
+            tasks.add(retrieveLinuxOperatingSystemVersion);
+            generateEnvFile.getDependencies().add(retrieveLinuxOperatingSystemVersion);
+            // for trust agent, we have an extra file to send (the tpm patched tools) for both ubuntu and redhat distributions... 
+            // but instead of special logic here, it's better to just mention it in config file for both...
+            // one possibility is to have a map of operating system name -> additional files and make it generically available to all software packages
+            // another possibility is to make software package "variations" with one per supported OS, while keeping software package name global,
+            // so we could add a step to detect if the software package is available for the target OS and if not then use the generic package
+            // doing that means we have to take all additional files and incldue them in the isntaller itself for that target OS;  
+            // so for redhat any extra .rpms that can't be found in rhel repo need to be included in the trustagent_redhat installer.            
+        }
+        
         
         // provide context to tasks according to their needs
         // this means tasks must not try to use this context except before execute()
@@ -321,7 +336,7 @@ public class DeploymentTaskFactory extends AbstractTask {
          *             SynchronizeAttestationService task = new SynchronizeAttestationService(softwarePackage, targets);
          *             return task;
          *         }
-         *         if( softwarePackage.getPackageName().equals("trust_director")) {
+         *         if( softwarePackage.getPackageName().equals("director")) {
          *             ...
          *         }
          * </pre>
@@ -425,7 +440,7 @@ public class DeploymentTaskFactory extends AbstractTask {
 //        List<String> orderedAvailableFeatureNameList = createOrderedAvailableFeatureNameList();
 //        List<String> orderedAvailableSoftwarePackageNameList = createOrderedAvailableSoftwarePackageNameList();
         
-        // each target specifies host, port, username, password, publicKeyDigest, timeout, networkRole, and packages list with any of [key_broker, key_broker_proxy, trust_director, trust_agent, attestation_service, openstack_extensions]
+        // each target specifies host, port, username, password, publicKeyDigest, timeout, networkRole, and packages list with any of [key_broker, key_broker_proxy, director, trustagent_ubuntu, attestation_service, openstack_extensions]
         Set<Target> targets = order.getTargets(); 
         log.debug("targets: {}", targets.size());
         // the software packages are installed in groups:  given the list of software

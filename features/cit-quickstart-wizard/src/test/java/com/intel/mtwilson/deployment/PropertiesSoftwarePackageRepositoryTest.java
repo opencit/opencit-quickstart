@@ -38,8 +38,8 @@ public class PropertiesSoftwarePackageRepositoryTest {
         map.put("attestation_service", "attestation_service.bin");
         map.put("key_broker", "kms.bin");
         map.put("openstack_extensions", "openstack_extensions.bin");
-        map.put("trust_agent", "trust_agent.bin");
-        map.put("trust_director", "trust_director.bin");
+        map.put("trustagent_ubuntu", "trustagent-ubuntu.bin");
+        map.put("director", "director.bin");
         return map;
         */
     }

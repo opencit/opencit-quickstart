@@ -6,18 +6,11 @@ package com.intel.mtwilson.deployment.task;
 
 import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.dcsg.cpg.validation.Fault;
-import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.deployment.SSHClientWrapper;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
 import com.intel.mtwilson.util.exec.Result;
-import java.io.File;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.UUID;
-import net.schmizz.sshj.connection.channel.direct.Session;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
 /**
  * This is an integration task: prior to installing trust director, a user must
@@ -56,11 +49,6 @@ public class CreateTrustDirectorUserInKeyBroker extends AbstractPostconfigureTas
         }
 
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
-            client.connect();
-                // ensure output directory exists
-                File outputDirectory = new File(Folders.repository("tasks") + File.separator + getId());
-                outputDirectory.mkdirs();
-                log.debug("Output directory: {}", outputDirectory.getAbsolutePath());
                 
                 // command to execute on attestation service to create the trust director user;  TODO:  if we can just call an API, that would be better than ssh+command.;  see also bug #4866
                 // TODO:  escape the director username and password
@@ -71,7 +59,6 @@ public class CreateTrustDirectorUserInKeyBroker extends AbstractPostconfigureTas
                     log.error("Failed to create kms user: {}", directorUsername);
                     fault(new Fault("Cannot create user for Trust Director"));
                 }
-            client.disconnect();
         } catch (Exception e) {
             log.error("Connection failed", e);
             fault(new Connection(remote.getHost()));

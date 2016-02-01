@@ -6,12 +6,10 @@ package com.intel.mtwilson.deployment.task;
 
 import com.intel.dcsg.cpg.crypto.digest.Digest;
 import com.intel.dcsg.cpg.validation.Fault;
-import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.deployment.SSHClientWrapper;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
 import com.intel.mtwilson.util.exec.Result;
-import java.io.File;
 
 /**
  *
@@ -30,12 +28,6 @@ public class PostconfigureTrustDirector extends AbstractPostconfigureTask {
     public void execute() {
 
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
-            client.connect();
-
-            // ensure output directory exists
-            File outputDirectory = new File(Folders.repository("tasks") + File.separator + getId());
-            outputDirectory.mkdirs();
-            log.debug("Output directory: {}", outputDirectory.getAbsolutePath());
 
             // get tls cert sha1 fingerprint
             String cmdGetTlsCertSha1 = "/bin/cat /opt/director/configuration/https.properties | /bin/grep tls.cert.sha1 | /usr/bin/tr '=' ' ' | /usr/bin/awk '{print $2}'";
@@ -59,7 +51,6 @@ public class PostconfigureTrustDirector extends AbstractPostconfigureTask {
                 log.error("Failed to create admin user in trust director");
                 fault(new Fault("Failed to create user"));
             }
-            client.disconnect();
         } catch (Exception e) {
             log.error("Connection failed", e);
             fault(new Connection(remote.getHost()));

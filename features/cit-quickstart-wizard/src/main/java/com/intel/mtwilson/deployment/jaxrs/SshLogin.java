@@ -4,6 +4,8 @@
  */
 package com.intel.mtwilson.deployment.jaxrs;
 
+import com.intel.mtwilson.deployment.OperatingSystemInfo;
+import com.intel.mtwilson.deployment.LinuxKernelInfo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intel.dcsg.cpg.configuration.Configuration;
@@ -19,16 +21,21 @@ import com.intel.mtwilson.crypto.password.HashedPassword;
 import com.intel.mtwilson.configuration.ConfigurationFactory;
 import com.intel.mtwilson.core.PasswordVaultFactory;
 import com.intel.mtwilson.crypto.password.PasswordUtil;
+import com.intel.mtwilson.deployment.LinuxKernelInfoParser;
+import com.intel.mtwilson.deployment.LinuxReleaseInfoParser;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
 import com.intel.mtwilson.deployment.jaxrs.faults.ConnectionTimeout;
 import com.intel.mtwilson.deployment.jaxrs.faults.NoRouteToHost;
+import com.intel.mtwilson.deployment.task.AbstractRemoteTask;
 import com.intel.mtwilson.launcher.ws.ext.V2;
 import com.intel.mtwilson.util.crypto.keystore.PasswordKeyStore;
+import com.intel.mtwilson.util.exec.Result;
 import com.intel.mtwilson.util.ssh.RemoteHostKey;
 import com.intel.mtwilson.util.ssh.RemoteHostKeyDeferredVerifier;
 import com.intel.mtwilson.util.ssh.RemoteHostKeyDigestVerifier;
 import com.intel.mtwilson.util.ssh.SshUtils;
+import com.intel.mtwilson.util.task.Condition;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
@@ -42,6 +49,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -50,6 +61,7 @@ import javax.ws.rs.core.MediaType;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.transport.TransportException;
 import net.schmizz.sshj.userauth.UserAuthException;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Call without public key and password to just get the remote host's public key
@@ -58,6 +70,13 @@ import net.schmizz.sshj.userauth.UserAuthException;
  * Call with public key and password to attempt login to remote host and report
  * success or failure
  *
+ * Add a "packages" array to the request and the server will attempt to detect
+ * if the packages can be installed on the specified host by checking for
+ * pre-requisites.  The server only checks pre-requisites if it knows how to
+ * check pre-requisites for a given software package.  It is not an error if
+ * the server does not have a pre-requisites check for a specified package, but
+ * the server MAY return a fault if the package is not known at all.
+ * 
  * @author jbuhacoff
  */
 @V2
@@ -105,6 +124,7 @@ public class SshLogin {
      *
      * {
      *   "host":"192.168.1.100",
+     *   "public_key_digest":"22952a72e24194f208200e76fd3900da",
      *   "password":"password to test"
      * }
      * </pre>
@@ -180,14 +200,29 @@ public class SshLogin {
      * }
      * </pre>
      *
+     * HOW TO CHECK PASSWORD FOR SSH LOGIN TO REMOTE HOST AND PACKAGE PRE-REQUISITES: Request example:
+     * <pre>
+     * https://cit.example.com/v1/rpc/ssh-login
+     * Content-Type: application/json
+     *
+     * {
+     *   "host":"192.168.1.100",
+     *   "public_key_digest":"22952a72e24194f208200e76fd3900da",
+     *   "password":"password to test",
+     *   "packages": [ "attestation_service", "director" ]
+     * }
+     * 
+     * </pre>
+     *
+     * 
      * @param loginRequest
      * @return
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public SshLoginResponse checkLogin(SSH loginRequest) {
-        SshLoginResponse response = new SshLoginResponse();
+    public HostPrecheckResponse checkLogin(HostPrecheckRequest loginRequest) {
+        HostPrecheckResponse response = new HostPrecheckResponse();
         String host = loginRequest.getHost();
         Integer port = loginRequest.getPort();
         String username = loginRequest.getUsername();
@@ -219,7 +254,7 @@ public class SshLogin {
         target.setTimeout(timeout);
 
         // assume we're going to have an error so echo user input (to help client handle asynchronous responses to multiple concurrent requests)
-        response.setExtra(target);
+//        response.setExtra(target);
 
         if (!response.getFaults().isEmpty()) {
             return response;
@@ -251,6 +286,11 @@ public class SshLogin {
                 ssh.authPassword(username, ""); // we don't actually send the password when we're just trying to get the remote host public key
                 // shouldn't get here because we expect authentication to fail
                 log.warn("Login successful to remote server without a password");
+                // check pre-requisites, if applicable
+                if( !loginRequest.getPackages().isEmpty() ) {
+                    // TODO: check pre-reqs!
+                    log.debug("Checking pre-requisites for packages: {}", StringUtils.join(loginRequest.packages, ", "));
+                }
                 // pass through to getRemoteHostKey() below
             } catch (SocketTimeoutException e) {
                 log.debug("Connection to {} timeout after {}ms: {}", host, timeout, e.getMessage());
@@ -338,7 +378,7 @@ public class SshLogin {
                     if (isMatchingPassword(password, existing)) {
                         target.setPublicKeyDigest(getHostKey(host));
                         response.setData(target);
-                        response.setExtra(null);
+//                        response.setExtra(null);
                         return response;
                     }
                 }
@@ -361,6 +401,14 @@ public class SshLogin {
                     storePassword(host, password);
                 }
 
+                /*
+                if( !loginRequest.getPackages().isEmpty() ) {
+                    // TODO: check pre-reqs!
+                    log.debug("Checking pre-requisites for packages: {}", StringUtils.join(loginRequest.packages, ", "));
+                    checkPackages(ssh, loginRequest.getPackages(), response);
+                }
+                */
+                
             } catch (IOException e) {
                 log.error("Connection failed", e);
                 response.getFaults().add(new Connection(e.getMessage())); // the Thrown fault from mtwilson-util-validation would show the entire stack trace to client; the custom Connection fault shows just the message
@@ -369,19 +417,84 @@ public class SshLogin {
 
         // for a success response we already filled in the primary data
         // and we don't need to send the user input in extra
-        response.setExtra(null);
+//        response.setExtra(null);
 
         return response;
     }
+    
+    public abstract static class HostPrecondition implements Condition, Faults {
+        protected SSHClient ssh;
+        protected String softwarePackageName;
+        protected ArrayList<Fault> faults = new ArrayList<>();
+        
+        protected void fault(Fault fault) {
+            faults.add(fault);
+        }
+
+        @Override
+        public Collection<Fault> getFaults() {
+            return faults;
+        }
+        
+        
+    }
+    
+    /*
+    public static class OperatingSystem extends HostPrecondition {
+        private HashSet<OperatingSystemInfo> allow = new HashSet<>();
+        @Override
+        public boolean test() {
+            // send "lsb_release -a" command, get output
+            // parse output for "Distributor ID"
+            return false; // TODO
+        }
+        
+    }
+    */
+    
+    /*
+    private void checkPackages(SSHClient ssh, List<String> packages, HostPrecheckResponse response) {
+        HashSet<String> preconditions = new HashSet<>();
+        if( packages.contains("attestation_service") ||packages.contains("director") ||packages.contains("key_broker")||packages.contains("key_broker")||packages.contains("key_broker_proxy")||packages.contains("openstack_extensions") ) {
+            preconditions.add("ubuntu");
+        }
+        if( packages.contains("trustagent_ubuntu") ) {
+            
+        }
+    }
+    */
+    
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public static class HostPrecheckRequest extends SSH {
+        private List<String> packages = new ArrayList<>();
+
+        public HostPrecheckRequest() {
+            super();
+        }
+
+        public HostPrecheckRequest(String host, String password, String publicKeyDigest) {
+            super(host, password, publicKeyDigest);
+        }
+        
+        public List<String> getPackages() {
+            return packages;
+        }
+
+        public void setPackages(List<String> packages) {
+            this.packages = packages;
+        }
+        
+        
+    }
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public static class SshLoginResponse implements Faults {
+    public static class HostPrecheckResponse implements Faults {
 
         private ArrayList<Fault> faults = new ArrayList<>();
         private SSH data;
-        private SSH extra;
+//        private SSH extra;
 
-        public SshLoginResponse() {
+        public HostPrecheckResponse() {
         }
 
         public SSH getData() {
@@ -391,14 +504,14 @@ public class SshLogin {
         public void setData(SSH data) {
             this.data = data;
         }
-
+/*
         public void setExtra(SSH extra) {
             this.extra = extra;
         }
 
         public SSH getExtra() {
             return extra;
-        }
+        }*/
 
         @Override
         public Collection<Fault> getFaults() {

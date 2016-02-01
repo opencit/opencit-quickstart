@@ -7,10 +7,10 @@ package com.intel.mtwilson.deployment.task;
 import com.intel.dcsg.cpg.configuration.Configuration;
 import com.intel.dcsg.cpg.configuration.PropertiesConfiguration;
 import com.intel.dcsg.cpg.crypto.digest.Digest;
+import com.intel.dcsg.cpg.performance.Observer;
 import com.intel.dcsg.cpg.performance.Progress;
 import com.intel.mtwilson.configuration.ConfigurationFactory;
 import com.intel.mtwilson.deployment.FileTransferDescriptor;
-import com.intel.mtwilson.deployment.FileTransferManifestProvider;
 import com.intel.mtwilson.deployment.SSHClientWrapper;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
@@ -23,12 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import net.schmizz.sshj.common.StreamCopier;
-import net.schmizz.sshj.connection.channel.direct.Session;
-import net.schmizz.sshj.sftp.SFTPClient;
-import net.schmizz.sshj.sftp.SFTPFileTransfer;
-import net.schmizz.sshj.xfer.FileSystemFile;
-import net.schmizz.sshj.xfer.TransferListener;
+import net.schmizz.sshj.xfer.LocalSourceFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -84,7 +79,6 @@ public class FileTransfer extends AbstractRemoteTask implements Progress {
         boolean etagEnabled = Boolean.valueOf(configuration.get("mtwilson.quickstart.filetransfer.etag", "true")).booleanValue();
 
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
-            client.connect();
 
             if (etagEnabled) {
                 etagMatches = new HashSet<>();
@@ -97,7 +91,7 @@ public class FileTransfer extends AbstractRemoteTask implements Progress {
                     // get sha256 sum of local file.  if the cached etag is not newer than the file, then we
                     // calculat it again.
                     String etag;
-                    File source = entry.getSource();
+                    final File source = entry.getSource();
                     log.debug("Source file: {}", source.getAbsolutePath());
                     File sourceEtag = new File(source.getAbsolutePath() + ".sha256");
                     if (sourceEtag.exists() && sourceEtag.lastModified() > source.lastModified()) {
@@ -115,10 +109,20 @@ public class FileTransfer extends AbstractRemoteTask implements Progress {
                     Result result = sshexec(client, "/usr/bin/sha256sum " + entry.getTargetPath() + " | /usr/bin/awk '{print $1}'");
                     if (result.getExitCode() == 0) {
                         String remoteEtag = result.getStdout().replaceAll("\\s", "");
-                        log.debug("File: {} Local etag: {} Remote etag: '{}'",entry.getTargetPath(), etag, remoteEtag);
+                        log.debug("File: {} Local etag: {} Remote etag: '{}'", entry.getTargetPath(), etag, remoteEtag);
                         if (etag.equalsIgnoreCase(remoteEtag)) {
                             log.debug("Remote etag matches file: {} with etag: {}", source.getName(), etag);
-                            listenerMap.get(entry).reportProgress(source.length());
+                            listenerMap.get(entry).observe(new Progress() {
+                                @Override
+                                public long getCurrent() {
+                                    return source.length();
+                                }
+
+                                @Override
+                                public long getMax() {
+                                    return source.length();
+                                }
+                            });
                             etagMatches.add(entry); // will cause it to be skipped later in upload section
                         } else {
                             log.debug("Remote etag does NOT match file: {} with etag: {}", source.getName(), etag);
@@ -130,29 +134,20 @@ public class FileTransfer extends AbstractRemoteTask implements Progress {
 
             }
 
-            try (SFTPClient sftp = client.sftp()) {
-                log.debug("FileTransfer got sftp client");
-                for (FileTransferDescriptor entry : manifest) {
-                    log.debug("FileTransfer processing entry for upload: {}", entry.getTargetPath());
+            for (FileTransferDescriptor entry : manifest) {
+                log.debug("FileTransfer processing entry for upload: {}", entry.getTargetPath());
 
-                    if (etagEnabled && etagMatches != null && etagMatches.contains(entry)) {
-                        log.debug("FileTransfer skipping entry because etag matches; {}", entry.getTargetPath());
-                        continue;
-                    }
-
-                    FileSystemFile localfile = new FileSystemFile(entry.getSource());
-
-                    SFTPFileTransfer transfer = sftp.getFileTransfer();
-//                    ProgressTransferListener listener = new ProgressTransferListener(this);
-                    transfer.setTransferListener(listenerMap.get(entry));
-                    log.debug("Uploading file: {} to target host: {} path: {}", entry.getSource().getAbsolutePath(), remote.getHost(), entry.getTargetPath());
-                    transfer.upload(localfile, entry.getTargetPath());
-
-                    // TODO:  set permissions on remote file if entry.getPermissions() != null 
+                if (etagEnabled && etagMatches != null && etagMatches.contains(entry)) {
+                    log.debug("FileTransfer skipping entry because etag matches; {}", entry.getTargetPath());
+                    continue;
                 }
 
+                log.debug("Uploading file: {} to target host: {} path: {}", entry.getSource().getAbsolutePath(), remote.getHost(), entry.getTargetPath());
+                client.upload(entry.getSource(), entry.getTargetPath(), listenerMap.get(entry));
+
+                // TODO:  set permissions on remote file if entry.getPermissions() != null 
             }
-            client.disconnect();
+
         } catch (Exception e) {
             log.error("Connection failed", e);
             fault(new Connection(remote.getHost()));
@@ -206,7 +201,7 @@ public class FileTransfer extends AbstractRemoteTask implements Progress {
      * StreamCopier.Listener interface, and the TransferListener interface that
      * SFTPClient expects.
      */
-    public static class FileTransferProgressListener implements TransferListener, StreamCopier.Listener {
+    public static class FileTransferProgressListener implements Observer<Progress> {
 
         private File file;
         private long progress, progressMax;
@@ -218,17 +213,9 @@ public class FileTransfer extends AbstractRemoteTask implements Progress {
             this.progressMax = file.length();
         }
 
-        /**
-         * Listens for progress updates from SFTPClient and updates our file
-         * transfer status by setting current (completed) to number of bytes
-         * transferred.
-         *
-         * @param transferred
-         * @throws IOException
-         */
-        @Override
-        public void reportProgress(long transferred) throws IOException {
-            progress = transferred;
+        public FileTransferProgressListener(LocalSourceFile file) {
+            this.progress = 0;
+            this.progressMax = file.getLength();
         }
 
         public File getFile() {
@@ -244,17 +231,9 @@ public class FileTransfer extends AbstractRemoteTask implements Progress {
         }
 
         @Override
-        public TransferListener directory(String path) {
-            log.debug("File transfer progress listener directory: {}", path);
-            return this;
-        }
-
-        @Override
-        public StreamCopier.Listener file(String filename, long size) {
-            log.debug("File transfer progress listener file: {} size; {}", filename, size);
-            this.progress = 0;
-            this.progressMax = size;
-            return this;
+        public void observe(Progress status) {
+            progress = status.getCurrent();
+            progressMax = status.getMax();
         }
     }
 }

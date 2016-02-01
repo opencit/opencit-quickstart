@@ -31,7 +31,7 @@ public class TaskFactoryTest {
     }
     
     /**
-     * [{"description":"Precondition failed: com.intel.mtwilson.deployment.conditions.FeatureRequiredSoftwarePackagesIncluded@6e68bc46","precondition":{"not_included":["trust_director"]},"faults":[]}]
+     * [{"description":"Precondition failed: com.intel.mtwilson.deployment.conditions.FeatureRequiredSoftwarePackagesIncluded@6e68bc46","precondition":{"not_included":["director"]},"faults":[]}]
      * 
      * @throws IOException 
      */

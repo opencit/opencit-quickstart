@@ -21,7 +21,7 @@ import java.util.Set;
  * via getNotIncluded()
  *
  * for example, if input includes a feature with "attestation_host_xm" but does not
- * include any target with software package "trust_director", this test would fail because
+ * include any target with software package "director", this test would fail because
  * the trust director is required to generate the manifest for tboot-xm. 
  *
  * @author jbuhacoff

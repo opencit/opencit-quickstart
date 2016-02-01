@@ -127,7 +127,7 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
 
     @Override
     public String getPackageName() {
-        return "trust_director";
+        return "director";
     }
 
     /**

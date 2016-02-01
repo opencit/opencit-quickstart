@@ -10,7 +10,6 @@ import com.intel.mtwilson.deployment.SSHClientWrapper;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
 import com.intel.mtwilson.util.exec.Result;
-import net.schmizz.sshj.connection.channel.direct.Session;
 
 /**
  *
@@ -36,7 +35,6 @@ public class PostconfigureAttestationService extends AbstractPostconfigureTask {
         // NOTE: we need to specify the full path to the remote command
         String cmdGetTlsCertSha1 = "/usr/bin/sha1sum /opt/mtwilson/configuration/ssl.crt | /usr/bin/awk '{print $1}'";
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
-            client.connect();
 
             Result result = sshexec(client, cmdGetTlsCertSha1);
             String stdoutText = result.getStdout();
@@ -60,7 +58,6 @@ public class PostconfigureAttestationService extends AbstractPostconfigureTask {
             }
             
 
-            client.disconnect();
         } catch (Exception e) {
             log.error("Connection failed", e);
             fault(new Connection(remote.getHost()));

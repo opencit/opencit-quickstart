@@ -6,19 +6,10 @@ package com.intel.mtwilson.deployment.task;
 
 import com.intel.dcsg.cpg.crypto.RandomUtil;
 import com.intel.dcsg.cpg.validation.Fault;
-import com.intel.mtwilson.deployment.FileTransferDescriptor;
-import com.intel.mtwilson.deployment.FileTransferManifestProvider;
 import com.intel.mtwilson.deployment.SSHClientWrapper;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
 import com.intel.mtwilson.util.exec.Result;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import net.schmizz.sshj.connection.ConnectionException;
-import net.schmizz.sshj.transport.TransportException;
 
 /**
  * 
@@ -50,22 +41,21 @@ public class CreateTrustDirectorUserInOpenstack extends AbstractPostconfigureTas
         }
         
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
-            client.connect();
 
             openstack(client, "project create "+openstackProjectName+" --description \"Cloud Integrity Technology\" --or-show");
             openstack(client, "user create "+directorUsername+" --password "+directorPassword+" --project "+openstackProjectName+" --or-show");
             openstack(client, "role add admin --project "+openstackProjectName+" --user "+directorUsername);
         
             
-            client.disconnect();
         } catch (Exception e) {
             log.error("Connection failed", e);
             fault(new Connection(remote.getHost()));
         }
     }
 
+    // throws ConnectionException, TransportException, IOException
     // NOTE: another copy of this in PostconfigureOpenstack
-    private void openstack(SSHClientWrapper clientWrapper, String command) throws ConnectionException, TransportException, IOException {
+    private void openstack(SSHClientWrapper clientWrapper, String command) throws Exception {
         // escape signle quotes
         String escapedSingleQuoteCommand = command.replace("'", "'\"\\'\"'"); //  f'oo becomes f'"\'"'oo so that when we wrap it in single quotes below it becomes 'f'"\'"'oo' and shell interprets it like concat('f',single quote,'oo')
         Result result = sshexec(clientWrapper, "/bin/bash -c 'source adminrc && /usr/bin/openstack " + escapedSingleQuoteCommand + "'");

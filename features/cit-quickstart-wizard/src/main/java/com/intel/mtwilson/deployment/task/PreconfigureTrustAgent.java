@@ -68,7 +68,7 @@ public class PreconfigureTrustAgent extends AbstractPreconfigureTask implements 
         data.put("TRUSTAGENT_HOST", target.getHost());
         
         // generate the .env file using pre-configuration data
-        render("trustagent.env.st4", envFile);
+        render("mtwilson-openstack.env.st4", envFile);
     }
 
     private void port() {
@@ -89,7 +89,7 @@ public class PreconfigureTrustAgent extends AbstractPreconfigureTask implements 
 
     @Override
     public String getPackageName() {
-        return "trust_agent";
+        return "trustagent_ubuntu";
     }
 
     /**

@@ -6,17 +6,10 @@ package com.intel.mtwilson.deployment.task;
 
 import com.intel.dcsg.cpg.crypto.digest.Digest;
 import com.intel.dcsg.cpg.validation.Fault;
-import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.deployment.SSHClientWrapper;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
 import com.intel.mtwilson.util.exec.Result;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import net.schmizz.sshj.connection.ConnectionException;
-import net.schmizz.sshj.connection.channel.direct.Session;
-import net.schmizz.sshj.transport.TransportException;
 
 /**
  *
@@ -60,12 +53,6 @@ public class PostconfigureKeyBroker extends AbstractPostconfigureTask {
         // a file on the remote server and then download that file with all of it.
         // NOTE: we need to specify the full path to the remote command
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
-            client.connect();
-
-            // ensure output directory exists
-            File outputDirectory = new File(Folders.repository("tasks") + File.separator + getId());
-            outputDirectory.mkdirs();
-            log.debug("Output directory: {}", outputDirectory.getAbsolutePath());
 
             // get tls cert sha1 fingerprint
             String cmdGetTlsCertSha1 = "/bin/cat /opt/kms/configuration/https.properties | /bin/grep tls.cert.sha1 | /usr/bin/tr '=' ' ' | /usr/bin/awk '{print $2}'";
@@ -103,7 +90,6 @@ public class PostconfigureKeyBroker extends AbstractPostconfigureTask {
                 log.error("Failed to create admin user in key broker");
                 fault(new Fault("Failed to create user"));
             }
-            client.disconnect();
         } catch (Exception e) {
             log.error("Connection failed", e);
             fault(new Connection(remote.getHost()));
@@ -111,7 +97,8 @@ public class PostconfigureKeyBroker extends AbstractPostconfigureTask {
 
     }
 
-    private void remoteconfig(SSHClientWrapper clientWrapper, String key, String value) throws ConnectionException, TransportException, IOException {
+    // ConnectionException, TransportException, IOException
+    private void remoteconfig(SSHClientWrapper clientWrapper, String key, String value) throws Exception {
         Result result = sshexec(clientWrapper, "/opt/kms/bin/kms.sh config " + key + " " + value);
         if (result.getExitCode() != 0) {
             log.error("Failed to configure key broker with key: {} value: {}", key, value);

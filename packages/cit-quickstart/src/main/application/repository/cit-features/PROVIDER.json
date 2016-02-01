@@ -3,7 +3,7 @@
       {
           "name": "encryption_vm",
           "software_packages": [
-              "key_broker_proxy", "trust_director", "attestation_service"
+              "key_broker_proxy", "director", "attestation_service"
           ],
           "dependencies": [
               "attestation_vm", "attestation_host_xm"
@@ -27,7 +27,7 @@
       {
           "name": "attestation_vm",
           "software_packages": [
-              "trust_director", "attestation_service"
+              "director", "attestation_service"
           ],
           "dependencies": [
               "attestation_host_xm"
@@ -45,7 +45,16 @@
       {
           "name": "attestation_host_xm",
           "software_packages": [
-              "attestation_service", "trust_director"
+              "attestation_service", "director"
+          ],
+          "dependencies": [
+              "attestation_host"
+          ]
+      },
+      {
+          "name": "compute_node_trustagent",
+          "software_packages": [
+              "trustagent_ubuntu"
           ],
           "dependencies": [
               "attestation_host"

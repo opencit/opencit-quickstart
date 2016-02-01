@@ -4,12 +4,16 @@
  */
 package test.integration;
 
+import com.intel.dcsg.cpg.io.PropertiesUtil;
 import com.intel.mtwilson.Folders;
+import com.intel.mtwilson.core.junit.Env;
 import com.intel.mtwilson.deployment.FileTransferDescriptor;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.task.FileTransfer;
 import com.intel.mtwilson.util.task.ProgressMonitoringTask;
 import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -26,8 +30,9 @@ public class FileTransferTest {
     private static File source;
     
     @BeforeClass
-    public static void init() {
-        remote = new SSH("10.1.68.34", "P@ssw0rd", "22952a72e24194f208200e76fd3900da");
+    public static void init() throws IOException {
+        Properties properties = PropertiesUtil.removePrefix(Env.getProperties("cit3-test-ssh"), "cit3.test.ssh.");
+        remote = new SSH(properties.getProperty("host"), properties.getProperty("password"), properties.getProperty("publicKeyDigest"));
         source = new File(Folders.repository("packages")+File.separator+"attestation_service"+File.separator+"mtwilson.env.st4");
     }
     

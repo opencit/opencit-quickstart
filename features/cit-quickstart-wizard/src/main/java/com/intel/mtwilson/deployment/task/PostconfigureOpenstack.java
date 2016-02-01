@@ -4,20 +4,14 @@
  */
 package com.intel.mtwilson.deployment.task;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intel.dcsg.cpg.crypto.RandomUtil;
-import com.intel.dcsg.cpg.crypto.digest.Digest;
 import com.intel.dcsg.cpg.validation.Fault;
-import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.deployment.SSHClientWrapper;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
 import com.intel.mtwilson.util.exec.Result;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import net.schmizz.sshj.connection.ConnectionException;
-import net.schmizz.sshj.connection.channel.direct.Session;
-import net.schmizz.sshj.transport.TransportException;
 
 /**
  *
@@ -36,18 +30,39 @@ public class PostconfigureOpenstack extends AbstractPostconfigureTask {
     public void execute() {
 
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
-            client.connect();
 
             // create the openstack admin user, following settings must be set in preconfigure task.
             String projectName = setting("openstack.project.name");
             String adminUsername = setting("openstack.admin.username");
             String adminPassword = setting("openstack.admin.password");
-            
-            openstack(client, "project create "+projectName+" --description \"Cloud Integrity Technology\" --or-show");
-            openstack(client, "user create "+adminUsername+" --password "+adminPassword+" --project "+projectName+" --or-show");
-            openstack(client, "role add admin --project "+projectName+" --user "+adminUsername);
+            String roleName = "admin";
 
-            client.disconnect();
+            openstack(client, "project create " + projectName + " --description \"Cloud Integrity Technology\" --or-show");
+            openstack(client, "user create " + adminUsername + " --password " + adminPassword + " --project " + projectName + " --or-show");
+
+            // openstack supports "soft" create above with the --or-show option but does not support "soft" role add/remove, 
+            // so to avoid errors we must first list the user's roles and only add the admin role if it's not already present
+            OpenstackRole[] roles;
+            Result roleResult = openstack(client, "role list --project " + projectName + " --user " + adminUsername + " -f json");
+            if (roleResult.getExitCode() == 0) {
+                ObjectMapper mapper = new ObjectMapper();
+                roles = mapper.readValue(roleResult.getStdout(), OpenstackRole[].class);
+            } else {
+                roles = new OpenstackRole[0];
+            }
+            boolean found = false;
+            for (OpenstackRole role : roles) {
+                if (roleName.equals(role.name) && adminUsername.equals(role.user) && projectName.equals(role.project)) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                openstack(client, "role add "+roleName+" --project " + projectName + " --user " + adminUsername);
+            }
+
+
         } catch (Exception e) {
             log.error("Connection failed", e);
             fault(new Connection(remote.getHost()));
@@ -55,15 +70,30 @@ public class PostconfigureOpenstack extends AbstractPostconfigureTask {
 
     }
 
+    // ConnectionException, TransportException, IOException
     // NOTE: another copy of this in CreateTrustDirectorUserInOpenstack
-    private void openstack(SSHClientWrapper clientWrapper, String command) throws ConnectionException, TransportException, IOException {
+    private Result openstack(SSHClientWrapper clientWrapper, String command) throws Exception {
+        log.debug("Task ID {} openstack {}", getId(), command);
         // escape signle quotes
         String escapedSingleQuoteCommand = command.replace("'", "'\"\\'\"'"); //  f'oo becomes f'"\'"'oo so that when we wrap it in single quotes below it becomes 'f'"\'"'oo' and shell interprets it like concat('f',single quote,'oo')
         Result result = sshexec(clientWrapper, "/bin/bash -c 'source adminrc && /usr/bin/openstack " + escapedSingleQuoteCommand + "'");
         if (result.getExitCode() != 0) {
             String incidentTag = RandomUtil.randomHexString(4);
             log.error("Failed to configure openstack {} [incident tag: {}]", command, incidentTag);
-            fault(new Fault("Failed to configure openstack [incident tag: "+incidentTag+"]"));
+            fault(new Fault("Failed to configure openstack [incident tag: " + incidentTag + "]"));
         }
+        return result;
+    }
+
+    public static class OpenstackRole {
+
+        @JsonProperty("ID")
+        public String id;
+        @JsonProperty("Name")
+        public String name;
+        @JsonProperty("Project")
+        public String project;
+        @JsonProperty("User")
+        public String user;
     }
 }

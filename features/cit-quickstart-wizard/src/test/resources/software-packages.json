@@ -21,13 +21,13 @@
        "dependencies": [ "attestation_service" ]
      },
      {
-       "package_name": "trust_agent",
-       "file_name": "trust_agent.bin",
+       "package_name": "trustagent_ubuntu",
+       "file_name": "trustagent-ubuntu.bin",
        "dependencies": [ "attestation_service", "key_broker_proxy" ]
      },
      {
-       "package_name": "trust_director",
-       "file_name": "trust_director.bin",
+       "package_name": "director",
+       "file_name": "director.bin",
        "dependencies": [ "attestation_service", "key_broker", "openstack_extensions" ]
      }
   ]

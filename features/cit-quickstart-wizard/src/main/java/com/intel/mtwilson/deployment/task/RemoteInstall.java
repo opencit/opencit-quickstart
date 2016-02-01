@@ -13,7 +13,6 @@ import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
 import com.intel.mtwilson.util.exec.Result;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
-import net.schmizz.sshj.connection.channel.direct.Session;
 
 /**
  * Runs an installer on a remote host
@@ -44,7 +43,6 @@ public class RemoteInstall extends AbstractRemoteTask {
     @Override
     public void execute() {
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
-            client.connect();
 
             /*
             String chmod = "/bin/chmod +x " + executablePath;
@@ -58,7 +56,7 @@ public class RemoteInstall extends AbstractRemoteTask {
             // this should return right away since we are starting it in the background.
             String id = RandomUtil.randomHexString(8);
             String workingDirectory = "/tmp/cit/monitor/"+id;
-            Result installResult = sshexec(client, "/bin/bash monitor.sh "+executablePath+" "+executablePath+".mark "+workingDirectory+" >/dev/null &", 1, TimeUnit.MINUTES); // the redirection to /dev/null is so that we won't get the console text-based progress bar, which would hold up our connection and prevent us from then checking the progress output files below.
+            Result installResult = sshexec(client, "/bin/bash monitor.sh "+executablePath+" "+executablePath+".mark "+workingDirectory+" >/dev/null &"); // the redirection to /dev/null is so that we won't get the console text-based progress bar, which would hold up our connection and prevent us from then checking the progress output files below.
             if (installResult.getExitCode() != 0) {
                 log.error("Install failed on host: {}  file: {}", remote.getHost(), executablePath);
             }
@@ -70,7 +68,7 @@ public class RemoteInstall extends AbstractRemoteTask {
             String progressMax = null;
             while( progressMax == null || progressMax.isEmpty() ) {
                 log.debug("getting progress max...");
-                Result progressMaxResult = sshexec(client, "/bin/cat "+workingDirectory+File.separator+"max", 1, TimeUnit.MINUTES);
+                Result progressMaxResult = sshexec(client, "/bin/cat "+workingDirectory+File.separator+"max");
                 progressMax = progressMaxResult.getStdout();
                 if( progressMax != null && !progressMax.isEmpty() ) {
                     log.debug("updating progress max: {}", progressMax);
@@ -86,13 +84,13 @@ public class RemoteInstall extends AbstractRemoteTask {
             String progress;
             while( status == null || "PENDING".equalsIgnoreCase(status) || "ACTIVE".equalsIgnoreCase(status) ) {
                 log.debug("getting progress...");
-                Result progressResult = sshexec(client, "/bin/cat "+workingDirectory+File.separator+"progress", 1, TimeUnit.MINUTES);
+                Result progressResult = sshexec(client, "/bin/cat "+workingDirectory+File.separator+"progress");
                 progress = progressResult.getStdout();
                 if( progress != null && !progress.isEmpty() ) {
                     log.debug("updating progress: {}", progress);
                     current(Integer.valueOf(progress.trim()));
                 }
-                Result statusResult = sshexec(client, "/bin/cat "+workingDirectory+File.separator+"status", 1, TimeUnit.MINUTES);
+                Result statusResult = sshexec(client, "/bin/cat "+workingDirectory+File.separator+"status");
                 status = statusResult.getStdout();
                 if( status != null && !status.isEmpty() ) {
                     status = status.trim();
@@ -105,7 +103,6 @@ public class RemoteInstall extends AbstractRemoteTask {
             }
             
             
-            client.disconnect();
         } catch (Exception e) {
             log.error("Connection failed", e);
             fault(new Connection(remote.getHost()));

@@ -526,27 +526,38 @@
                                     <form data-bind="foreach: targets">
                                         <div class="panel panel-primary-subdued">
                                             <div class="panel-heading">
-                                                <h3 class="panel-title">
+                                                <!-- optional compute node -->
+                                                <h3 class="panel-title pull-left">
                                                     <span data-bind="visible: !ssh.publicKeyDigestConfirmed()">Edit Host</span>
                                                     <span data-bind="visible: ssh.publicKeyDigestConfirmed, text: ssh.host"></span>
                                                     <i class="glyphicon glyphicon-edit" data-bind="visible: ssh.publicKeyDigestConfirmed, click: editHost"></i>
                                                 </h3>
+                                                <div data-bind="visible: packages().indexOf('trustagent_ubuntu') > -1">
+                                                        <a title="Remove" href="#" class="btn btn-default btn-xs pull-right" data-bind="click: $parent.remove_compute_node_target">
+                                                            <i class="glyphicon glyphicon-remove"></i>
+                                                            <span>Remove</span>
+                                                        </a>
+                                                </div>
+                                                <div class="clearfix"></div>
                                             </div>
                                             <div class="panel-body" data-bind="visible: !ssh.hostValid() || !ssh.publicKeyDigestConfirmed() || !ssh.passwordValid()">
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;" data-bind="visible: ssh.host().length == 0 || !ssh.publicKeyDigestConfirmed()">
                                                     <label class="col-lg-3">Hostname or IP address</label>
                                                     <div class="col-lg-4">
-                                                        <div class="inner-addon right-addon">
+                                                        <div class="inner-addon right-addon  pull-left">
                                                             <input class="form-control input-sm" data-bind="value: ssh.host"/>
                                                             <i class="glyphicon glyphicon-ok" data-bind="visible: ssh.hostValid"></i>
                                                             <i class="glyphicon glyphicon-exclamation-sign" data-bind="visible: ssh.hostError"></i>
                                                             <i class="glyphicon glyphicon-hourglass" data-bind="visible: ssh.hostCheckWait"></i>
                                                             <i class="glyphicon glyphicon-lock" data-bind="visible: ssh.hostPasswordRequired"></i>
                                                             
-                                                            <a class="btn btn-default btn-sm" href="#" data-bind="click: ssh.check_host">Check</a>
                                                             <!-- glyphicon-lock, glyphicon-exclamation-sign , glyphicon-warning-sign ,  glyphicon-alert , glyphicon-hourglass, glyphicon-pencil , glyphicon-edit , glyphicon-check  -->
                                                         </div>
-
+                                                        <div>
+                                                            <a class="btn btn-default btn-sm" href="#" data-bind="click: ssh.check_host">Check</a>
+                                                        </div>
+                                                        <div class="clearfix"></div>
+                                                        
                                                         <div class="alert alert-info" data-bind="visible: ssh.hostCheckWait">
                                                             <div class="glyphicon glyphicon-hourglass icon-error"></div>
                                                             <div><p data-i18n="error.host.connecting">Connecting...</p></div>
@@ -576,11 +587,13 @@
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;" data-bind="visible: ssh.publicKeyDigestConfirmed() && !ssh.passwordValid()">
                                                     <label class="col-lg-3">SSH Password</label>
                                                     <div class="col-lg-4">
-                                                        <div class="inner-addon right-addon">
+                                                        <div class="inner-addon right-addon pull-left">
                                                             <input class="form-control input-sm" data-bind="value: ssh.password, enable: ssh.publicKeyDigestConfirmed" type="password"/>
                                                             <i class="glyphicon glyphicon-ok" data-bind="visible: ssh.passwordValid"></i>
                                                             <i class="glyphicon glyphicon-exclamation-sign" data-bind="visible: ssh.passwordError"></i>
                                                             <i class="glyphicon glyphicon-hourglass" data-bind="visible: ssh.passwordCheckWait"></i>
+                                                        </div>
+                                                        <div>
                                                             <a class="btn btn-default btn-sm" href="#" data-bind="click: ssh.check_password">Check</a>
                                                         </div>
                                                         <div class="alert alert-info" data-bind="visible: ssh.passwordCheckWait">
@@ -609,6 +622,13 @@
                                             </div>
                                         </div>
                                     </form>
+                                    <!-- optional one or more trust agent hosts -->
+                                    <div data-bind="visible: environment.network_role() == 'PRIVATE' || environment.network_role() == 'PROVIDER'">
+                                        <a class="btn btn-default btn-lg" href="#" data-bind="click: add_compute_node_target">
+                                            <i class="glyphicon glyphicon-plus"></i>
+                                            <span>Add compute node</span>
+                                        </a>
+                                    </div>
                                 </div>
                                 <a class="btn btn-default btn-lg next" href="#">Continue</a>
                             </div>
@@ -848,7 +868,7 @@
                         <div data-bind="visible: progress.order.status() == 'PENDING' || progress.order.status() == 'ACTIVE'">
                             <a class="btn btn-danger btn-lg cancel" href="#">Cancel</a>                            
                         </div>
-                        <div data-bind="visible: progress.order.status() == 'DONE'">
+                        <div data-bind="visible: progress.order.status() == 'DONE' || progress.order.status() == 'ERROR' ">
                             <a class="btn btn-success btn-lg restart" href="#">Start Again</a>                            
                         </div>
 
@@ -1105,9 +1125,16 @@
                     self.update_ssh_in_progress = false;
                 };
                 
-                self.check_host = function() {
+                self.check_host = function(item) {
                     var newValue = self.host();
                     console.log("NEW HOST VALUE: %s", newValue);
+                    console.log("HOST PACKAGES: %o", item.packages());
+                    // we also send to the server which packages we expect to install on this host
+                    // for example: ["attestation_service", "director", "openstack_extensions"]
+                    // so on a successful ssh connection, the server will also gather some information
+                    // from the host to determine if these packages CAN be installed,  and it will
+                    // return any faults in the ssh-login response. 
+                    var hostPackages = item.packages();
                     
                     if (!isHostFormatValid(newValue)) {
                         self.reset("hostFormatInvalid", "hostError");
@@ -1137,7 +1164,7 @@
                         url: endpoint + "/rpc/ssh-login",
                         headers: {'Accept': 'application/json'},
                         contentType: "application/json",
-                        data: JSON.stringify({"host": newValue, "timeout": self.timeout}),
+                        data: JSON.stringify({"host": newValue, "timeout": self.timeout, "packages": hostPackages}),
                         success: function(responseJsonContent, status, xhr) {
                             if (typeof responseJsonContent["faults"] === "object" && typeof responseJsonContent["faults"]["length"] !== "undefined") {
                                 console.log("ssh-login response has faults: %O", responseJsonContent.faults);
@@ -1152,12 +1179,15 @@
                                     if (fault.type === "com.intel.mtwilson.deployment.jaxrs.faults.NoRouteToHost") {
                                         self.hostNotReachable(true);
                                     }
+                                    if (typeof fault["@class"] === "string" && fault["@class"] === "com.intel.mtwilson.deployment.jaxrs.faults.Connection") {
+                                        self.hostNotReachable(true);
+                                    }
                                 }
                             }
                             else {
-                                self.reset("hostValid"); // HMM... for host but doesn't cover password yet...  
+                                self.reset("hostValid"); 
                             }
-                            if( typeof responseJsonContent.data["public_key_digest"] === "string" ) {
+                            if( typeof responseJsonContent["data"] === "object" && typeof responseJsonContent.data["public_key_digest"] === "string" ) {
                                 self.publicKeyDigest(responseJsonContent.data.public_key_digest);
                             }
                             self.publicKeyDigestConfirmed(false);
@@ -1320,7 +1350,8 @@
                     "integration_openstack_nova": new WizardFeature({checked: false, disable: false}), 
                     "integration_openstack_glance": new WizardFeature({checked: false, disable: false}), 
                     "integration_openstack_barbican": new WizardFeature({checked: false, disable: false}),
-                    "integration_kmip": new WizardFeature({checked: false, disable: false})
+                    "integration_kmip": new WizardFeature({checked: false, disable: false}),
+                    "compute_node_trustagent": new WizardFeature({checked: false, disable: false})
                 };
                 self.update_features = function() {                    
                     // order matters here... the "forcing" should cascade from the "least dependent" option to the "most dependent" option (in terms of number of things that could force it to be on or off)
@@ -1354,7 +1385,7 @@
 
                 self.update_network_role = function() {
                     // when the user selects a new network role, first we release all obligations... then start over with defaults appropriate to that role
-                    var packageNames = ["attestation_host","attestation_host_xm","attestation_vm","encryption_vm","integration_kmip","integration_openstack_nova","integration_openstack_glance","integration_openstack_barbican"];
+                    var packageNames = ["attestation_host","attestation_host_xm","attestation_vm","encryption_vm","integration_kmip","integration_openstack_nova","integration_openstack_glance","integration_openstack_barbican","compute_node_trustagent"];
                     for(var i=0; i<packageNames.length; i++) {
                         var packageName = packageNames[i];
                         self.features[packageName].release();
@@ -1477,13 +1508,12 @@
                         var packages = {};
                         if (self.features.attestation_host.checked()) {
                             packages.attestation_service = true;
-                            //packages.trust_agent = true; // TODO... best with custom layout so it doesn't need to be w/ attestation service 
                         }
-                        if (self.features.attestation_host_xm.checked()) { /*packages.trust_agent_tbootxm = true;*/
-                            packages.trust_director = true;
+                        if (self.features.attestation_host_xm.checked()) {
+                            packages.director = true;
                         }
                         if (self.features.attestation_vm.checked()) {
-                            packages.trust_director = true; /*packages.trust_agent_vrtm = true; packages.policy_agent = true;*/
+                            packages.director = true;
                         }
                         if (self.features.encryption_vm.checked()) {
                             packages.key_broker = true;
@@ -1492,6 +1522,7 @@
                         if (self.features.integration_openstack_nova.checked()) {
                             packages.openstack_extensions = true;
                         }
+                        // NOTE: we do not automatically select any packages for compute_node_trustagent because user will add nodes directly in credential page (as many as they need)
                         return packages;
                     },
                     // the public cloud service provider (CSP) installs everything except key broker 
@@ -1499,13 +1530,12 @@
                         var packages = {};
                         if (self.features.attestation_host.checked()) {
                             packages.attestation_service = true;
-                            //packages.trust_agent = true; // TODO... best with custom layout so it doesn't need to be w/ attestation service 
                         }
-                        if (self.features.attestation_host_xm.checked()) { /*packages.trust_agent_tbootxm = true;*/
-                            packages.trust_director = true;
+                        if (self.features.attestation_host_xm.checked()) {
+                            packages.director = true;
                         }
                         if (self.features.attestation_vm.checked()) {
-                            //packages.trust_director = true; /*packages.trust_agent_vrtm = true; packages.policy_agent = true;*/
+                            //we don't enable director for vm integrity for a CSP;  they my have director anyway for tboot-xm but CSP doesn't use director to make VM policies
                         }
                         if (self.features.encryption_vm.checked()) { /*packages.key_broker = true;*/
                             packages.key_broker_proxy = true;
@@ -1513,20 +1543,18 @@
                         if (self.features.integration_openstack_nova.checked()) {
                             packages.openstack_extensions = true;
                         }
+                        // NOTE: we do not automatically select any packages for compute_node_trustagent because user will add nodes directly in credential page (as many as they need)
                         return packages;
                     },
                     // the public cloud customer (enterprise) installs only trust director and key broker (if applicable)
                     "SUBSCRIBER": function() {
                         var packages = {};
-//            if( self.features.attestation_host.checked() ) { packages.attestation_service = true; packages.trust_agent = true; }
-//            if( self.features.attestation_host_xm.checked() ) { packages.trust_agent_tbootxm = true; }
                         if (self.features.attestation_vm.checked()) {
-                            packages.trust_director = true; /*packages.trust_agent_vrtm = true; packages.policy_agent = true;*/
+                            packages.director = true;
                         }
                         if (self.features.encryption_vm.checked()) {
-                            packages.key_broker = true; /*packages.key_broker_proxy = true;*/
+                            packages.key_broker = true;
                         }
-//            if( self.features.integration_openstack.checked() ) { packages.openstack_extensions = true; }
                         return packages;
                     }
                 };
@@ -1574,6 +1602,18 @@
                         }
                         return targets;
                     }
+                };
+                
+                self.add_compute_node_target = function() {
+                    var computeNode = new WizardTarget();
+                    computeNode.packages.push("trustagent_ubuntu");
+                    self.targets.push(computeNode);
+                    self.features.compute_node_trustagent.checked(true);
+                };
+                
+                self.remove_compute_node_target = function(item) {
+                    console.log("remove_compute_node_target context: %O", item); // need to find id of the element and remove it from self.targets
+                    self.targets.remove(item);
                 };
 
                 self.progress = {};
@@ -1779,6 +1819,12 @@
                         //data: JSON.stringify(data),
                         success: function(responseJsonContent, status, xhr) {
                             console.log("status response: %O", responseJsonContent);
+                            
+                            // sometimes when server is busy we get a success response with no data
+                            if( typeof responseJsonContent === "undefined" ) {
+                                console.log("server response is empty;  status: %O", status);
+                                return;
+                            }
 
                             /*
                              * Successful order status response while the order is pending looks like this:
@@ -1795,7 +1841,7 @@
                              *       "timeout": 15000,
                              *       "network_role": "PRIVATE",
                              *       "public_key_digest": "22952a72e24194f208200e76fd3900da",
-                             *       "packages": [ "trust_agent", "trust_director", "attestation_service" ]
+                             *       "packages": [ "trustagent_ubuntu", "director", "attestation_service" ]
                              *     }
                              *   ]
                              * }
@@ -1917,7 +1963,7 @@
                                     "username": "kms.admin.username",
                                     "password": "kms.admin.password"
                                 },
-                                "trust_director": {
+                                "director": {
                                     "url": "director.endpoint.url",
                                     "username": "director.admin.username",
                                     "password": "director.admin.password"

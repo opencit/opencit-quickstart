@@ -13,7 +13,7 @@
          "publicKeyDigest":null,
          "timeout":15000,
          "packages":[
-            "trust_agent"
+            "trustagent_ubuntu"
          ],
          "networkRole":null
       },

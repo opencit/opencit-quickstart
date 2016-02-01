@@ -3,7 +3,7 @@
       {
           "name": "encryption_vm",
           "software_packages": [
-              "key_broker", "trust_director"
+              "key_broker", "director"
           ],
           "dependencies": [
               "attestation_vm"
@@ -15,7 +15,7 @@
       {
           "name": "integration_openstack_glance",
           "software_packages": [
-              "trust_director"
+              "director"
           ],
           "required_settings": [
               "director.glance.tenant", "director.glance.host", "director.glance.port", "director.glance.username", "director.glance.password"
@@ -33,10 +33,10 @@
       {
           "name": "integration_kmip",
           "software_packages": [
-              "trust_director"
+              "director"
           ],
           "dependencies": [
-              
+              "attestation_host"
           ],
           "required_settings": [
               "director.glance.tenant", "director.glance.host", "director.glance.port", "director.glance.username", "director.glance.password"
@@ -45,7 +45,7 @@
       {
           "name": "attestation_vm",
           "software_packages": [
-              "trust_director"
+              "director"
           ],
           "required_settings": [
               "mtwilson.host", "mtwilson.port.https", "mtwilson.tls.cert.sha1", "director.mtwilson.username", "director.mtwilson.password"

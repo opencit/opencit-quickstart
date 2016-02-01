@@ -17,6 +17,7 @@ import com.intel.mtwilson.deployment.jaxrs.io.TaskDocument;
 import com.intel.mtwilson.deployment.threads.OrderDocumentUpdateQueue.OrderSettingsUpdate;
 import com.intel.mtwilson.deployment.threads.OrderDocumentUpdateQueue.OrderStatusUpdate;
 import com.intel.mtwilson.deployment.wizard.DeploymentTaskFactory;
+import com.intel.mtwilson.deployment.wizard.OrderTransformer;
 import com.intel.mtwilson.jaxrs2.provider.JacksonObjectMapperProvider;
 import com.intel.mtwilson.util.task.Task;
 import com.intel.mtwilson.util.task.TaskManager;
@@ -100,6 +101,14 @@ public class OrderDispatchQueue implements ServletContextListener {
             OrderDocument nextOrder = dispatchQueue.poll();
             while (nextOrder != null) {
                 String orderId = nextOrder.getId().toString();
+                
+                // pre-processing: consolidate targets.
+                // this is needed if client requests target A package X, target A package Y, 
+                // in order to transform it to target A package X & Y so that port coordination
+                // logic works and so displaying the order summary nicely in the report works.
+                // this feature makes it easy for clients to assemble orders of (target,package) pairs
+                OrderTransformer orderTransformer = new OrderTransformer(nextOrder);
+                orderTransformer.consolidateTargets();
 
                 // generate the tasks that will execute the order;
                 // this includes input validation on selected features and software packages
@@ -206,7 +215,7 @@ public class OrderDispatchQueue implements ServletContextListener {
     /**
      * Example:
      * <pre>
-     * OrderProcessingQueue.getProcessQueue().add(orderDocument);
+     * OrderDispatchQueue.getDispatchQueue().add(orderDocument);
      * </pre>
      *
      * @return the thread-safe queue in which to place order document updates

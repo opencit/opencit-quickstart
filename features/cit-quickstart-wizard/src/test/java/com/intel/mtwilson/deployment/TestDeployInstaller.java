@@ -4,8 +4,12 @@
  */
 package com.intel.mtwilson.deployment;
 
+import com.intel.dcsg.cpg.io.PropertiesUtil;
+import com.intel.mtwilson.core.junit.Env;
 import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.task.RemoteInstall;
+import java.io.IOException;
+import java.util.Properties;
 import org.junit.Test;
 
 /**
@@ -21,13 +25,15 @@ public class TestDeployInstaller {
     }
     
     @Test
-    public void testRunRemoteCommandWithLocalOutput() {
+    public void testRunRemoteCommandWithLocalOutput() throws IOException {
+        Properties properties = PropertiesUtil.removePrefix(Env.getProperties("cit3-test-ssh"), "cit3.test.ssh.");
+        
         SSH target = new SSH();
-        target.setHost("10.1.68.34");
+        target.setHost(properties.getProperty("host"));
         target.setPort(22);
-        target.setUsername("root");
-        target.setPassword("P@ssw0rd");
-        target.setPublicKeyDigest("22952a72e24194f208200e76fd3900da");
+        target.setUsername(properties.getProperty("username"));
+        target.setPassword(properties.getProperty("password"));
+        target.setPublicKeyDigest(properties.getProperty("publicKeyDigest"));
         RemoteInstall task = new RemoteInstall(target, null, "/bin/ls");
         task.run();
     }
