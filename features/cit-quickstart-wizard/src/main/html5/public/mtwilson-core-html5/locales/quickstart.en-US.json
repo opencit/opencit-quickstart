@@ -1,5 +1,5 @@
 {
-	"packages": {
+    "packages": {
         "attestation_service": "Attestation Service",
         "trustagent_ubuntu": "Trust Agent",
         "policy_agent": "Policy Agent",
@@ -7,7 +7,9 @@
         "key_broker": "Key Broker",
         "key_broker_proxy": "Key Broker Proxy",
         "openstack_extensions": "OpenStack Extensions",
-        "openstack": "OpenStack"
+        "openstack": "OpenStack",
+        "openstack_barbican": "OpenStack Barbican",
+        "kmip4j": "KMIP"
     },
     "tasks": {
         "com_intel_mtwilson_deployment_task_RemoteInstall": "Installing $t(quickstart:packages.{{package_name}}) on {{host}}",

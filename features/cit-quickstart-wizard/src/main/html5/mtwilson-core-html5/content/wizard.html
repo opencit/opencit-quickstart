@@ -87,7 +87,7 @@
     <body>
 
 
-        <div class="row">
+        <div class="row" id="cit_quickstart">
             <div class="col-md-2"></div>
             <div class="col-md-8" style="margin-top: 10px;">        
                 <div class="panel panel-default" data-bind="with: wizardViewModel">
@@ -186,10 +186,17 @@
                                             <p class="hint">Measure and enforce trust policy for VMs before launching on a trusted host</p>
                                         </div>
                                         <div class="checkbox">
-                                            <label><input type="checkbox" name="enforcement-vm-encryption" data-bind="checked: encryption_vm.checked, disable: encryption_vm.disable, click: $parent.update_features"/>VM encryption</label>
+                                            <label>
+                                                <input type="checkbox" name="enforcement-vm-encryption" data-bind="checked: encryption_vm.checked, disable: encryption_vm.disable, click: $parent.update_features"/>
+                                                VM encryption
+                                                <select style="margin-left: 5px;" data-bind="value: $parent.settings.kms_key_provider, visible: encryption_vm.checked">
+                                                    <option value="com.intel.kms.barbican.client.BarbicanKeyManager">OpenStack Barbican</option>
+                                                    <option value="com.intel.kms.kmip.client.KMIPKeyManager">KMIP</option>
+                                                </select>
+                                            </label>
                                             <p class="hint">Encrypted workloads run only on trusted hosts</p>
                                         </div>
-
+                                        
                                         <label>Integrations</label>
                                         <div class="checkbox">
                                             <label><input type="checkbox" name="integration-openstack" data-bind="checked: integration_openstack_nova.checked, disable: integration_openstack_nova.disable, click: $parent.update_features">OpenStack Nova &amp; Horizon</label>
@@ -199,14 +206,14 @@
                                             <label><input type="checkbox" name="integration-openstack-glance" data-bind="checked: integration_openstack_glance.checked, disable: integration_openstack_glance.disable, click: $parent.update_features">OpenStack Glance</label>
                                             <p class="hint">Nova trust scheduler and patches to Horizon to expose trust in dashboard</p>
                                         </div>
-                                        <div class="checkbox">
+<!--                                        <div class="checkbox">
                                             <label><input type="checkbox" name="integration-openstack-barbican" data-bind="checked: integration_openstack_barbican.checked, disable: integration_openstack_barbican.disable, click: $parent.update_features">OpenStack Barbican Key Server</label>
                                             <p class="hint">Use OpenStack Barbican as the key server for VM encryption</p>
                                         </div>
                                         <div class="checkbox">
                                             <label><input type="checkbox" name="integration-kmip" data-bind="checked: integration_kmip.checked, disable: integration_kmip.disable, click: $parent.update_features">KMIP-compatible Key Server</label>
                                             <p class="hint">Use a KMIP-compatible key server for VM encryption</p>
-                                        </div>
+                                        </div>-->
 
                                         <!--
                                         <label>Security Question 1</label>
@@ -271,7 +278,14 @@
                                             <p class="hint">Measure and enforce trust policy for VMs before launching on a trusted host.</p>
                                         </div>
                                         <div class="checkbox">
-                                            <label><input type="checkbox" name="enforcement-vm-encryption" data-bind="checked: encryption_vm.checked, disable: encryption_vm.disable, click: $parent.update_features"/>VM encryption</label>
+                                            <label>
+                                                <input type="checkbox" name="enforcement-vm-encryption" data-bind="checked: encryption_vm.checked, disable: encryption_vm.disable, click: $parent.update_features"/>
+                                                VM encryption
+                                                <select style="margin-left: 5px;" data-bind="value: $parent.settings.kms_key_provider, visible: encryption_vm.checked">
+                                                    <option value="com.intel.kms.barbican.client.BarbicanKeyManager">OpenStack Barbican</option>
+                                                    <option value="com.intel.kms.kmip.client.KMIPKeyManager">KMIP</option>
+                                                </select>
+                                            </label>
                                             <p class="hint">Encrypted workloads run only on trusted hosts</p>
                                         </div>
                                         <label>Integrations</label>
@@ -279,14 +293,14 @@
                                             <label><input type="checkbox" name="integration-openstack-glance" data-bind="checked: integration_openstack_glance.checked, disable: integration_openstack_glance.disable, click: $parent.update_features">OpenStack Glance</label>
                                             <p class="hint">Upload VM images to OpenStack Glance</p>
                                         </div>
-                                        <div class="checkbox">
+<!--                                        <div class="checkbox">
                                             <label><input type="checkbox" name="integration-openstack-barbican" data-bind="checked: integration_openstack_barbican.checked, disable: integration_openstack_barbican.disable, click: $parent.update_features">OpenStack Barbican Key Server</label>
                                             <p class="hint">Use OpenStack Barbican as the key server for VM encryption</p>
                                         </div>
                                         <div class="checkbox">
                                             <label><input type="checkbox" name="integration-kmip" data-bind="checked: integration_kmip.checked, disable: integration_kmip.disable, click: $parent.update_features">KMIP-compatible Key Server</label>
                                             <p class="hint">Use a KMIP-compatible key server for VM encryption</p>
-                                        </div>
+                                        </div>-->
 
                                         <!--
                                         <label>Security Question 1</label>
@@ -333,13 +347,13 @@
                                         </div>
                                         -->
                                         
-                                        <div data-bind="visible: $parent.features.integration_openstack_glance.checked() || $parent.features.integration_openstack_barbican.checked()">
+                                        <div data-bind="visible: $parent.features.integration_openstack_glance.checked() || ($parent.features.encryption_vm.checked() && $parent.settings.kms_key_provider()==='com.intel.kms.barbican.client.BarbicanKeyManager')">
                                         <label>Layout Options</label>
                                         <div class="checkbox" data-bind="visible: $parent.features.integration_openstack_glance.checked">
                                             <label><input type="checkbox" data-bind="checked: layout_options.existing_openstack_glance.checked, disable: layout_options.existing_openstack_glance.disable, click: $parent.update_layout">OpenStack Glance installed separately</label>
                                             <p class="hint">Configure Trust Director to use an existing OpenStack Glance.</p>
                                         </div>
-                                        <div class="checkbox" data-bind="visible: $parent.features.integration_openstack_barbican.checked">
+                                        <div class="checkbox" data-bind="visible: $parent.features.encryption_vm.checked() && $parent.settings.kms_key_provider()==='com.intel.kms.barbican.client.BarbicanKeyManager'">
                                             <label><input type="checkbox" data-bind="checked: layout_options.existing_openstack_barbican.checked, disable: layout_options.existing_openstack_barbican.disable, click: $parent.update_layout">OpenStack Barbican installed separately</label>
                                             <p class="hint">Configure Key Broker to use an existing OpenStack Barbican.</p>
                                         </div>
@@ -416,7 +430,7 @@
                                         </div>
                                     </div>
                                     -->
-                                    <div class="panel panel-primary-subdued" data-bind="visible: features.integration_kmip.checked">
+                                    <div class="panel panel-primary-subdued" data-bind="visible: features.encryption_vm.checked() && settings.kms_key_provider()==='com.intel.kms.kmip.client.KMIPKeyManager'">
                                         <div class="panel-heading"><h3 class="panel-title">Key Server: KMIP Integration</h3></div>
                                         <div class="panel-body">
                                             <form data-bind="with: settings">
@@ -431,7 +445,7 @@
                                     </div>
                                     
                                     <!-- visible: features.integration_openstack_barbican.checked -->
-                                    <div class="panel panel-primary-subdued" data-bind="visible: environment.layout_options.existing_openstack_barbican.checked">
+                                    <div class="panel panel-primary-subdued" data-bind="visible: features.encryption_vm.checked() && settings.kms_key_provider()==='com.intel.kms.barbican.client.BarbicanKeyManager' && environment.layout_options.existing_openstack_barbican.checked">
                                         <div class="panel-heading"><h3 class="panel-title">Key Server: OpenStack Barbican Integration</h3></div>
                                         <div class="panel-body">
                                             <form data-bind="with: settings">
@@ -699,10 +713,15 @@
                                                     <label><input type="checkbox" data-bind="checked: features.attestation_vm.checked" disabled/>VM integrity</label>
                                                 </div>
                                                 <div class="checkbox" data-bind="visible: features.encryption_vm.checked">
-                                                    <label><input type="checkbox" data-bind="checked: features.encryption_vm.checked" disabled/>VM encryption</label>
+                                                    <label><input type="checkbox" data-bind="checked: features.encryption_vm.checked" disabled/>
+                                                        VM encryption
+                                                        <!--<span data-bind="text: i18n.t('quickstart:tasks.' + settings.kms_key_provider)"></span>-->
+                                                        <span data-bind="visible: settings.kms_key_provider()==='com.intel.kms.barbican.client.BarbicanKeyManager'" data-i18n="quickstart:packages.openstack_barbican">barbican</span>
+                                                        <span data-bind="visible: settings.kms_key_provider()==='com.intel.kms.kmip.client.KMIPKeyManager'" data-i18n="quickstart:packages.kmip4j">kmip</span>
+                                                    </label>
                                                 </div>
                                                 </div>
-                                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" data-bind="visible: features.integration_openstack_nova.checked() || features.integration_openstack_glance.checked() || features.integration_openstack_barbican.checked() || features.integration_kmip.checked()">
+                                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" data-bind="visible: features.integration_openstack_nova.checked() || features.integration_openstack_glance.checked() || features.encryption_vm.checked()">
                                                 <label>Integrations</label>
                                                 <div class="checkbox" data-bind="visible: features.integration_openstack_nova.checked">
                                                     <label><input type="checkbox" data-bind="checked: features.integration_openstack_nova.checked" disabled/>OpenStack Nova &amp; Horizon</label>
@@ -712,14 +731,14 @@
                                                     <label><input type="checkbox" data-bind="checked: features.integration_openstack_glance.checked" disabled>OpenStack Glance</label>
                                                     <!-- <p>Nova trust scheduler and patches to Horizon to expose trust in dashboard</p> -->
                                                 </div>
-                                                <div class="checkbox" data-bind="visible: features.integration_openstack_barbican.checked">
+<!--                                                <div class="checkbox" data-bind="visible: features.integration_openstack_barbican.checked">
                                                     <label><input type="checkbox" data-bind="checked: features.integration_openstack_barbican.checked" disabled>OpenStack Barbican Key Server</label>
-                                                    <!-- <p>Use OpenStack Barbican as the key server for VM encryption</p> -->
+                                                     <p>Use OpenStack Barbican as the key server for VM encryption</p> 
                                                 </div>
                                                 <div class="checkbox" data-bind="visible: features.integration_kmip.checked">
                                                     <label><input type="checkbox" data-bind="checked: features.integration_kmip.checked" disabled>KMIP-compatible Key Server</label>
-                                                    <!-- <p>Use a KMIP-compatible key server for VM encryption</p> -->
-                                                </div>
+                                                     <p>Use a KMIP-compatible key server for VM encryption</p> 
+                                                </div>-->
                                                 </div>
                                             </div>
                                             </div>
@@ -1349,24 +1368,24 @@
                     "encryption_vm": new WizardFeature({checked: false, disable: false}),
                     "integration_openstack_nova": new WizardFeature({checked: false, disable: false}), 
                     "integration_openstack_glance": new WizardFeature({checked: false, disable: false}), 
-                    "integration_openstack_barbican": new WizardFeature({checked: false, disable: false}),
-                    "integration_kmip": new WizardFeature({checked: false, disable: false}),
+//                    "integration_openstack_barbican": new WizardFeature({checked: false, disable: false}),
+//                    "integration_kmip": new WizardFeature({checked: false, disable: false}),
                     "compute_node_trustagent": new WizardFeature({checked: false, disable: false})
                 };
                 self.update_features = function() {                    
                     // order matters here... the "forcing" should cascade from the "least dependent" option to the "most dependent" option (in terms of number of things that could force it to be on or off)
                     // these two options are mutually exclusive
-                    self.features.integration_openstack_barbican.suppress_if(self.features.integration_kmip.checked() ); 
-                    self.features.integration_kmip.suppress_if(self.features.integration_openstack_barbican.checked() );
+//                    self.features.integration_openstack_barbican.suppress_if(self.features.integration_kmip.checked() ); 
+//                    self.features.integration_kmip.suppress_if(self.features.integration_openstack_barbican.checked() );
                     // rest of these are dependency relationships
-                    self.features.encryption_vm.force_if(self.features.integration_openstack_barbican.checked() || self.features.integration_kmip.checked());
+//                    self.features.encryption_vm.force_if(self.features.integration_openstack_barbican.checked() || self.features.integration_kmip.checked());
                     self.features.attestation_vm.force_if(self.features.encryption_vm.checked() || self.environment.network_role() === "SUBSCRIBER"); // for subscriber, the minimum install is trust director with vm integrity
                     self.features.attestation_host_xm.force_if(self.features.attestation_vm.checked() || self.features.attestation_container.checked());
                     self.features.attestation_host.force_if(self.features.attestation_host_xm.checked());
                     
                     if( self.environment.network_role() === "SUBSCRIBER" ) {
                         self.environment.layout_options.existing_openstack_glance.force_if(self.features.integration_openstack_glance.checked());
-                        self.environment.layout_options.existing_openstack_barbican.force_if(self.features.integration_openstack_barbican.checked());
+                        self.environment.layout_options.existing_openstack_barbican.force_if(self.settings.kms_key_provider()==='com.intel.kms.barbican.client.BarbicanKeyManager');
                     }
                     
                     // adding or removing features will affect what needs to be deployed
@@ -1385,7 +1404,7 @@
 
                 self.update_network_role = function() {
                     // when the user selects a new network role, first we release all obligations... then start over with defaults appropriate to that role
-                    var packageNames = ["attestation_host","attestation_host_xm","attestation_vm","encryption_vm","integration_kmip","integration_openstack_nova","integration_openstack_glance","integration_openstack_barbican","compute_node_trustagent"];
+                    var packageNames = ["attestation_host","attestation_host_xm","attestation_vm","encryption_vm",/*"integration_kmip",*/"integration_openstack_nova","integration_openstack_glance",/*"integration_openstack_barbican",*/"compute_node_trustagent"];
                     for(var i=0; i<packageNames.length; i++) {
                         var packageName = packageNames[i];
                         self.features[packageName].release();
@@ -1400,6 +1419,7 @@
                         self.environment.layout_options[layoutOptionName].disable(false);
                     }
                     
+                    self.settings.kms_key_provider("com.intel.kms.barbican.client.BarbicanKeyManager");
                     // now check and/or disable individual feature defaults based on the network role
                     if( self.environment.network_role() === "PRIVATE" ) {
                         self.features.attestation_host.checked(true);                     
@@ -1457,16 +1477,16 @@
                     "kms_port_http": ko.observable(""),
                     "kms_port_https": ko.observable(""),
                     "kms_tls_cert_sha1": ko.observable(""),
-                    //"kms_key_provider": ko.observable("kmip"),
-                    "kms_key_provider": ko.computed(function() {
-                        if( self.features.integration_openstack_barbican.checked() ) {
-                            return "com.intel.kms.barbican.client.BarbicanKeyManager";
-                        }
-                        if( self.features.integration_kmip.checked() ) {
-                            return "com.intel.kms.kmip.client.KMIPKeyManager";
-                        }
-                        return "";
-                    }),
+                    "kms_key_provider": ko.observable("com.intel.kms.barbican.client.BarbicanKeyManager"),
+//                    "kms_key_provider": ko.computed(function() {
+//                        if( self.features.integration_openstack_barbican.checked() ) {
+//                            return "com.intel.kms.barbican.client.BarbicanKeyManager";
+//                        }
+//                        if( self.features.integration_kmip.checked() ) {
+//                            return "com.intel.kms.kmip.client.KMIPKeyManager";
+//                        }
+//                        return "";
+//                    }),
                     "kms_kmip_url": ko.observable(""),
                     "kms_barbican_url": ko.observable(""),
                     "kms_barbican_project": ko.observable(""),
@@ -1489,12 +1509,12 @@
                             //self.settings.director_glance_host.faults.push("required");
                         }
                     }
-                    if( self.features.integration_openstack_barbican.checked() ) {
-                        // kms_barbican_url, kms_barbican_project
-                    }
-                    if( self.features.integration_kmip.checked() ) {
-                        // kms_kmip_url
-                    }
+//                    if( self.features.integration_openstack_barbican.checked() ) {
+//                        // kms_barbican_url, kms_barbican_project
+//                    }
+//                    if( self.features.integration_kmip.checked() ) {
+//                        // kms_kmip_url
+//                    }
                 };
                 
                 //self.credentials = ko.observableArray([]);
@@ -2089,6 +2109,9 @@
                 // with default english values provided by  /v1/html5/public/com.intel.mtwilson.deployment.wizard/mtwilson-core-html5/locales/quickstart.en-US.json  via  /v1/html5/public/merge?path=/mtwilson-core-html5/locales/quickstart.en-US.json
                 // NOTE:  the onload function provided is called whether or not the translation was found; for example if you specify a non-existent namespace like "doesnotexist", the call to /v1/html5/public/merge?path=/mtwilson-core-html5/locales/doesnotexist.en-US.json   will return an empty object { } , NOT  a 404,  so the response is valid but empty of data.
                 i18n.loadNamespaces('quickstart', function() {
+                    $("#cit_quickstart [data-i18n]").not("[translate='no']").each(function() {
+                        $(this).i18n(); // translate it using built-in i18next rules
+                    });
 
 /*
                 // setup validation routines for knockout
