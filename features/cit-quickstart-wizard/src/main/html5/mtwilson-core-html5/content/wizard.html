@@ -353,7 +353,7 @@
                                             <label><input type="checkbox" data-bind="checked: layout_options.existing_openstack_glance.checked, disable: layout_options.existing_openstack_glance.disable, click: $parent.update_layout">OpenStack Glance installed separately</label>
                                             <p class="hint">Configure Trust Director to use an existing OpenStack Glance.</p>
                                         </div>
-                                        <div class="checkbox" data-bind="visible: $parent.features.encryption_vm.checked() && $parent.settings.kms_key_provider()==='com.intel.kms.barbican.client.BarbicanKeyManager'">
+                                        <div class="checkbox" data-bind="visible: $parent.features.encryption_vm.checked() && ($parent.environment.network_role() === 'PRIVATE' || $parent.environment.network_role() === 'SUBSCRIBER') && $parent.settings.kms_key_provider()==='com.intel.kms.barbican.client.BarbicanKeyManager'">
                                             <label><input type="checkbox" data-bind="checked: layout_options.existing_openstack_barbican.checked, disable: layout_options.existing_openstack_barbican.disable, click: $parent.update_layout">OpenStack Barbican installed separately</label>
                                             <p class="hint">Configure Key Broker to use an existing OpenStack Barbican.</p>
                                         </div>
