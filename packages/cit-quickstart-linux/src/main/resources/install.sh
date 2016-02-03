@@ -255,6 +255,8 @@ if [ -z "$CIT_NOSETUP" ]; then
 
   # the master password is required
   if [ -z "$CIT_PASSWORD" ] && [ ! -f $CIT_CONFIGURATION/.cit_password ]; then
+    touch $CIT_CONFIGURATION/.cit_password
+    chown $CIT_USERNAME:$CIT_USERNAME $CIT_CONFIGURATION/.cit_password
     cit generate-password > $CIT_CONFIGURATION/.cit_password
   fi
 
