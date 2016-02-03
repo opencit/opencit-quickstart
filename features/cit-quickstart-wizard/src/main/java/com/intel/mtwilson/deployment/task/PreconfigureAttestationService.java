@@ -60,7 +60,7 @@ public class PreconfigureAttestationService extends AbstractPreconfigureTask imp
         }
         username = setting("mtwilson.privacyca.download.username");
         if ( username.isEmpty()) {
-            setting("mtwilson.privacyca.download.username", "admin");
+            setting("mtwilson.privacyca.download.username", "pca-admin");
         }
         username = setting("mtwilson.quickstart.username");
         if ( username.isEmpty()) {
