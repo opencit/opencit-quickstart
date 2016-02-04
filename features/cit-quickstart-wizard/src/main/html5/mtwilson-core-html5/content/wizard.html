@@ -468,6 +468,7 @@
                                     <div class="panel panel-primary-subdued" data-bind="visible: features.attestation_vm.checked() && environment.network_role() === 'SUBSCRIBER'">
                                         <div class="panel-heading"><h3 class="panel-title">Attestation Service</h3></div>
                                         <div class="panel-body">
+                                            <p data-bind="visible: environment.network_role() === 'SUBSCRIBER'">Details available from Cloud Service Provider</p>
                                             <form data-bind="with: settings">
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                     <label class="col-lg-3">Hostname or IP address</label>
@@ -506,6 +507,7 @@
                                     <div class="panel panel-primary-subdued" data-bind="visible: environment.layout_options.existing_openstack_glance.checked">
                                         <div class="panel-heading"><h3 class="panel-title">OpenStack Glance Integration</h3></div>
                                         <div class="panel-body">
+                                            <p data-bind="visible: environment.network_role() === 'SUBSCRIBER'">Details available from Cloud Service Provider</p>
                                             <form  data-bind="with: settings">
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                     <label class="col-lg-3">Hostname or IP address</label>
