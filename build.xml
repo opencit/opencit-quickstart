@@ -64,8 +64,7 @@
         <exec executable="${cmd.maven}" dir="packages/cit-quickstart-linux" resultproperty="mavenExitBuildPackagesWithDependencies">
             <arg value="-DskipTests=true"/>
             <arg value="install"/>
-            <arg value="-f"/>
-			<arg value="pom-with-components.xml"/>
+            <arg value="-DwithComponents"/>
         </exec>
         <fail message="Cannot build project packages" status="${mavenExitBuildPackagesWithDependencies}">
             <condition><not><equals arg1="${mavenExitBuildPackagesWithDependencies}" arg2="0"/></not></condition>
