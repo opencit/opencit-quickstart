@@ -121,7 +121,7 @@ Collection<String> requiredSoftwarePackages = getRequiredSoftwarePackges(feature
      * required settings: [director.mtwilson.password, 
      * director.mtwilson.username, kms.barbican.project, 
      * director.glance.username, kms.barbican.url, mtwilson.host, 
-     * mtwilson.tls.cert.sha1, director.glance.port, director.glance.host, 
+     * mtwilson.tls.cert.sha1, director.glance.url, director.keystone.url,
      * kms.key.provider, director.glance.tenant, mtwilson.port.https, 
      * director.glance.password]
      * @throws IOException 

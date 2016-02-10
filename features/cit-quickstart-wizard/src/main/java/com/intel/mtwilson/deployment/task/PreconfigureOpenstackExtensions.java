@@ -91,14 +91,22 @@ public class PreconfigureOpenstackExtensions extends AbstractPreconfigureTask im
         if (glanceTenant.isEmpty()) {
             setting("director.glance.tenant", openstackProjectName);
         }
-        String glanceHost = setting("director.glance.host");
-        if (glanceHost.isEmpty()) {
-            setting("director.glance.host", target.getHost());
+        String glanceUrl = setting("director.glance.url");
+        if (glanceUrl.isEmpty()) {
+            setting("director.glance.url", String.format("http://%s:%d", target.getHost(), 9292));
         }
-        String glancePort = setting("director.glance.port");
-        if (glancePort.isEmpty()) {
-            setting("director.glance.port", "9292"); // openstack glance default port
+        String keystoneUrl = setting("director.keystone.url");
+        if (keystoneUrl.isEmpty()) {
+            setting("director.keystone.url", String.format("http://%s:%d", target.getHost(), 35357));
         }
+//        String glanceHost = setting("director.glance.host");
+//        if (glanceHost.isEmpty()) {
+//            setting("director.glance.host", target.getHost());
+//        }
+//        String glancePort = setting("director.glance.port");
+//        if (glancePort.isEmpty()) {
+//            setting("director.glance.port", "9292"); // openstack glance default port
+//        }
         String directorUsername = setting("director.glance.username");
         if (directorUsername.isEmpty()) {
             setting("director.glance.username", "director");

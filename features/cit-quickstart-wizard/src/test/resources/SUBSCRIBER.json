@@ -18,7 +18,7 @@
               "director"
           ],
           "required_settings": [
-              "director.glance.tenant", "director.glance.host", "director.glance.port", "director.glance.username", "director.glance.password"
+              "director.glance.tenant", "director.glance.url", "director.keystone.url", "director.glance.username", "director.glance.password"
           ]
       },
       {
@@ -39,7 +39,7 @@
               "attestation_host"
           ],
           "required_settings": [
-              "director.glance.tenant", "director.glance.host", "director.glance.port", "director.glance.username", "director.glance.password"
+              "director.glance.tenant", "director.glance.url", "director.keystone.url", "director.glance.username", "director.glance.password"
           ]
       },
       {
