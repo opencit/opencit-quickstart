@@ -461,6 +461,24 @@
                                                         <p>Example: http://openstack.example.com:9311</p>
                                                     </div>
                                                 </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Keystone Server URL</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_keystone_url"/>
+                                                        <p>Example: http://keystone.example.com:5000</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Username</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_barbican_username"/></div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Password</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_barbican_password" type="password"/></div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Barbican Tenant Name</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_barbican_tenant"/></div>
+                                                </div>
                                             </form>
                                         </div>
                                     </div>
@@ -1505,8 +1523,12 @@
 //                        return "";
 //                    }),
                     "kms_kmip_url": ko.observable(""),
-                    "kms_barbican_url": ko.observable(""),
                     "kms_barbican_project": ko.observable(""),
+                    "kms_barbican_url": ko.observable(""),
+                    "kms_keystone_url": ko.observable(""),
+                    "kms_barbican_username": ko.observable(""),
+                    "kms_barbican_password": ko.observable(""),
+                    "kms_barbican_tenant": ko.observable(""),
                     "kmsproxy_host": ko.observable(""),
                     "kmsproxy_port_http": ko.observable(""),
                     "kmsproxy_port_https": ko.observable(""),

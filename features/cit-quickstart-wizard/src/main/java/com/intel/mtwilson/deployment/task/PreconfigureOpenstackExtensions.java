@@ -95,9 +95,18 @@ public class PreconfigureOpenstackExtensions extends AbstractPreconfigureTask im
         if (glanceUrl.isEmpty()) {
             setting("director.glance.url", String.format("http://%s:%d", target.getHost(), 9292));
         }
-        String keystoneUrl = setting("director.keystone.url");
+        String keystoneUrl = setting("openstack.keystone.url");
         if (keystoneUrl.isEmpty()) {
-            setting("director.keystone.url", String.format("http://%s:%d", target.getHost(), 35357));
+            keystoneUrl = "http://" + target.getHost() + ":5000";
+            setting("openstack.keystone.url", keystoneUrl);    // assuming default horizon port 80
+        }
+        String directorKeystoneUrl = setting("director.keystone.url");
+        if (directorKeystoneUrl.isEmpty()) {
+            setting("director.keystone.url", keystoneUrl);
+        }
+        String kmsKeystoneUrl = setting("kms.keystone.url");
+        if (kmsKeystoneUrl.isEmpty()) {
+            setting("kms.keystone.url", keystoneUrl);
         }
 //        String glanceHost = setting("director.glance.host");
 //        if (glanceHost.isEmpty()) {
@@ -135,7 +144,6 @@ public class PreconfigureOpenstackExtensions extends AbstractPreconfigureTask im
         if (barbicanUrl.isEmpty()) {
             setting("kms.barbican.url", "http://" + setting("kms.barbican.host") + ":" + setting("kms.barbican.port"));
         }
-
 
         // the PreconfigureAttestationService task must already be executed 
         data.put("MTWILSON_HOST", setting("mtwilson.host"));

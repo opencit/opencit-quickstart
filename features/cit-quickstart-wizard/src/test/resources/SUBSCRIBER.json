@@ -27,7 +27,7 @@
               "key_broker"
           ],
           "required_settings": [
-              "kms.barbican.project", "kms.barbican.url"
+              "kms.barbican.project", "kms.barbican.url", "kms.keystone.url", "kms.barbican.username", "kms.barbican.password", "kms.barbican.tenant"
           ]
       },
       {

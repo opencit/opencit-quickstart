@@ -41,6 +41,14 @@ public class PreconfigureKeyBroker extends AbstractPreconfigureTask implements F
         port();
         data.put("JETTY_PORT", setting("kms.port.http"));
         data.put("JETTY_SECURE_PORT", setting("kms.port.https"));
+        data.put("KEY_MANAGER_PROVIDER", setting("kms.key.provider"));
+        data.put("KMIP_ENDPOINT", setting("kms.kmip.url"));
+        data.put("BARBICAN_PROJECT_ID", setting("kms.barbican.project"));
+        data.put("BARBICAN_ENDPOINT_URL", setting("kms.barbican.url"));
+        data.put("BARBICAN_KEYSTONE_PUBLIC_ENDPOINT", setting("kms.keystone.url"));
+        data.put("BARBICAN_TENANTNAME", setting("kms.barbican.tenant"));
+        data.put("BARBICAN_USERNAME", setting("kms.barbican.username"));
+        data.put("BARBICAN_PASSWORD", setting("kms.barbican.password"));
 
         String endpointUrl = setting("kms.endpoint.url");
         if( endpointUrl.isEmpty() ) {
