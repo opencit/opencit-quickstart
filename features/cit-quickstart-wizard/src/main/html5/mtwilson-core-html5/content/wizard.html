@@ -460,7 +460,24 @@
                                                     <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_barbican_url"/>
                                                         <p>Example: http://openstack.example.com:9311</p>
                                                     </div>
-
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Keystone Server URL</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_keystone_url"/>
+                                                        <p>Example: http://keystone.example.com:5000</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Username</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_barbican_username"/></div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Password</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_barbican_password" type="password"/></div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Barbican Tenant Name</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: kms_barbican_tenant"/></div>
                                                 </div>
                                             </form>
                                         </div>
@@ -510,14 +527,22 @@
                                             <p data-bind="visible: environment.network_role() === 'SUBSCRIBER'">Details available from Cloud Service Provider</p>
                                             <form  data-bind="with: settings">
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Glance Server URL</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_url"/></div>
+                                                </div>
+                                                <div class="form-group col-lg-12" style="padding-left: 0px;">
+                                                    <label class="col-lg-3">Keystone Server URL</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_keystone_url"/></div>
+                                                </div>
+                                                <!--<div class="form-group col-lg-12" style="padding-left: 0px;">
                                                     <label class="col-lg-3">Hostname or IP address</label>
                                                     <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_host"/></div>
-                                                    <!-- <span data-bind="visible: director_glance_host.error, text: director_glance_host.faults()"></span> -->
+                                                     <span data-bind="visible: director_glance_host.error, text: director_glance_host.faults()"></span> 
                                                 </div>
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                     <label class="col-lg-3">Port Number</label>
                                                     <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_port"/></div>
-                                                </div>
+                                                </div>-->
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
                                                     <label class="col-lg-3">Username</label>
                                                     <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: director_glance_username"/></div>
@@ -1476,8 +1501,10 @@
                     "director_port_http": ko.observable(""),
                     "director_port_https": ko.observable(""),
                     "director_tls_cert_sha1": ko.observable(""),
-                    "director_glance_host": ko.observable(""), // .extend({faults: "director_glance_host"}),
-                    "director_glance_port": ko.observable("9292"), // openstack default port for glance api. reference: http://docs.openstack.org/kilo/config-reference/content/firewalls-default-ports.html
+                    "director_glance_url": ko.observable(""),
+                    "director_keystone_url": ko.observable(""),
+//                    "director_glance_host": ko.observable(""), // .extend({faults: "director_glance_host"}),
+//                    "director_glance_port": ko.observable("9292"), // openstack default port for glance api. reference: http://docs.openstack.org/kilo/config-reference/content/firewalls-default-ports.html
                     "director_glance_username": ko.observable(""),
                     "director_glance_password": ko.observable(""),
                     "director_glance_tenant": ko.observable(""),
@@ -1496,8 +1523,12 @@
 //                        return "";
 //                    }),
                     "kms_kmip_url": ko.observable(""),
-                    "kms_barbican_url": ko.observable(""),
                     "kms_barbican_project": ko.observable(""),
+                    "kms_barbican_url": ko.observable(""),
+                    "kms_keystone_url": ko.observable(""),
+                    "kms_barbican_username": ko.observable(""),
+                    "kms_barbican_password": ko.observable(""),
+                    "kms_barbican_tenant": ko.observable(""),
                     "kmsproxy_host": ko.observable(""),
                     "kmsproxy_port_http": ko.observable(""),
                     "kmsproxy_port_https": ko.observable(""),
