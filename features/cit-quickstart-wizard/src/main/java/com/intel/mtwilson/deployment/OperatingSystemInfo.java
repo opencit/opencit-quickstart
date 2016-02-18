@@ -40,4 +40,13 @@ public class OperatingSystemInfo {
         return version;
     }
     
+    public String getDistributorName() {
+        if(distributor.contains("Ubuntu"))
+                return "ubuntu";
+        else if(distributor.contains("RedHat"))
+            return "redhat";
+        else
+            return null;
+    }
+    
 }

@@ -2,32 +2,34 @@
   "software_packages": [
      {
        "package_name": "key_broker_proxy",
-       "file_name": "kmsproxy.bin",
+       "file_name": { "default" : [ "cit3-keybrokerproxy.bin", "cit3-keybrokerproxy.bin.mark" ] },
        "dependencies": [ "attestation_service" ]
      },
      {
        "package_name": "attestation_service",
-       "file_name": "attestation_service.bin",
+       "file_name": { "default" : [ "cit3-attestation.bin", "cit3-attestation.bin.mark" ] },
        "dependencies": [  ]
      },
      {
        "package_name": "key_broker",
-       "file_name": "kms.bin",
-       "dependencies": [ "attestation_service" ]
+       "file_name": { "default" : [ "cit3-keybroker.bin", "cit3-keybroker.bin.mark" ] },
+       "dependencies": [ "attestation_service", "openstack_extensions" ]
      },
      {
        "package_name": "openstack_extensions",
-       "file_name": "openstack_extensions.bin",
+       "file_name": { "default" : [ "cit3-openstack-extensions.bin", "cit3-openstack-extensions.bin.mark" ] },
        "dependencies": [ "attestation_service" ]
      },
      {
        "package_name": "trustagent_ubuntu",
-       "file_name": "trustagent-ubuntu.bin",
+       "file_name": { 
+                        "ubuntu": [ "cit3-openstack-trusted-node-ubuntu.bin" ],
+                        "redhat": [ "cit3-openstack-trusted-node-redhat.bin" ] },
        "dependencies": [ "attestation_service", "key_broker_proxy" ]
      },
      {
        "package_name": "director",
-       "file_name": "director.bin",
+       "file_name": { "default" : [ "cit3-director.bin", "cit3-director.bin.mark" ] },
        "dependencies": [ "attestation_service", "key_broker", "openstack_extensions" ]
      }
   ]

@@ -85,6 +85,13 @@
     <version>0.1-SNAPSHOT</version>
                 <type>bin</type>
       </dependency>
+	  
+	  <dependency>
+    <groupId>com.intel.mtwilson.openstack.packages</groupId>
+    <artifactId>mtwilson-openstack-trusted-node-rhel</artifactId>
+    <version>0.1-SNAPSHOT</version>
+                <type>bin</type>
+      </dependency>
 
 
   </dependencies>
