@@ -79,8 +79,10 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
         // IF openstack integration is enabled, these settings must be avaiable:
         // openstack.tenant.name, openstack.glance.host, openstack.glance.port, openstack.glance.username, openstack.glance.password
         data.put("OPENSTACK_TENANT_NAME", setting("director.glance.tenant"));
-        data.put("OPENSTACK_GLANCE_HOST", setting("director.glance.host"));
-        data.put("OPENSTACK_GLANCE_PORT", setting("director.glance.port")); // TODO:  is this http or https?  should make the property name specific , and also if https we will need tls cert sha1 fingerprint
+        data.put("OPENSTACK_GLANCE_URL", setting("director.glance.url"));
+        data.put("OPENSTACK_KEYSTONE_URL", setting("director.keystone.url"));
+//        data.put("OPENSTACK_GLANCE_HOST", setting("director.glance.host"));
+//        data.put("OPENSTACK_GLANCE_PORT", setting("director.glance.port")); // TODO:  is this http or https?  should make the property name specific , and also if https we will need tls cert sha1 fingerprint
         data.put("DIRECTOR_GLANCE_USERNAME", setting("director.glance.username"));
         data.put("DIRECTOR_GLANCE_PASSWORD", setting("director.glance.password"));
 

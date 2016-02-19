@@ -73,13 +73,17 @@ public class PostconfigureKeyBroker extends AbstractPostconfigureTask {
             // configure the key provider ... kmip or barbican 
             remoteconfig(client, "key.manager.provider", providerClass);
 
-            if (providerClass.equals("com.intel.kms.barbican.client.BarbicanKeyManager")) {
-                remoteconfig(client, "barbican.project.id", setting("kms.barbican.project"));
-                remoteconfig(client, "barbican.endpoint.url", setting("kms.barbican.url"));
-            }
-            if (providerClass.equals("com.intel.kms.kmip.client.KMIPKeyManager")) {
-                remoteconfig(client, "kmip.targetHostname", setting("kms.kmip.url"));
-            }
+//            if (providerClass.equals("com.intel.kms.barbican.client.BarbicanKeyManager")) {
+//                remoteconfig(client, "barbican.project.id", setting("kms.barbican.project"));
+//                remoteconfig(client, "barbican.endpoint.url", setting("kms.barbican.url"));
+//                remoteconfig(client, "barbican.keystone.public.endpoint", setting("kms.keystone.url"));
+//                remoteconfig(client, "barbican.username", setting("kms.barbican.username"));
+//                remoteconfig(client, "barbican.password", setting("kms.barbican.password"));
+//                remoteconfig(client, "barbican.tenantname", setting("kms.barbican.tenant"));
+//            }
+//            if (providerClass.equals("com.intel.kms.kmip.client.KMIPKeyManager")) {
+//                remoteconfig(client, "kmip.endpoint", setting("kms.kmip.url"));
+//            }
 
             // create the key broker admin user, following settings must be set in preconfigure task.
             String username = setting("kms.admin.username");
