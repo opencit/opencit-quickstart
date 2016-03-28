@@ -1,27 +1,36 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+    
     <groupId>com.intel.mtwilson.quickstart.packages.bin</groupId>
     <artifactId>cit-quickstart-linux</artifactId>
     <version>3.0-SNAPSHOT</version>
-
+    
     <packaging>pom</packaging>
     <description>Self-extracting executable that installs the automation project</description>
-
+    
     <parent>
         <groupId>com.intel.mtwilson.maven</groupId>
         <artifactId>mtwilson-maven-package-makeself</artifactId>
         <version>3.0-SNAPSHOT</version>
         <relativePath />
     </parent>
-  
+    
     <properties>
         <!-- this becomes the installer filename, like ${makeself.name}.bin -->
         <makeself.name>${project.artifactId}-${project.version}</makeself.name>
         <with.components>with-components</with.components>
     </properties>
-  
+    
     <dependencies>
+        <!-- common-java -->
+        <dependency>
+            <groupId>com.intel.mtwilson.linux</groupId>
+            <artifactId>mtwilson-linux-util</artifactId>
+            <version>${mtwilson.version}</version>
+            <type>sh</type>
+        </dependency>
+        
+        <!-- quickstart -->
         <dependency>
             <groupId>com.intel.mtwilson.quickstart.packages.zip</groupId>
             <artifactId>cit-quickstart</artifactId>
@@ -29,19 +38,15 @@
             <type>zip</type>
             <classifier>application</classifier>
         </dependency>
-        <dependency>
-            <groupId>com.intel.mtwilson.linux</groupId>
-            <artifactId>mtwilson-linux-util</artifactId>
-            <version>${mtwilson.version}</version>
-            <type>sh</type>
-        </dependency>	
+        
+        <!-- external -->
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>jdk</artifactId>
             <version>1.7.0_51</version>
             <type>tar.gz</type>
             <classifier>linux-x64</classifier>
-        </dependency>	
+        </dependency>
     </dependencies>
     
     <profiles>
@@ -97,7 +102,7 @@
                             </execution>
                         </executions>
                     </plugin>
-
+                    
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
@@ -113,7 +118,7 @@
                                         <!-- temporary directory for creating packages -->
                                         <mkdir dir="/tmp/makeself"/>
                                         <chmod perm="700" dir="/tmp/makeself"/>
-                                
+                                        
                                         <!-- package directory contains everything that should be included in the installer -->
                                         <mkdir dir="${project.build.directory}/${makeself.name}-${with.components}"/>
                                         <chmod perm="700">
@@ -135,8 +140,7 @@
                                             <arg value="bash"/>
                                             <arg value="setup.sh"/>
                                         </exec>
-
-                                    
+                                        
                                         <fail message="Cannot build self-extracting installer" status="${mavenExitMakeself}">
                                             <condition>
                                                 <not>
@@ -160,7 +164,8 @@
                                 <version>1.0b3</version>
                             </dependency>
                         </dependencies>
-                    </plugin>	    
+                    </plugin>
+                    
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
@@ -185,6 +190,7 @@
                     </plugin>
                 </plugins>
             </build>
+            
             <dependencies>
                 <!-- component installers -->
                 <dependency>
@@ -193,21 +199,18 @@
                     <version>0.1-SNAPSHOT</version>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.kms</groupId>
                     <artifactId>kms</artifactId>
                     <version>0.1-SNAPSHOT</version>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.kms</groupId>
                     <artifactId>kmsproxy</artifactId>
                     <version>0.1-SNAPSHOT</version>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.linux</groupId>
                     <artifactId>mtwilson-server</artifactId>
@@ -215,14 +218,12 @@
                     <classifier>jdk_glassfish_monit</classifier>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-controller</artifactId>
                     <version>0.1-SNAPSHOT</version>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-trusted-node-ubuntu</artifactId>
@@ -232,4 +233,5 @@
             </dependencies>
         </profile>
     </profiles>
+    
 </project>
