@@ -324,8 +324,14 @@ public class DeploymentTaskFactory extends AbstractTask {
             }
         }
         if( softwarePackage.getPackageName().equals("trustagent_ubuntu")) {
-            PreconfigureTrustAgent generateEnvFile = new PreconfigureTrustAgent();
+            // for trust agent, we need to detect the distribution so we can send appropriate additional files
+            RetrieveLinuxOperatingSystemVersion retrieveLinuxOperatingSystemVersion = new RetrieveLinuxOperatingSystemVersion();
+            tasks.add(retrieveLinuxOperatingSystemVersion);
+            
+            PreconfigureTrustAgent generateEnvFile = new PreconfigureTrustAgent(retrieveLinuxOperatingSystemVersion);
             tasks.add(generateEnvFile);
+            generateEnvFile.getDependencies().add(retrieveLinuxOperatingSystemVersion);
+            
             // copy the env file
             FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile.getFileTransferManifest());
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
@@ -336,10 +342,6 @@ public class DeploymentTaskFactory extends AbstractTask {
             tasks.remove(remoteInstall);  // the remoteInstall task is defined above for all cases, so we remoe it here to not actually run the installer for trust agent... for now. 
             tasks.remove(fileTransferMonitorScript);//As we do not run remoteInstall task we do not need monitor script also
             
-            // for trust agent, we need to detect the distribution so we can send appropriate additional files
-            RetrieveLinuxOperatingSystemVersion retrieveLinuxOperatingSystemVersion = new RetrieveLinuxOperatingSystemVersion();
-            tasks.add(retrieveLinuxOperatingSystemVersion);
-            generateEnvFile.getDependencies().add(retrieveLinuxOperatingSystemVersion);
             
             Task dynamicFileTransfer = createDynamicFileTransferTask(softwarePackage, target, retrieveLinuxOperatingSystemVersion);
             tasks.add(dynamicFileTransfer);
