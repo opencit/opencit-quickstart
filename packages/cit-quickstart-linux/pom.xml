@@ -3,7 +3,6 @@
     
     <groupId>com.intel.mtwilson.quickstart.packages.bin</groupId>
     <artifactId>cit-quickstart-linux</artifactId>
-    <version>3.0-SNAPSHOT</version>
     
     <packaging>pom</packaging>
     <description>Self-extracting executable that installs the automation project</description>
@@ -11,7 +10,7 @@
     <parent>
         <groupId>com.intel.mtwilson.maven</groupId>
         <artifactId>mtwilson-maven-package-makeself</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.1-SNAPSHOT</version>
         <relativePath />
     </parent>
     
@@ -26,7 +25,7 @@
         <dependency>
             <groupId>com.intel.mtwilson.linux</groupId>
             <artifactId>mtwilson-linux-util</artifactId>
-            <version>${mtwilson.version}</version>
+            <version>${project.version}</version>
             <type>sh</type>
         </dependency>
         
@@ -34,7 +33,7 @@
         <dependency>
             <groupId>com.intel.mtwilson.quickstart.packages.zip</groupId>
             <artifactId>cit-quickstart</artifactId>
-            <version>3.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <type>zip</type>
             <classifier>application</classifier>
         </dependency>
@@ -196,38 +195,38 @@
                 <dependency>
                     <groupId>com.intel.mtwilson.director</groupId>
                     <artifactId>director</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.kms</groupId>
                     <artifactId>kms</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.kms</groupId>
                     <artifactId>kmsproxy</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.linux</groupId>
                     <artifactId>mtwilson-server</artifactId>
-                    <version>3.0-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <classifier>jdk_glassfish_monit</classifier>
                     <type>bin</type>
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-controller</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-trusted-node-ubuntu</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
             </dependencies>
