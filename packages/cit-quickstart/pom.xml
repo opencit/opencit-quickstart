@@ -83,6 +83,7 @@
         <dependency>
             <groupId>com.intel.mtwilson.core</groupId>
             <artifactId>mtwilson-core-setup</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.core</groupId>
@@ -132,6 +133,7 @@
         <dependency>
             <groupId>com.intel.mtwilson.util</groupId>
             <artifactId>mtwilson-util-jersey2</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <!--
         <dependency>
