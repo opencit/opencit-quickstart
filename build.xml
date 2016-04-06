@@ -61,13 +61,21 @@
 		<fail message="Cannot build project packages" status="${mavenExitBuildPackages}">
 			<condition><not><equals arg1="${mavenExitBuildPackages}" arg2="0"/></not></condition>
 		</fail>
-        <exec executable="${cmd.maven}" dir="packages/cit-quickstart-linux" resultproperty="mavenExitBuildPackagesWithDependencies">
+        <exec executable="${cmd.maven}" dir="packages/cit-quickstart-linux" resultproperty="mavenExitBuildPackagesIntegrity">
             <arg value="-DskipTests=true"/>
             <arg value="install"/>
-            <arg value="-DwithComponents"/>
+            <arg value="-DintegrityBuild"/>
         </exec>
-        <fail message="Cannot build project packages" status="${mavenExitBuildPackagesWithDependencies}">
-            <condition><not><equals arg1="${mavenExitBuildPackagesWithDependencies}" arg2="0"/></not></condition>
+        <fail message="Cannot build project packages" status="${mavenExitBuildPackagesIntegrity}">
+            <condition><not><equals arg1="${mavenExitBuildPackagesIntegrity}" arg2="0"/></not></condition>
+        </fail>
+		<exec executable="${cmd.maven}" dir="packages/cit-quickstart-linux" resultproperty="mavenExitBuildPackagesConfidentiality">
+            <arg value="-DskipTests=true"/>
+            <arg value="install"/>
+            <arg value="-DconfidentialityBuild"/>
+        </exec>
+        <fail message="Cannot build project packages" status="${mavenExitBuildPackagesConfidentiality}">
+            <condition><not><equals arg1="${mavenExitBuildPackagesConfidentiality}" arg2="0"/></not></condition>
         </fail>
 	</target>
 
