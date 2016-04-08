@@ -3,7 +3,8 @@
     
     <groupId>com.intel.mtwilson.quickstart.packages.zip</groupId>
     <artifactId>cit-quickstart</artifactId>
-    
+    <version>3.0.1-SNAPSHOT</version>
+
     <packaging>jar</packaging>
     <description>Automation project</description>
     

@@ -3,7 +3,8 @@
     
     <groupId>com.intel.mtwilson</groupId>
     <artifactId>cit-quickstart-wizard</artifactId>
-    
+    <version>3.0.1-SNAPSHOT</version>
+
     <packaging>jar</packaging>
     
     <parent>
