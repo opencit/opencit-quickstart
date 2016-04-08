@@ -1,59 +1,63 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+    
     <groupId>com.intel.mtwilson.quickstart.packages.bin</groupId>
     <artifactId>cit-quickstart-linux</artifactId>
-    <version>3.0-SNAPSHOT</version>
-
+    
     <packaging>pom</packaging>
     <description>Self-extracting executable that installs the automation project</description>
-
+    
     <parent>
         <groupId>com.intel.mtwilson.maven</groupId>
         <artifactId>mtwilson-maven-package-makeself</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.1-SNAPSHOT</version>
         <relativePath />
     </parent>
-  
+    
     <properties>
         <!-- this becomes the installer filename, like ${makeself.name}.bin -->
         <makeself.name>${project.artifactId}-${project.version}</makeself.name>
         <integrity>integrity</integrity>
         <confidentiality>confidentiality</confidentiality>
     </properties>
-  
+    
     <dependencies>
-        <dependency>
-            <groupId>com.intel.mtwilson.quickstart.packages.zip</groupId>
-            <artifactId>cit-quickstart</artifactId>
-            <version>3.0-SNAPSHOT</version>
-            <type>zip</type>
-            <classifier>application</classifier>
-        </dependency>
+        <!-- common-java -->
         <dependency>
             <groupId>com.intel.mtwilson.linux</groupId>
             <artifactId>mtwilson-linux-util</artifactId>
-            <version>${mtwilson.version}</version>
+            <version>${project.version}</version>
             <type>sh</type>
-        </dependency>	
+        </dependency>
+        
+        <!-- quickstart -->
+        <dependency>
+            <groupId>com.intel.mtwilson.quickstart.packages.zip</groupId>
+            <artifactId>cit-quickstart</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <classifier>application</classifier>
+        </dependency>
+        
+        <!-- external -->
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>jdk</artifactId>
             <version>1.7.0_51</version>
             <type>tar.gz</type>
             <classifier>linux-x64</classifier>
-        </dependency>	
+        </dependency>
     </dependencies>
     
     <profiles>
         <profile>
-            <id>integrity</id>
+			<id>integrityBuild</id>
 			<activation>
                 <os>
                     <family>unix</family>
                 </os>
                 <property>
-                    <name>integrityBuild</name>  <!-- activate this profile with  -Dintegrity on the command line -->
+                    <name>integrity</name>  <!-- activate this profile with  -Dintegrity on the command line -->
                 </property>
             </activation>
             <build>
@@ -187,52 +191,51 @@
                     </plugin>
                 </plugins>
             </build>
+            
             <dependencies>
                 <!-- component installers -->
                 <dependency>
                     <groupId>com.intel.mtwilson.director</groupId>
                     <artifactId>director</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.linux</groupId>
                     <artifactId>mtwilson-server</artifactId>
-                    <version>3.0-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <classifier>jdk_glassfish_monit</classifier>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-controller</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-trusted-node-ubuntu</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
 				<dependency>
 					<groupId>com.intel.mtwilson.openstack.packages</groupId>
 					<artifactId>mtwilson-openstack-trusted-node-rhel</artifactId>
-					<version>0.1-SNAPSHOT</version>
+					<version>${project.version}</version>
 					<type>bin</type>
 				</dependency>
             </dependencies>
         </profile>
+		
 		<profile>
-			<id>confidentiality</id>
+			<id>confidentialityBuild</id>
             <activation>
                 <os>
                     <family>unix</family>
                 </os>
                 <property>
-                    <name>confidentialityBuild</name>  <!-- activate this profile with  -Dconfidentiality on the command line -->
+                    <name>confidentiality</name>  <!-- activate this profile with  -Dconfidentiality on the command line -->
                 </property>
             </activation>
             <build>
@@ -366,57 +369,54 @@
                     </plugin>
                 </plugins>
             </build>
-			<dependencies>
+            
+            <dependencies>
                 <!-- component installers -->
                 <dependency>
                     <groupId>com.intel.mtwilson.director</groupId>
                     <artifactId>director</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.kms</groupId>
                     <artifactId>kms</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.kms</groupId>
                     <artifactId>kmsproxy</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.linux</groupId>
                     <artifactId>mtwilson-server</artifactId>
-                    <version>3.0-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <classifier>jdk_glassfish_monit</classifier>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-controller</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
-
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-trusted-node-ubuntu</artifactId>
-                    <version>0.1-SNAPSHOT</version>
+                    <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
 				<dependency>
 					<groupId>com.intel.mtwilson.openstack.packages</groupId>
 					<artifactId>mtwilson-openstack-trusted-node-rhel</artifactId>
-					<version>0.1-SNAPSHOT</version>
+					<version>${project.version}</version>
 					<type>bin</type>
 				</dependency>
             </dependencies>
         </profile>
     </profiles>
+    
 </project>
