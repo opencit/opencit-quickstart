@@ -1,84 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="production" default="all" basedir=".">
-	<description>
-	Run "ant ready" to ensure you have all pre-requisites to build
-	Run "ant" or "ant build" to build the entire project
-	Run "ant ready build packages" to clean build and generate packages
-	Run "ant build packages" to rebuild only and generate packages
-	Run "ant packages" to generate packages (requires prior build)
-	</description>
+    <description>
+        Run "ant ready" to ensure you have all pre-requisites to build
+        Run "ant" or "ant build" to build the entire project
+        Run "ant ready build packages" to clean build and generate packages
+        Run "ant build packages" to rebuild only and generate packages
+        Run "ant packages" to generate packages (requires prior build)
+    </description>
 	
-	<target name="info">
-		<echoproperties/>
-	</target>
+    <target name="info">
+        <echoproperties/>
+    </target>
 	
-	<target name="init">
-		<condition property="cmd.maven" value="mvn.cmd">
-			<os family="windows"/>
-		</condition>
-		<condition property="cmd.maven" value="mvn">
-			<os family="unix"/>
-		</condition>
-	</target>
+    <target name="init">
+        <condition property="cmd.maven" value="mvn.cmd">
+            <os family="windows"/>
+        </condition>
+        <condition property="cmd.maven" value="mvn">
+            <os family="unix"/>
+        </condition>
+    </target>
 	
-	<target name="ready" depends="init">
-	</target>
+    <target name="ready" depends="init">
+    </target>
 	
-	<target name="clean" depends="init">
-		<!-- the features -->
-		<exec executable="${cmd.maven}" dir="features" resultproperty="mavenExitCleanFeatures">
-			<arg value="clean"/>
-		</exec>
-		<fail message="Cannot clean project features" status="${mavenExitCleanFeatures}">
-			<condition><not><equals arg1="${mavenExitCleanFeatures}" arg2="0"/></not></condition>
-		</fail>
-		<!-- the packages -->
-		<exec executable="${cmd.maven}" dir="packages" resultproperty="mavenExitCleanPackages">
-			<arg value="clean"/>
-		</exec>
-		<fail message="Cannot clean project packages" status="${mavenExitCleanPackages}">
-			<condition><not><equals arg1="${mavenExitCleanPackages}" arg2="0"/></not></condition>
-		</fail>
-	</target>
+    <target name="clean" depends="init">
+        <!-- the features -->
+        <exec executable="${cmd.maven}" dir="features" resultproperty="mavenExitCleanFeatures">
+            <arg value="clean"/>
+        </exec>
+        <fail message="Cannot clean project features" status="${mavenExitCleanFeatures}">
+            <condition><not><equals arg1="${mavenExitCleanFeatures}" arg2="0"/></not></condition>
+        </fail>
+        <!-- the packages -->
+        <exec executable="${cmd.maven}" dir="packages" resultproperty="mavenExitCleanPackages">
+            <arg value="clean"/>
+        </exec>
+        <fail message="Cannot clean project packages" status="${mavenExitCleanPackages}">
+            <condition><not><equals arg1="${mavenExitCleanPackages}" arg2="0"/></not></condition>
+        </fail>
+    </target>
 	
-	<target name="build" depends="init">
-		<!-- the root pom and all projects except packages (has its own "packages" target) and maven (was built by "ready" target) -->	
-		<exec executable="${cmd.maven}" dir="features" resultproperty="mavenExitBuildFeatures">
-			<arg value="-DskipTests=true"/>
-			<arg value="install"/>
-		</exec>
-		<fail message="Cannot build project features" status="${mavenExitBuildFeatures}">
-			<condition><not><equals arg1="${mavenExitBuildFeatures}" arg2="0"/></not></condition>
-		</fail>
-	</target>
+    <target name="build" depends="init">
+        <!-- the root pom and all projects except packages (has its own "packages" target) and maven (was built by "ready" target) -->	
+        <exec executable="${cmd.maven}" dir="features" resultproperty="mavenExitBuildFeatures">
+            <arg value="-DskipTests=true"/>
+            <arg value="install"/>
+        </exec>
+        <fail message="Cannot build project features" status="${mavenExitBuildFeatures}">
+            <condition><not><equals arg1="${mavenExitBuildFeatures}" arg2="0"/></not></condition>
+        </fail>
+    </target>
 
-	<target name="packages" depends="init">
-		<!-- the packages -->
-		<exec executable="${cmd.maven}" dir="packages" resultproperty="mavenExitBuildPackages">
-			<arg value="-DskipTests=true"/>
-			<arg value="install"/>
-		</exec>
-		<fail message="Cannot build project packages" status="${mavenExitBuildPackages}">
-			<condition><not><equals arg1="${mavenExitBuildPackages}" arg2="0"/></not></condition>
-		</fail>
+    <target name="packages" depends="init">
+        <!-- the packages -->
+        <exec executable="${cmd.maven}" dir="packages" resultproperty="mavenExitBuildPackages">
+            <arg value="-DskipTests=true"/>
+            <arg value="install"/>
+        </exec>
+        <fail message="Cannot build project packages" status="${mavenExitBuildPackages}">
+            <condition><not><equals arg1="${mavenExitBuildPackages}" arg2="0"/></not></condition>
+        </fail>
         <exec executable="${cmd.maven}" dir="packages/cit-quickstart-linux" resultproperty="mavenExitBuildPackagesIntegrity">
             <arg value="-DskipTests=true"/>
             <arg value="install"/>
-            <arg value="-DintegrityBuild"/>
+            <arg value="-Dintegrity"/>
         </exec>
         <fail message="Cannot build project packages" status="${mavenExitBuildPackagesIntegrity}">
             <condition><not><equals arg1="${mavenExitBuildPackagesIntegrity}" arg2="0"/></not></condition>
         </fail>
-		<exec executable="${cmd.maven}" dir="packages/cit-quickstart-linux" resultproperty="mavenExitBuildPackagesConfidentiality">
+        <exec executable="${cmd.maven}" dir="packages/cit-quickstart-linux" resultproperty="mavenExitBuildPackagesConfidentiality">
             <arg value="-DskipTests=true"/>
             <arg value="install"/>
-            <arg value="-DconfidentialityBuild"/>
+            <arg value="-Dconfidentiality"/>
         </exec>
         <fail message="Cannot build project packages" status="${mavenExitBuildPackagesConfidentiality}">
             <condition><not><equals arg1="${mavenExitBuildPackagesConfidentiality}" arg2="0"/></not></condition>
         </fail>
-	</target>
+    </target>
 
-	<target name="all" depends="ready,clean,build,packages"></target>
+    <target name="all" depends="ready,clean,build,packages"></target>
 	
 </project>
