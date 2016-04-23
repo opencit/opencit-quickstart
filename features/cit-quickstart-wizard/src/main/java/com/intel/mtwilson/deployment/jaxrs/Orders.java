@@ -4,6 +4,7 @@
  */
 package com.intel.mtwilson.deployment.jaxrs;
 
+import com.intel.mtwilson.deployment.OrderUtils;
 import com.intel.mtwilson.deployment.descriptor.Target;
 import com.intel.mtwilson.deployment.jaxrs.io.OrderDocument;
 import com.intel.mtwilson.deployment.jaxrs.io.OrderDocumentCollection;
@@ -87,55 +88,10 @@ public class Orders extends AbstractJsonapiResource<OrderDocument, OrderDocument
         
         OrderDispatchQueue.getDispatchQueue().add(created);
         
-        return sanitize(created);
+        return OrderUtils.sanitize(created);
     }
     
-    private OrderDocument sanitize(OrderDocument order) {
-        OrderDocument clean = new OrderDocument();
-        clean.setId(order.getId());
-        clean.getLinks().putAll(order.getLinks());
-        clean.getMeta().putAll(order.getMeta());
-        clean.setFaultDescriptors(order.getFaultDescriptors());
-        clean.setFeatures(order.getFeatures());
-        clean.setCreatedOn(order.getCreatedOn());
-        clean.setModifiedOn(order.getModifiedOn());
-        clean.setProgress(order.getProgress());
-        clean.setProgressMax(order.getProgressMax());
-        clean.setStatus(order.getStatus());
-        clean.setNetworkRole(order.getNetworkRole());
-        clean.setSettings(order.getSettings()); // settings may have input or generated passwords for services but user needs to know these
-        Set<Target> targets = order.getTargets();
-        if( targets != null ) {
-            HashSet<Target> cleanTargets = new HashSet<>();
-            for(Target target : targets) {
-                Target cleanTarget = new Target();
-                cleanTarget.setHost(target.getHost());
-//                cleanTarget.setNetworkRole(target.getNetworkRole());
-                cleanTarget.setPackages(target.getPackages());
-                cleanTarget.setPackagesInstalled(target.getPackagesInstalled());
-                cleanTarget.setPassword(null); // intentional
-                cleanTarget.setPort(target.getPort());
-                cleanTarget.setPublicKeyDigest(null); // intentional
-                cleanTarget.setTimeout(null); // intentional
-                cleanTarget.setUsername(null); // intentional
-                cleanTargets.add(cleanTarget);
-            }
-            clean.setTargets(cleanTargets);
-        }
-        clean.setTasks(order.getTasks());
-        return clean;
-    }
-    
-    private OrderDocumentCollection sanitizeCollection(OrderDocumentCollection collection) {
-        OrderDocumentCollection clean = new OrderDocumentCollection();
-        clean.getLinked().putAll(collection.getLinked());
-        clean.getLinks().putAll(collection.getLinks());
-        clean.getMeta().putAll(collection.getMeta());
-        for(OrderDocument order : collection.getOrders()) {
-            clean.getOrders().add(sanitize(order));
-        }
-        return clean;
-    }
+
     
     private String getSelfLink(String orderId) {
         return "/v1/quickstart/orders/"+orderId;
@@ -161,7 +117,7 @@ public class Orders extends AbstractJsonapiResource<OrderDocument, OrderDocument
             return null;
         }
         order.setStatus("CANCELLING");
-        return sanitize(order);
+        return OrderUtils.sanitize(order);
     }
 
     @GET
@@ -171,7 +127,7 @@ public class Orders extends AbstractJsonapiResource<OrderDocument, OrderDocument
     public OrderDocument retrieveOne(@BeanParam OrderLocator locator, @Context HttpServletRequest httpServletRequest, @Context  HttpServletResponse httpServletResponse) {
         OrderDocument order = super.retrieveOne(locator, httpServletRequest, httpServletResponse);
         if( order == null ) { return null; }
-        return sanitize(order);
+        return OrderUtils.sanitize(order);
     }
 
     @GET
@@ -179,7 +135,7 @@ public class Orders extends AbstractJsonapiResource<OrderDocument, OrderDocument
     @Override
     public OrderDocumentCollection searchJsonapiCollection(@BeanParam OrderFilterCriteria criteria) {
         OrderDocumentCollection collection = super.searchJsonapiCollection(criteria);
-        return sanitizeCollection(collection);
+        return OrderUtils.sanitizeCollection(collection);
     }
 
     @GET
@@ -187,7 +143,7 @@ public class Orders extends AbstractJsonapiResource<OrderDocument, OrderDocument
     @Override
     public OrderDocumentCollection searchCollection(OrderFilterCriteria selector) {
         OrderDocumentCollection collection = super.searchCollection(selector);
-        return sanitizeCollection(collection);
+        return OrderUtils.sanitizeCollection(collection);
     }
     
 

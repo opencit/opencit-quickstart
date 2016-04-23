@@ -26,6 +26,7 @@ import com.intel.mtwilson.deployment.descriptor.NetworkRole;
 import com.intel.mtwilson.deployment.descriptor.Target;
 import com.intel.mtwilson.deployment.jaxrs.faults.Null;
 import com.intel.mtwilson.deployment.jaxrs.io.OrderDocument;
+import com.intel.mtwilson.deployment.task.CopyQuickstartOrder;
 import com.intel.mtwilson.deployment.task.CreateTrustAgentUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInKeyBroker;
@@ -202,6 +203,11 @@ public class DeploymentTaskFactory extends AbstractTask {
             PostconfigureAttestationService postconfigureAttestationService = new PostconfigureAttestationService(target);
             postconfigureAttestationService.getDependencies().add(remoteInstall);
             tasks.add(postconfigureAttestationService);
+            // copy the order file to attestation service
+            CopyQuickstartOrder copyQuickstartOrder = new CopyQuickstartOrder(target, softwarePackage);
+            copyQuickstartOrder.getDependencies().add(remoteInstall);
+            tasks.add(copyQuickstartOrder);
+            
             // IF the order includes trust director too (any target host), then we need to create a user for director to connect to mtwilson (see bug #4866)
             if( selectedSoftwarePackageMap.containsKey("director") ) {
                 CreateTrustDirectorUserInAttestationService createDirectorUser = new CreateTrustDirectorUserInAttestationService(target);
@@ -259,7 +265,11 @@ public class DeploymentTaskFactory extends AbstractTask {
             // create an admin user in trust director
             PostconfigureTrustDirector postconfigureTrustDirector = new PostconfigureTrustDirector(target);
             postconfigureTrustDirector.getDependencies().add(remoteInstall);
-            tasks.add(postconfigureTrustDirector);            
+            tasks.add(postconfigureTrustDirector);
+            // copy the order file to trust director
+            CopyQuickstartOrder copyQuickstartOrder = new CopyQuickstartOrder(target, softwarePackage);
+            copyQuickstartOrder.getDependencies().add(remoteInstall);
+            tasks.add(copyQuickstartOrder);
         }
         if( softwarePackage.getPackageName().equals("openstack_extensions")) {
             PreconfigureOpenstackExtensions generateEnvFile = new PreconfigureOpenstackExtensions();
