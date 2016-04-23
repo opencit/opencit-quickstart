@@ -984,8 +984,55 @@
              */
             function WizardFeature(init) {
                 var self = this;
-                self.checked = ko.observable(init.checked);
-                self.disable = ko.observable(init.disable);
+                self._available = ko.observable(typeof init["available"] === "undefined" ? true : init.available);
+                self._checked = ko.observable(init.checked);
+                self._disable = ko.observable(init.disable);
+                self.available =  ko.computed({
+                    read: function() {
+                        return self._available();
+                    },
+                    write: function(value) {
+                        if( value === true ) {
+                            self.release();
+                            self._available(true);
+                        }
+                        else {
+                            self.force(false);
+                            self._available(false);
+                        }
+                    }
+                });
+                        ////ko.observable(self._available);
+                self.checked = ko.computed({
+                    read: function() { 
+                        return self._available() && self._checked();
+                    },
+                    write: function(value) {
+                        if( self._available() ) {
+                            self._checked(value);
+                        }
+                        else {
+                            self._checked(false);
+                            console.log("Feature not available");
+                        }
+                    }
+                });
+                self.disable = ko.computed({
+                    read: function() { 
+                        return !self._available() || self._disable();
+                    },
+                    write: function(value) {
+                        if( self._available()) {
+                            self._disable(value);
+                        }
+                        else {
+                            self._disable(true);
+                            console.log("Feature not available");
+                        }
+                    }
+                });
+                
+                
                 self.prior_checked = null; // used to store prior checked value by force function
                 self.prior_disable = null; // used to store prior disable value by force function
 
@@ -1405,7 +1452,7 @@
 //                    "integration_kmip": new WizardFeature({checked: false, disable: false}),
                     "compute_node_trustagent": new WizardFeature({checked: false, disable: false})
                 };
-                self.update_features = function() {                    
+                self.update_features = function() {
                     // order matters here... the "forcing" should cascade from the "least dependent" option to the "most dependent" option (in terms of number of things that could force it to be on or off)
                     // these two options are mutually exclusive
 //                    self.features.integration_openstack_barbican.suppress_if(self.features.integration_kmip.checked() ); 
@@ -1439,6 +1486,31 @@
                         "existing_openstack_glance": new WizardFeature({checked: false, disabled: false}),
                         "existing_openstack_barbican": new WizardFeature({checked: false, disabled: false})
                     }
+                };
+                
+                self.available_packages = {};
+                
+                self.get_available_packages = function() {
+                    console.log("Checking available packages");
+                    $.ajax({
+                        type: "GET",
+                        url: endpoint + "/quickstart/packages", 
+                        headers: {'Accept': 'application/json'},
+                        //contentType: "application/json",
+                        //data: JSON.stringify(data),
+                        success: function(responseJsonContent, status, xhr) {
+                            console.log("available packages response: %O", responseJsonContent);
+                            // convert  {  "packages": [   {... },  {...} , ... ] }  to { name: available/no,  name2: available/no, ... }
+                            for(var i=0; i<responseJsonContent.packages.length; i++) {
+                                self.available_packages[responseJsonContent.packages[i].name] = responseJsonContent.packages[i].available;
+                            }
+                            if( !self.available_packages["key_broker"] ) {
+                                console.log("encryption not available");
+                                self.features.encryption_vm.available(false); // forces checked=false and disable=true
+                                self.update_features();
+                            }
+                        }
+                    });
                 };
 
                 self.update_network_role = function() {
@@ -2309,6 +2381,7 @@
                     //mainViewModel.wizardViewModel.searchSettings({});
 
                     // initialize
+                    mainViewModel.wizardViewModel.get_available_packages();
                     mainViewModel.wizardViewModel.update_network_role(); // calls update_features()
                     mainViewModel.wizardViewModel.update_layout(); // calls update_features()
                     //mainViewModel.wizardViewModel.update_environment();
