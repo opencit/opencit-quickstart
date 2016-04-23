@@ -82,6 +82,7 @@ public class Orders extends AbstractJsonapiResource<OrderDocument, OrderDocument
         // add links to this order and to the progress monitor
         String orderId = created.getId().toString();
         created.getLinks().put("status", getSelfLink(orderId));
+        created.getLinks().put("export", getExportLink(orderId));
         created.getLinks().put("cancel", getCancelLink(orderId));        
 //        created.getLinks().put("status", getStatusLink(orderId));
         
@@ -140,6 +141,9 @@ public class Orders extends AbstractJsonapiResource<OrderDocument, OrderDocument
     private String getSelfLink(String orderId) {
         return "/v1/quickstart/orders/"+orderId;
     }
+    private String getExportLink(String orderId) {
+        return "/v1/quickstart/orders/"+orderId+"/export";
+    }
     private String getCancelLink(String orderId) {
         return "/v1/quickstart/orders/"+orderId+"/cancel";
     }
@@ -174,6 +178,22 @@ public class Orders extends AbstractJsonapiResource<OrderDocument, OrderDocument
         return sanitize(order);
     }
 
+    @GET
+    @Path("{id}/export")
+    @Produces(MediaType.APPLICATION_JSON)
+    public OrderDocument exportOrder(@BeanParam OrderLocator locator, @Context HttpServletRequest httpServletRequest, @Context  HttpServletResponse httpServletResponse) {
+        OrderDocument order = super.retrieveOne(locator, httpServletRequest, httpServletResponse);
+        if( order == null ) { return null; }
+        OrderDocument clean = sanitize(order);
+        if( "DONE".equals(clean.getStatus()) ) {
+            // we don't export task status for completed orders
+            clean.setProgress(null);
+            clean.setProgressMax(null);
+            clean.setTasks(null); 
+        }
+        return clean;
+    }
+    
     @GET
     @Produces(DataMediaType.APPLICATION_VND_API_JSON)
     @Override
