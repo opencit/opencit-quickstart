@@ -915,10 +915,15 @@
                             </table>
                             </div>
 
+                            <!-- export link appears only for DONE and ERROR status -->
+                            <div data-bind="visible: progress.order.status() == 'DONE' || progress.order.status() == 'ERROR' ">
+                                <a class="btn btn-link btn-sm export" target="_blank" data-bind="attr: { href: progress.links.export }">Export <span class="glyphicon glyphicon-save"></span></a>  
+                            </div>
+                            
                         </div>
                         
                         <div data-bind="visible: progress.order.status() == 'PENDING' || progress.order.status() == 'ACTIVE'">
-                            <a class="btn btn-danger btn-lg cancel" href="#">Cancel</a>                            
+                            <a class="btn btn-danger btn-lg cancel" href="#">Cancel</a>
                         </div>
                         <div data-bind="visible: progress.order.status() == 'DONE' || progress.order.status() == 'ERROR' ">
                             <a class="btn btn-success btn-lg restart" href="#">Start Again</a>                            
@@ -1758,6 +1763,7 @@
                 self.progress.interval_period = 1000; // check progress every 2 seconds = 2000 ms
                 self.progress.links = {};
                 self.progress.links.status = null; // this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a where we can get more updates
+                self.progress.links.export = ko.observable(""); // this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a/export where we can export the order information
                 self.progress.links.cancel = null;// this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a/cancel where we can cancel the task with a POST
                 self.progress.actions = ko.observableArray([]); // list of actions from server about what is happening during the deployment;  these are then used to update the UI under the progress bar
                 self.progress.order = {
@@ -1869,6 +1875,7 @@
                             else {
                                 // schedule periodic progress checks
                                 self.progress.links.status = responseJsonContent.links.status;
+                                self.progress.links.export(responseJsonContent.links.export);
                                 self.progress.links.cancel = responseJsonContent.links.cancel;
                                 self.progress.interval = setInterval(self.checkProgress, self.progress.interval_period); // check progress every "interval period" milliseconds
                             }
@@ -1930,6 +1937,7 @@
                     }
                     self.progress.links = {};
                     self.progress.links.status = null; // this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a where we can get more updates
+                    self.progress.links.export(""); // this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a/export where we can export the order information
                     self.progress.links.cancel = null;// this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a/cancel where we can cancel the task with a POST
                     self.progress.actions([]);
                     self.progress.order.id("");
@@ -2356,6 +2364,13 @@
                         $(document).trigger("mtwilson-quickstart-wizard:reset");
                         
                     });
+                    
+                    /*
+                    wizard.find('#deploy_panel .export').click(function() {
+                        console.log("Export link href %s",this.href);
+                        window.open(this.href);  // url path like /v1/quickstart/orders/b3bafefa-a83d-4265-affd-b977a199d71a/export
+                    });
+                    */
 
                     $(document).on("mtwilson-quickstart-wizard:progress", function(e, data) {
                         console.log("Caught progress event: %O", data);
