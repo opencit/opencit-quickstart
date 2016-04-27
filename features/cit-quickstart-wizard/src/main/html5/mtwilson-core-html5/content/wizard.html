@@ -2208,8 +2208,7 @@
                 $(document).on("mtwilson-quickstart-wizard:start", function(e) {
                     console.log("Caught start event");
                     self.start();
-                    // TEMPORARY:  show the task details when we start a task;  in production we would keep this hidden and user can show if s/he wants to.
-                    self.progress.taskView.visible(true);
+                    self.progress.taskView.visible(false);
                 });
                 $(document).on("mtwilson-quickstart-wizard:cancel", function(e) {
                     console.log("Caught cancel event");
