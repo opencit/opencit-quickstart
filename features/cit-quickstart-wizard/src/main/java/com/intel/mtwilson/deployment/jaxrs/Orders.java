@@ -140,7 +140,7 @@ public class Orders extends AbstractJsonapiResource<OrderDocument, OrderDocument
     public OrderDocument exportOrder(@BeanParam OrderLocator locator, @Context HttpServletRequest httpServletRequest, @Context  HttpServletResponse httpServletResponse) {
         OrderDocument order = super.retrieveOne(locator, httpServletRequest, httpServletResponse);
         if( order == null ) { return null; }
-        OrderDocument clean = sanitize(order);
+        OrderDocument clean = OrderUtils.sanitize(order);
         if( "DONE".equals(clean.getStatus()) ) {
             // we don't export task status for completed orders
             clean.setProgress(null);
