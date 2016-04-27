@@ -31,7 +31,8 @@
         "com_intel_mtwilson_deployment_task_CreateTrustDirectorUserInOpenstack": "Creating $t(quickstart:packages.director) credential in $t(quickstart:packages.openstack) on {{host}}",
         "com_intel_mtwilson_deployment_task_PostconfigureTrustDirector": "Finishing $t(quickstart:packages.director) configuration on {{host}}",
         "com_intel_mtwilson_deployment_task_RetrieveLinuxOperatingSystemVersion": "Detecting operating system name and version on {{host}}",
-        "com_intel_mtwilson_deployment_task_RetrieveLinuxKernelVersion": "Detecting Linux kernel version on {{host}}"
+        "com_intel_mtwilson_deployment_task_RetrieveLinuxKernelVersion": "Detecting Linux kernel version on {{host}}",
+        "com_intel_mtwilson_deployment_task_CopyQuickstartOrder": "Copying Quickstart Order to {{host}}"
     },
     "faults": {
         "com_intel_mtwilson_deployment_jaxrs_faults_Connection": "Connection failed"

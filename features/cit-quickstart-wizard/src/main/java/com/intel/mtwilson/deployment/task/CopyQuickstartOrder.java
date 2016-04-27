@@ -5,22 +5,20 @@
 package com.intel.mtwilson.deployment.task;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.intel.dcsg.cpg.iso8601.Iso8601Date;
 import com.intel.dcsg.cpg.validation.Fault;
 import com.intel.mtwilson.deployment.FileTransferDescriptor;
 import com.intel.mtwilson.deployment.OrderUtils;
 import com.intel.mtwilson.deployment.SSHClientWrapper;
 import com.intel.mtwilson.deployment.SoftwarePackage;
-import com.intel.mtwilson.deployment.descriptor.Target;
 import com.intel.mtwilson.deployment.jaxrs.io.OrderDocument;
 import com.intel.mtwilson.jaxrs2.provider.JacksonObjectMapperProvider;
 import com.intel.mtwilson.util.exec.Result;
 import com.intel.mtwilson.util.validation.faults.Thrown;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Set;
 
 /**
  * Used to copy the order (without ssh passwords) to each Attestation Service
@@ -38,9 +36,13 @@ public class CopyQuickstartOrder extends AbstractPostconfigureTask {
     private final ObjectMapper mapper = JacksonObjectMapperProvider.createDefaultMapper();
     private final String softwarePackageName;
     
-    public CopyQuickstartOrder(Target target, SoftwarePackage softwarePackage) {
+    /**
+     * Must use setTarget and setOrder to provide those objects
+     * prior to calling execute
+     * @param softwarePackage 
+     */
+    public CopyQuickstartOrder(SoftwarePackage softwarePackage) {
         this.softwarePackageName = softwarePackage.getPackageName();
-        this.target = target;
     }
     
     @Override
@@ -53,7 +55,7 @@ public class CopyQuickstartOrder extends AbstractPostconfigureTask {
             copyOrderToRemotePath(orderFile, remotePath);
         }
         catch(IOException e) {
-            log.debug("Cannot copy order file to remote system: {}", target.getHost());
+            log.debug("Cannot copy order file to remote system: {}", target.getHost(), e);
             fault(new Thrown(e));
         }
     }
@@ -70,8 +72,13 @@ public class CopyQuickstartOrder extends AbstractPostconfigureTask {
     
     private File createOrderFile() throws IOException {
         // filename is "order-{date}" 
-        String filename = "order-" + Iso8601Date.format(new Date());
+        SimpleDateFormat iso8601abbrev = new SimpleDateFormat("yyyyMMdd'T'HHmmssZ");  // for example: 20160427T163112Z  or 20160427T163112-0700
+        String filename = "order-" + iso8601abbrev.format(new Date());
         File orderFile = getTaskDirectory().toPath().resolve(filename).toFile();
+        if( !orderFile.getParentFile().exists() ) {
+            log.debug("Attempting to create directory {}", orderFile.getParentFile().getAbsolutePath());
+            orderFile.getParentFile().mkdirs();
+        }
         OrderDocument clean = OrderUtils.sanitize(order);
         clean.setSettings(null); // intentionally remove all settings, because these may have changed post-deployment and anyway current settings can be retrieved from any installed server when user has the right credentials
         mapper.writeValue(orderFile, clean);
