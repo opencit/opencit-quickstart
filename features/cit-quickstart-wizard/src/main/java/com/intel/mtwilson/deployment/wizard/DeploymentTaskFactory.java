@@ -205,7 +205,7 @@ public class DeploymentTaskFactory extends AbstractTask {
             postconfigureAttestationService.getDependencies().add(remoteInstall);
             tasks.add(postconfigureAttestationService);
             // copy the order file to attestation service
-            CopyQuickstartOrder copyQuickstartOrder = new CopyQuickstartOrder(target, softwarePackage);
+            CopyQuickstartOrder copyQuickstartOrder = new CopyQuickstartOrder(softwarePackage);
             copyQuickstartOrder.getDependencies().add(remoteInstall);
             tasks.add(copyQuickstartOrder);
             
@@ -277,7 +277,7 @@ public class DeploymentTaskFactory extends AbstractTask {
             postconfigureTrustDirector.getDependencies().add(remoteInstall);
             tasks.add(postconfigureTrustDirector);
             // copy the order file to trust director
-            CopyQuickstartOrder copyQuickstartOrder = new CopyQuickstartOrder(target, softwarePackage);
+            CopyQuickstartOrder copyQuickstartOrder = new CopyQuickstartOrder(softwarePackage);
             copyQuickstartOrder.getDependencies().add(remoteInstall);
             tasks.add(copyQuickstartOrder);
         }
