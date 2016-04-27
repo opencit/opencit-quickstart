@@ -86,6 +86,7 @@ public class ApproveKeyBrokerProxyUserInAttestationService extends AbstractPostc
 
             ArrayList<String> keyBrokerProxyRoles = new ArrayList<>();
             keyBrokerProxyRoles.add("Attestation"); // this is the only role the key broker proxy needs
+            keyBrokerProxyRoles.add("Challenger"); // this is the only role the key broker proxy needs
 
             for (User user : userCollection.getUsers()) {
                 log.debug("Found user: {} with id: {}", user.getUsername(), user.getId().toString());
@@ -97,6 +98,23 @@ public class ApproveKeyBrokerProxyUserInAttestationService extends AbstractPostc
                 log.debug("Completed search for key broker proxy user login certificate in mtwilson, got {} results", userLoginCertificateCollection.getUserLoginCertificates().size());
                 for (UserLoginCertificate userLoginCertificate : userLoginCertificateCollection.getUserLoginCertificates()) {
                     log.debug("Approving user login certificate with subject: {}", userLoginCertificate.getX509Certificate().getSubjectX500Principal().getName());
+/*                    
+ * The comment starts as a YAML document (see example below) 
+ * which is generated when the user registers in CIT, so that
+ * the administrator can see the requested roles in the UI.
+ * But the v2 API rejects the quotes and newlines in this 
+ * document so we can't store it even though it came to us
+ * in the record.
+ * Because we are approving the user here with the desired
+ * roles in the roles field, we don't need this comment anyway.
+ * <pre>
+---
+roles:
+- "Challenger"
+- "Attestation"
+* </pre>
+*/
+                    userLoginCertificate.setComment(""); // clear the comment, without this server may return "Bad argument" because the comment field doesn't pass server side validation due to quotes and newlines
                     userLoginCertificate.setRoles(keyBrokerProxyRoles);
                     userLoginCertificate.setEnabled(true);
                     userLoginCertificate.setStatus(Status.APPROVED);
