@@ -12,6 +12,8 @@ import com.intel.mtwilson.deployment.descriptor.SSH;
 import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
 import com.intel.mtwilson.util.exec.Result;
 import java.io.File;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -30,7 +32,9 @@ public class RemoteInstall extends AbstractRemoteTask {
         super();
         this.remote = remote;
         this.softwarePackage = softwarePackage;
-        this.executablePath = softwarePackage.getFile().getName();
+        //RemoteInstall is set to just work for default installer. Need to update following code to support OS specific installer 
+        if(softwarePackage.getFiles("default") != null)
+            this.executablePath = softwarePackage.getFiles("default").get(0).getName();
     }
 
     public RemoteInstall(SSH remote, SoftwarePackage softwarePackage, String executablePath) {

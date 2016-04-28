@@ -1,93 +1,56 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-  <groupId>com.intel.mtwilson.quickstart.packages.zip</groupId>
-  <artifactId>cit-quickstart</artifactId>
-  <version>3.0-SNAPSHOT</version>
+    
+    <groupId>com.intel.mtwilson.quickstart.packages.zip</groupId>
+    <artifactId>cit-quickstart</artifactId>
+    <version>3.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     <description>Automation project</description>
+    
     <parent>
         <groupId>com.intel.mtwilson.maven</groupId>
         <artifactId>mtwilson-core-application-zip</artifactId>
         <version>3.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
-
+    
     <properties>
         <build.timestamp>${maven.build.timestamp}</build.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss.SSSZ</maven.build.timestamp.format>
-        <!-- format examples, see http://docs.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html for complete documentation:
-     "EEE, d MMM yyyy HH:mm:ss Z"	Wed, 4 Jul 2001 12:08:56 -0700
-     "yyyy-MM-dd'T'HH:mm:ss.SSSZ"	2001-07-04T12:08:56.235-0700   
-        -->
     </properties>
-
+    
     <build>
-<plugins>
-        <plugin>
-            <groupId>pl.project13.maven</groupId>
-            <artifactId>git-commit-id-plugin</artifactId>
-            <version>2.1.9</version>
-        </plugin>
-</plugins>
+        <plugins>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.1.9</version>
+            </plugin>
+        </plugins>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
-                  
         </resources>
     </build>
-
-
+    
     <dependencies>
-
-        <dependency>
-    <groupId>com.intel.mtwilson</groupId>
-    <artifactId>cit-quickstart-wizard</artifactId>
-            <version>3.0-SNAPSHOT</version>
-            <classifier>feature</classifier>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-    <groupId>com.intel.mtwilson</groupId>
-    <artifactId>cit-task</artifactId>
-            <version>3.0-SNAPSHOT</version>
-            <classifier>feature</classifier>
-            <type>zip</type>
-        </dependency>
-
-<!--
-        <dependency>
-    <groupId>com.intel.mtwilson</groupId>
-    <artifactId>mtwilson-core-user-profile</artifactId>
-	<version>3.0-SNAPSHOT</version>
-            <classifier>feature</classifier>
-            <type>zip</type>
-        </dependency>
--->
-
+        <!-- common-java -->
         <dependency>
             <groupId>com.intel.mtwilson.core</groupId>
             <artifactId>mtwilson-core-help</artifactId>
             <version>0.1-SNAPSHOT</version>
+            <!--<version>${project.version}</version>-->
             <classifier>feature</classifier>
             <type>zip</type>
         </dependency>
-
         <dependency>
             <groupId>com.intel.mtwilson.core</groupId>
             <artifactId>mtwilson-core-version</artifactId>
             <version>0.1-SNAPSHOT</version>
-            <classifier>feature</classifier>
-            <type>zip</type>
-        </dependency>
-
-        <dependency>
-            <groupId>com.intel.mtwilson.services</groupId>
-            <artifactId>mtwilson-configuration-settings-ws-v2</artifactId>
-            <version>${mtwilson.version}</version>
+            <!--<version>${project.version}</version>-->
             <classifier>feature</classifier>
             <type>zip</type>
         </dependency>
@@ -95,29 +58,49 @@
             <groupId>com.intel.mtwilson.core</groupId>
             <artifactId>mtwilson-core-html5</artifactId>
             <version>0.1-SNAPSHOT</version>
+            <!--<version>${project.version}</version>-->
             <classifier>feature</classifier>
             <type>zip</type>
         </dependency>
-
         <dependency>
             <groupId>com.intel.mtwilson.core</groupId>
             <artifactId>mtwilson-core-html5-login-anon</artifactId>
             <version>0.1-SNAPSHOT</version>
+            <!--<version>${project.version}</version>-->
             <classifier>feature</classifier>
             <type>zip</type>
         </dependency>
-
+        <dependency>
+            <groupId>com.intel.mtwilson.services</groupId>
+            <artifactId>mtwilson-configuration-settings-ws-v2</artifactId>
+            <version>3.0-SNAPSHOT</version>
+            <!--<version>${project.version}</version>-->
+            <classifier>feature</classifier>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.core</groupId>
+            <artifactId>mtwilson-core-jetty9</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.core</groupId>
+            <artifactId>mtwilson-core-feature-inventory</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.core</groupId>
+            <artifactId>mtwilson-core-setup</artifactId>
+            <version>3.0-SNAPSHOT</version>
+            <!--<version>${project.version}</version>-->
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.core</groupId>
+            <artifactId>mtwilson-core-login-token</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.integration</groupId>
             <artifactId>mtwilson-launcher</artifactId>
         </dependency>
-        
-        <dependency>
-    <groupId>com.intel.mtwilson.core</groupId>
-    <artifactId>mtwilson-core-feature-inventory</artifactId>
-    <version>0.1-SNAPSHOT</version>
-        </dependency>
-        
         <dependency>
             <groupId>com.intel.mtwilson.integration</groupId>
             <artifactId>mtwilson-configuration</artifactId>
@@ -126,37 +109,18 @@
             <groupId>com.intel.mtwilson.integration</groupId>
             <artifactId>mtwilson-password-vault</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.intel.mtwilson.core</groupId>
-            <artifactId>mtwilson-core-jetty9</artifactId>
-            <version>0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.intel.mtwilson.util</groupId>
-            <artifactId>mtwilson-util-jersey2</artifactId>
-            <version>0.1-SNAPSHOT</version>
-        </dependency>
-<!--
         <dependency>
             <groupId>com.intel.mtwilson.services</groupId>
-            <artifactId>mtwilson-jersey2-util</artifactId>
+            <artifactId>mtwilson-extensions-cache</artifactId>
         </dependency>
--->
-            <dependency>
-	<groupId>com.intel.mtwilson.core</groupId>
-    <artifactId>mtwilson-core-setup</artifactId>
-        <version>3.0-SNAPSHOT</version>
-            </dependency>
-
-
-        <!-- for the RepeatableRequestFilter -->
+        <dependency>
+            <groupId>com.intel.mtwilson.services</groupId>
+            <artifactId>mtwilson-extensions-ws-v2</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.intel.mtwilson.services</groupId>
             <artifactId>mtwilson-http-servlets</artifactId>
         </dependency>
-                
         <dependency>
             <groupId>com.intel.mtwilson.services</groupId>
             <artifactId>mtwilson-shiro-file</artifactId>
@@ -166,29 +130,47 @@
         <dependency>
             <groupId>com.intel.mtwilson.services</groupId>
             <artifactId>mtwilson-shiro-ws-v2</artifactId>
-            <version>${mtwilson.version}</version>
+        </dependency>
+        -->
+        <!--
+        <dependency>
+            <groupId>com.intel.mtwilson.services</groupId>
+            <artifactId>mtwilson-jersey2-util</artifactId>
         </dependency>
         -->
         <dependency>
-    <groupId>com.intel.mtwilson.core</groupId>
-    <artifactId>mtwilson-core-login-token</artifactId>
-	<version>0.1-SNAPSHOT</version>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-jersey2</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <!--<version>${project.version}</version>-->
         </dependency>
-        
-        
+        <!--
         <dependency>
-            <groupId>com.intel.mtwilson.services</groupId>
-            <artifactId>mtwilson-extensions-cache</artifactId>
+            <groupId>com.intel.mtwilson</groupId>
+            <artifactId>mtwilson-core-user-profile</artifactId>
+            <version>${project.version}</version>
+            <classifier>feature</classifier>
+            <type>zip</type>
         </dependency>
+        -->
         
-        
+        <!-- quickstart -->
         <dependency>
-            <groupId>com.intel.mtwilson.services</groupId>
-            <artifactId>mtwilson-extensions-ws-v2</artifactId>
+            <groupId>com.intel.mtwilson</groupId>
+            <artifactId>cit-quickstart-wizard</artifactId>
+            <version>${project.version}</version>
+            <classifier>feature</classifier>
+            <type>zip</type>
         </dependency>
-
-        <!-- for the RepeatableRequestFilter -->
+        <dependency>
+            <groupId>com.intel.mtwilson</groupId>
+            <artifactId>cit-task</artifactId>
+            <version>${project.version}</version>
+            <classifier>feature</classifier>
+            <type>zip</type>
+        </dependency>
         
+        <!-- external -->
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.servlet</artifactId>
@@ -207,7 +189,6 @@
         </dependency>
         
         <!-- jersey -->
-        
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
@@ -242,8 +223,8 @@
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
             <version>2.4.1</version>
-        </dependency>      
-            
+        </dependency>
+        
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -257,8 +238,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-        </dependency>        
+        </dependency>
+    </dependencies>
     
-
-    </dependencies>  
 </project>

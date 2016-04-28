@@ -1,3 +1,4 @@
 # A successful build produces the following files:
 packages/cit-quickstart-linux/target/cit-quickstart-linux-3.0-SNAPSHOT.bin
-packages/cit-quickstart-linux/target/cit-quickstart-linux-3.0-SNAPSHOT-with-components.bin
+packages/cit-quickstart-linux/target/cit-quickstart-linux-3.0-SNAPSHOT-confidentiality.bin
+packages/cit-quickstart-linux/target/cit-quickstart-linux-3.0-SNAPSHOT-integrity.bin
