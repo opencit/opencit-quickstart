@@ -213,19 +213,22 @@
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-controller</artifactId>
-                    <version>${project.version}</version>
+                    <version>0.1-SNAPSHOT</version>
+                    <!--<version>${project.version}</version>-->
                     <type>bin</type>
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-trusted-node-ubuntu</artifactId>
-                    <version>${project.version}</version>
+                    <version>0.1-SNAPSHOT</version>
+                    <!--<version>${project.version}</version>-->
                     <type>bin</type>
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-trusted-node-rhel</artifactId>
-                    <version>${project.version}</version>
+                    <version>0.1-SNAPSHOT</version>
+                    <!--<version>${project.version}</version>-->
                     <type>bin</type>
                 </dependency>
             </dependencies>
@@ -406,19 +409,22 @@
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-controller</artifactId>
-                    <version>${project.version}</version>
+                    <version>0.1-SNAPSHOT</version>
+                    <!--<version>${project.version}</version>-->
                     <type>bin</type>
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-trusted-node-ubuntu</artifactId>
-                    <version>${project.version}</version>
+                    <version>0.1-SNAPSHOT</version>
+                    <!--<version>${project.version}</version>-->
                     <type>bin</type>
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
                     <artifactId>mtwilson-openstack-trusted-node-rhel</artifactId>
-                    <version>${project.version}</version>
+                    <version>0.1-SNAPSHOT</version>
+                    <!--<version>${project.version}</version>-->
                     <type>bin</type>
                 </dependency>
             </dependencies>
