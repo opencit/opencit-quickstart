@@ -5,6 +5,8 @@
 package com.intel.mtwilson.deployment.descriptor;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Dependencies refer to any software package that, if included in the 
@@ -17,7 +19,7 @@ import java.util.Collection;
  */
 public class SoftwarePackageDescriptor {
     private String packageName;
-    private String fileName;
+    private Map<String, List<String>> fileName;
     private Collection<String> dependencies;
     private Collection<String> requirements;
 
@@ -25,7 +27,7 @@ public class SoftwarePackageDescriptor {
         return packageName;
     }
 
-    public String getFileName() {
+    public Map<String, List<String>> getFileName() {
         return fileName;
     }
 
@@ -37,8 +39,8 @@ public class SoftwarePackageDescriptor {
         this.packageName = packageName;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setFileName(Map<String, List<String>> filesMap) {
+        this.fileName = filesMap;
     }
 
     public void setDependencies(Collection<String> dependencies) {

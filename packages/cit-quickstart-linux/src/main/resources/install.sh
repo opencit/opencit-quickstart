@@ -324,6 +324,12 @@ if [ -n "$TRUSTAGENT_UBUNTU_BIN" ]; then
   cp $TRUSTAGENT_UBUNTU_BIN $CIT_HOME/repository/packages/trustagent_ubuntu/cit3-openstack-trusted-node-ubuntu.bin
 fi
 
+TRUSTAGENT_RHEL_BIN=`ls -1 mtwilson-openstack-trusted-node-rhel-*.bin | head -n 1`
+if [ -n "$TRUSTAGENT_UBUNTU_BIN" ]; then
+  echo "Copying Trust Agent RHEL installer..."
+  mkdir -p $CIT_HOME/repository/packages/trustagent_ubuntu
+  cp $TRUSTAGENT_RHEL_BIN $CIT_HOME/repository/packages/trustagent_ubuntu/cit3-openstack-trusted-node-rhel.bin
+fi
 
 # ensure the cit owns all the content created during setup
 for directory in $CIT_HOME $CIT_CONFIGURATION $CIT_JAVA $CIT_BIN $CIT_ENV $CIT_REPOSITORY $CIT_LOGS; do

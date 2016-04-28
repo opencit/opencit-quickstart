@@ -10,6 +10,8 @@ import com.intel.mtwilson.deployment.FeatureRepository;
 import com.intel.mtwilson.deployment.FeatureRepositoryFactory;
 import com.intel.mtwilson.deployment.FeatureUtils;
 import com.intel.mtwilson.deployment.FileTransferDescriptor;
+import com.intel.mtwilson.deployment.FileTransferManifestProvider;
+import com.intel.mtwilson.deployment.OperatingSystemInfo;
 import com.intel.mtwilson.deployment.OrderAware;
 import com.intel.mtwilson.deployment.SoftwarePackage;
 import com.intel.mtwilson.deployment.SoftwarePackageRepository;
@@ -30,6 +32,7 @@ import com.intel.mtwilson.deployment.task.CreateTrustAgentUserInAttestationServi
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInKeyBroker;
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInOpenstack;
+import com.intel.mtwilson.deployment.task.DynamicFileTransfer;
 import com.intel.mtwilson.deployment.task.FileTransfer;
 import com.intel.mtwilson.deployment.task.ImportAttestationServiceCertificatesToKeyBroker;
 import com.intel.mtwilson.deployment.task.PostconfigureAttestationService;
@@ -45,6 +48,7 @@ import com.intel.mtwilson.deployment.task.PreconfigureTrustDirector;
 import com.intel.mtwilson.deployment.task.RemoteInstall;
 import com.intel.mtwilson.deployment.task.RetrieveLinuxOperatingSystemVersion;
 import com.intel.mtwilson.deployment.task.SynchronizeSoftwarePackageTargets;
+import com.intel.mtwilson.deployment.task.TrustAgentFileTransferManifestProvider;
 import com.intel.mtwilson.util.task.AbstractTask;
 import com.intel.mtwilson.util.task.DependenciesUtil;
 import com.intel.mtwilson.util.task.Task;
@@ -159,9 +163,35 @@ public class DeploymentTaskFactory extends AbstractTask {
      * testSoftwarePackageDependenciesIncluded(selectedSoftwarePackages);
      * </pre>
      */
-    
-    
 
+    private Task createMonitorScriptFileTransferTask(Target target) {
+        // copy the installer, marker file, and monitor script...  currently this is a generic step for each package.
+        ArrayList<FileTransferDescriptor> packageList = new ArrayList<>();
+        File packageInstallerMonitorScriptFile = new File(Folders.repository("scripts") + File.separator + "monitor.sh");
+        packageList.add(new FileTransferDescriptor(packageInstallerMonitorScriptFile, packageInstallerMonitorScriptFile.getName()));
+        FileTransfer fileTransfer = new FileTransfer(target, packageList);
+        return fileTransfer;
+    }
+    
+    
+    private Task createStaticFileTransferTask(SoftwarePackage softwarePackage, Target target) {
+        // copy the installer, marker file, and monitor script...  currently this is a generic step for each package.
+        ArrayList<FileTransferDescriptor> packageList = new ArrayList<>();
+        List<File> packageFiles = softwarePackage.getFiles("default"); // must have already been validated by precondition; if precondition wasn't checked there could be NPE here
+        for(File packageFile: packageFiles){
+            log.debug("Adding file {} to package {}",packageFile.getName(), softwarePackage.getPackageName());
+            packageList.add(new FileTransferDescriptor(packageFile, packageFile.getName()));
+        }
+        FileTransfer fileTransfer = new FileTransfer(target, packageList);
+        return fileTransfer;
+    }
+    
+    private Task createDynamicFileTransferTask(SoftwarePackage softwarePackage, Target target, RetrieveLinuxOperatingSystemVersion retrieveLinuxOperatingSystemVersion) {
+        DynamicFileTransfer fileTransfer = new DynamicFileTransfer(target, new TrustAgentFileTransferManifestProvider(softwarePackage, retrieveLinuxOperatingSystemVersion));
+        return fileTransfer;        
+    }
+    
+    
     /**
      * Creates the tasks necessary to install the given software package on the
      * given target
@@ -175,22 +205,19 @@ public class DeploymentTaskFactory extends AbstractTask {
     private List<Task> createSoftwarePackageTargetTasks(SoftwarePackage softwarePackage, Target target) {
         ArrayList<Task> tasks = new ArrayList<>();
 
-        // copy the installer, marker file, and monitor script...  currently this is a generic step for each package.
-        ArrayList<FileTransferDescriptor> packageList = new ArrayList<>();
-        File packageInstallerFile = softwarePackage.getFile(); // must have already been validated by precondition; if precondition wasn't checked there could be NPE here
-        packageList.add(new FileTransferDescriptor(packageInstallerFile, packageInstallerFile.getName()));
-        File packageInstallerMarkerFile = packageInstallerFile.toPath().resolveSibling(packageInstallerFile.getName()+".mark").toFile();
-        packageList.add(new FileTransferDescriptor(packageInstallerMarkerFile, packageInstallerMarkerFile.getName()));
-        File packageInstallerMonitorScriptFile = new File(Folders.repository("scripts") + File.separator + "monitor.sh");
-        packageList.add(new FileTransferDescriptor(packageInstallerMonitorScriptFile, packageInstallerMonitorScriptFile.getName()));
-        FileTransfer fileTransfer = new FileTransfer(target, packageList);
-        tasks.add(fileTransfer);
+        Task fileTransferMonitorScript = createMonitorScriptFileTransferTask(target);
+        tasks.add(fileTransferMonitorScript);
+        
         // remote install task ... we initialize it here so that when we make the file transfer & pre-configuration tasks below they can add themselves to this as dependencies
         RemoteInstall remoteInstall = new RemoteInstall(target, softwarePackage); // assumes /bin/bash,  a .mark file, and a monitor.sh file
-        remoteInstall.getDependencies().add(fileTransfer);
+        remoteInstall.getDependencies().add(fileTransferMonitorScript);
         tasks.add(remoteInstall);
         // generate the env file... we need a different class for each package but each of them behaves the same by generating the file and then creating a manifest for file transfer
         if( softwarePackage.getPackageName().equals("attestation_service")) {
+            Task staticFileTransfer = createStaticFileTransferTask(softwarePackage, target);
+            tasks.add(staticFileTransfer);
+            remoteInstall.getDependencies().add(staticFileTransfer);
+            
             PreconfigureAttestationService generateEnvFile = new PreconfigureAttestationService();
             tasks.add(generateEnvFile);
             // copy the env file
@@ -215,6 +242,10 @@ public class DeploymentTaskFactory extends AbstractTask {
             }
         }
         if( softwarePackage.getPackageName().equals("key_broker")) {
+            Task staticFileTransfer = createStaticFileTransferTask(softwarePackage, target);
+            tasks.add(staticFileTransfer);
+            remoteInstall.getDependencies().add(staticFileTransfer);
+            
             PreconfigureKeyBroker generateEnvFile = new PreconfigureKeyBroker();
             tasks.add(generateEnvFile);
             // copy the env file
@@ -240,6 +271,10 @@ public class DeploymentTaskFactory extends AbstractTask {
             }
         }
         if( softwarePackage.getPackageName().equals("key_broker_proxy")) {
+            Task staticFileTransfer = createStaticFileTransferTask(softwarePackage, target);
+            tasks.add(staticFileTransfer);
+            remoteInstall.getDependencies().add(staticFileTransfer);
+            
             PreconfigureKeyBrokerProxy generateEnvFile = new PreconfigureKeyBrokerProxy();
             tasks.add(generateEnvFile);
             // copy the env file
@@ -249,6 +284,10 @@ public class DeploymentTaskFactory extends AbstractTask {
             remoteInstall.getDependencies().add(fileTransferEnvFile);
         }
         if( softwarePackage.getPackageName().equals("director")) {
+            Task staticFileTransfer = createStaticFileTransferTask(softwarePackage, target);
+            tasks.add(staticFileTransfer);
+            remoteInstall.getDependencies().add(staticFileTransfer);
+            
             PreconfigureTrustDirector generateEnvFile = new PreconfigureTrustDirector();
             tasks.add(generateEnvFile);
             // copy the env file
@@ -262,6 +301,10 @@ public class DeploymentTaskFactory extends AbstractTask {
             tasks.add(postconfigureTrustDirector);            
         }
         if( softwarePackage.getPackageName().equals("openstack_extensions")) {
+            Task staticFileTransfer = createStaticFileTransferTask(softwarePackage, target);
+            tasks.add(staticFileTransfer);
+            remoteInstall.getDependencies().add(staticFileTransfer);
+            
             PreconfigureOpenstackExtensions generateEnvFile = new PreconfigureOpenstackExtensions();
             tasks.add(generateEnvFile);
             // copy the env file
@@ -281,21 +324,29 @@ public class DeploymentTaskFactory extends AbstractTask {
             }
         }
         if( softwarePackage.getPackageName().equals("trustagent_ubuntu")) {
-            PreconfigureTrustAgent generateEnvFile = new PreconfigureTrustAgent();
+            // for trust agent, we need to detect the distribution so we can send appropriate additional files
+            RetrieveLinuxOperatingSystemVersion retrieveLinuxOperatingSystemVersion = new RetrieveLinuxOperatingSystemVersion();
+            tasks.add(retrieveLinuxOperatingSystemVersion);
+            
+            PreconfigureTrustAgent generateEnvFile = new PreconfigureTrustAgent(retrieveLinuxOperatingSystemVersion);
             tasks.add(generateEnvFile);
+            generateEnvFile.getDependencies().add(retrieveLinuxOperatingSystemVersion);
+            
             // copy the env file
             FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile.getFileTransferManifest());
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
             tasks.add(fileTransferEnvFile);
             
             // currently we don't install trust agent, we just copy the installer and .env files to the host
-            // remoteInstall.getDependencies().add(fileTransferEnvFile);
-            tasks.remove(remoteInstall);  // the remoteInstall task is defined above for all cases, so we remoe it here to not actually run the installer for trust agent... for now.
+            // when we will support TA installation we need to update RemoteInstall class to fetch 'executablePath' dynamically based on OperatingSystemVersion
+            tasks.remove(remoteInstall);  // the remoteInstall task is defined above for all cases, so we remoe it here to not actually run the installer for trust agent... for now. 
+            tasks.remove(fileTransferMonitorScript);//As we do not run remoteInstall task we do not need monitor script also
             
-            // for trust agent, we need to detect the distribution so we can send appropriate additional files
-            RetrieveLinuxOperatingSystemVersion retrieveLinuxOperatingSystemVersion = new RetrieveLinuxOperatingSystemVersion();
-            tasks.add(retrieveLinuxOperatingSystemVersion);
-            generateEnvFile.getDependencies().add(retrieveLinuxOperatingSystemVersion);
+            
+            Task dynamicFileTransfer = createDynamicFileTransferTask(softwarePackage, target, retrieveLinuxOperatingSystemVersion);
+            tasks.add(dynamicFileTransfer);
+            remoteInstall.getDependencies().add(dynamicFileTransfer);
+            
             // for trust agent, we have an extra file to send (the tpm patched tools) for both ubuntu and redhat distributions... 
             // but instead of special logic here, it's better to just mention it in config file for both...
             // one possibility is to have a map of operating system name -> additional files and make it generically available to all software packages
