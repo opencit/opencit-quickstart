@@ -21,7 +21,7 @@ public class DynamicFileTransfer extends FileTransfer {
     private FileTransferManifestProvider manifestProvider;
 
     public DynamicFileTransfer(SSH remote, FileTransferManifestProvider manifestProvider) {
-        super(remote, (FileTransferDescriptor)null);
+        super(remote);
         this.manifestProvider = manifestProvider;
     }
 

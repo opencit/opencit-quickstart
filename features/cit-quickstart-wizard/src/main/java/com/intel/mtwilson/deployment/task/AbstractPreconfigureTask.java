@@ -15,7 +15,9 @@ import com.intel.mtwilson.deployment.jaxrs.faults.FileNotFound;
 import com.intel.mtwilson.deployment.jaxrs.io.OrderDocument;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.stringtemplate.v4.ST;
@@ -78,7 +80,12 @@ public abstract class AbstractPreconfigureTask extends AbstractRemoteTask implem
     protected void render(String templateFileName, File outputFile) {
         // read the template file        
         SoftwarePackage softwarePackage = softwarePackageRepository.searchByNameEquals(getPackageName());
-        File installer = softwarePackage.getFile();
+        Collection<List<File>> filesMap = softwarePackage.getFilesMap().values();
+        File installer = null;
+        for(List<File> fileList : filesMap){
+            installer = fileList.get(0);
+            break;
+        }
         File envFileTemplate = installer.toPath().resolveSibling(templateFileName).toFile();
         if (!envFileTemplate.exists() || !envFileTemplate.canRead()) {
             fault(new FileNotFound(envFileTemplate.getName()));

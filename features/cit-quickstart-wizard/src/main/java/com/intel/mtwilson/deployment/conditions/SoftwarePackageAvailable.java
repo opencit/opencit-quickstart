@@ -5,9 +5,12 @@
 package com.intel.mtwilson.deployment.conditions;
 
 import com.intel.mtwilson.deployment.SoftwarePackage;
+import com.intel.mtwilson.deployment.wizard.DeploymentTaskFactory;
 import com.intel.mtwilson.util.task.Condition;
+import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +30,7 @@ public class SoftwarePackageAvailable implements Condition {
     private Map<String,SoftwarePackage> available;
     private Collection<String> selected;
     private Set<String> notAvailable = null;
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SoftwarePackageAvailable.class);
 
     public SoftwarePackageAvailable(Map<String,SoftwarePackage> available, Collection<String> selected) {
         this.available = available;
@@ -39,8 +43,18 @@ public class SoftwarePackageAvailable implements Condition {
         notAvailable = new HashSet<>();
         for (String name : selected) {
             SoftwarePackage softwarePackage = available.get(name);
-            if( softwarePackage == null || !softwarePackage.isFileAvailable() ) {
+            if( softwarePackage == null ) {
                 notAvailable.add(name);
+                continue;
+            }
+            for (List<File> files : softwarePackage.getFilesMap().values()){
+                for(File file : files){
+                    if(file == null || !file.exists() || !file.canRead()){
+                        notAvailable.add(name);
+                        log.debug("File not available {} in software package {} ",file==null?null:file.getPath(), name);
+                        break;
+                    }
+                }
             }
         }
         return notAvailable.isEmpty();

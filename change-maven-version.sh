@@ -33,8 +33,12 @@ mvnInstallCommand="mvn clean install"
 if [ $? -ne 0 ]; then echo "Failed to change maven version on \"features\" folder" >&2; exit 3; fi
 (cd features  && $changeParentVersionCommand)
 if [ $? -ne 0 ]; then echo "Failed to change maven parent versions in \"features\" folder" >&2; exit 3; fi
+(cd features/cit-quickstart-wizard && $changeVersionCommand)
+if [ $? -ne 0 ]; then echo "Failed to change maven version on \"features/cit-quickstart-wizard\" folder" >&2; exit 3; fi
 sed -i 's/\(<version>\).*\(<\/version>\)/\1'${version}'\2/g' features/cit-quickstart-wizard/feature.xml
 if [ $? -ne 0 ]; then echo "Failed to change version in \"features/cit-quickstart-wizard/feature.xml\"" >&2; exit 3; fi
+(cd features/cit-task && $changeVersionCommand)
+if [ $? -ne 0 ]; then echo "Failed to change maven version on \"features/cit-task\" folder" >&2; exit 3; fi
 sed -i 's/\(<version>\).*\(<\/version>\)/\1'${version}'\2/g' features/cit-task/feature.xml
 if [ $? -ne 0 ]; then echo "Failed to change version in \"features/cit-task/feature.xml\"" >&2; exit 3; fi
 
@@ -42,6 +46,10 @@ if [ $? -ne 0 ]; then echo "Failed to change version in \"features/cit-task/feat
 if [ $? -ne 0 ]; then echo "Failed to change maven version on \"packages\" folder" >&2; exit 3; fi
 (cd packages  && $changeParentVersionCommand)
 if [ $? -ne 0 ]; then echo "Failed to change maven parent versions in \"packages\" folder" >&2; exit 3; fi
+(cd packages/cit-quickstart  && $changeVersionCommand)
+if [ $? -ne 0 ]; then echo "Failed to change maven version on \"packages/cit-quickstart\" folder" >&2; exit 3; fi
+(cd packages/cit-quickstart-linux  && $changeVersionCommand)
+if [ $? -ne 0 ]; then echo "Failed to change maven version on \"packages/cit-quickstart-linux\" folder" >&2; exit 3; fi
 find packages/cit-quickstart/src/main/application/repository/packages/ -regex ".*\.mark" -exec sed -i 's/\-[0-9\.]*[0-9]\(\-SNAPSHOT\|\(\.\.\)\)/-'${version}'\2/g' {} +
 
 sed -i 's/\-[0-9\.]*\(\-SNAPSHOT\|\(\-\|\.zip$\|\.bin$\|\.jar$\)\)/-'${version}'\2/g' build.targets
