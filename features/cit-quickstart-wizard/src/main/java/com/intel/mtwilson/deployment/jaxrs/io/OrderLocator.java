@@ -7,6 +7,7 @@ package com.intel.mtwilson.deployment.jaxrs.io;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.mtwilson.repository.Locator;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 /**
  *
@@ -16,6 +17,9 @@ public class OrderLocator implements Locator<OrderDocument> {
 
     @PathParam("id")
     public UUID id;
+    
+    @QueryParam("token")
+    public String token;
 
     @Override
     public void copyTo(OrderDocument item) {

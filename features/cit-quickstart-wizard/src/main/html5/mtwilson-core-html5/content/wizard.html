@@ -1875,7 +1875,7 @@
                             else {
                                 // schedule periodic progress checks
                                 self.progress.links.status = responseJsonContent.links.status;
-                                self.progress.links.export(responseJsonContent.links.export);
+                                self.progress.links.export(responseJsonContent.links.export + "?token="+ mainViewModel.loginViewModel.userProfile.authorizationToken() ); // must add session token to this link or else server will block access
                                 self.progress.links.cancel = responseJsonContent.links.cancel;
                                 self.progress.interval = setInterval(self.checkProgress, self.progress.interval_period); // check progress every "interval period" milliseconds
                             }

@@ -59,6 +59,13 @@
             <artifactId>mtwilson-util-ssh</artifactId>
         </dependency>
         
+        <dependency>
+    <groupId>com.intel.mtwilson.services</groupId>
+    <artifactId>mtwilson-shiro-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        
         <!-- this is mtwilson-core-configuration -->
         <dependency>
             <groupId>com.intel.mtwilson.integration</groupId>

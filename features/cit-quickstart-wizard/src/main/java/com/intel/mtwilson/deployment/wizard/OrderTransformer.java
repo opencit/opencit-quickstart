@@ -23,6 +23,10 @@ public class OrderTransformer {
     public void consolidateTargets() {
         HashMap<String,Target> hostMap = new HashMap<>();
         Set<Target> targets = order.getTargets();
+        if( targets == null ) {
+            order.setTargets(targets);
+            return;
+        }
         for(Target target : targets) {
             Target existing = hostMap.get(target.getHost());
             if( existing == null ) {
