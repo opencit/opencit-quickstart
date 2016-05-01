@@ -2033,7 +2033,6 @@
                              time: new Date()
                              });
                              */
-                            $(document).trigger("mtwilson-quickstart-wizard:progress", [{"current": responseJsonContent.progress, "max": responseJsonContent.progress_max, "status": responseJsonContent.status}]);
 
                             if (responseJsonContent.targets) {
                                 for(var i=0; i<responseJsonContent.targets.length; i++) {
@@ -2059,6 +2058,7 @@
                              }
                              */
 
+                             var totalFractionalPercent = 0;
                             if (responseJsonContent.tasks) {
                                 for (var i = 0; i < responseJsonContent.tasks.length; i++) {
 //                           responseJsonContent.tasks[i].sequence = i+1;
@@ -2066,8 +2066,12 @@
                                     //var underscore_name = responseJsonContent.tasks[i].name.replace(/\./g,"\\.");
                                     var underscore_name = responseJsonContent.tasks[i].name.replace(/\./g, "_");
                                     responseJsonContent.tasks[i].display_name = i18n.t('quickstart:tasks.' + underscore_name, responseJsonContent.tasks[i].data); // second argument provides a data object from the task status object for interpolation into the translated text
-                                    responseJsonContent.tasks[i].percent = Math.round(responseJsonContent.tasks[i].progress_max == 0 ? 0 : (parseInt(responseJsonContent.tasks[i].progress) / responseJsonContent.tasks[i].progress_max) * 100);
+                                    responseJsonContent.tasks[i].fractional_percent = responseJsonContent.tasks[i].progress_max == 0 ? 0 : parseFloat(responseJsonContent.tasks[i].progress) / responseJsonContent.tasks[i].progress_max; // note: the fractional percent is between 0 and 1, not 0 and 100. 
+                                    responseJsonContent.tasks[i].percent = Math.floor(responseJsonContent.tasks[i].fractional_percent * 100);
                                     responseJsonContent.tasks[i].display_percent = responseJsonContent.tasks[i].percent + '%';
+                                    if( responseJsonContent.tasks[i].done == false && responseJsonContent.tasks[i].progress > 0 && responseJsonContent.tasks[i].progress < responseJsonContent.tasks[i].progress_max  ) {
+                                        totalFractionalPercent += responseJsonContent.tasks[i].fractional_percent;
+                                    }
                                     // make sure there's a "data" object and "faults" array 
                                     if( typeof responseJsonContent.tasks[i]["data"] === "undefined" ) {
                                         responseJsonContent.tasks[i].data = {};
@@ -2078,6 +2082,20 @@
                                 }
                                 responseJsonContent.tasks.sort(sortBy('+sequence', '-percent', '+display_name'));
                             }
+                            
+                            // the overall progerss is now a combination of two things:
+                            // number of tasks completed out of total tasks (e.g.   1/15, 2/15, 3/15, ... 15/15)
+                            // percent completed of the currently executing task  (eg  0.1, 0.2, 0.3, ... 0.99)   
+                            // so the number we report will be like  1.04/15,  1.5/15,  1.7/15, 1.85/15,  2/15,  2.25/15,  etc. 
+                            // and that is what makes the overall progress bar move for progress in current task 
+                            // and also total tasks completed out of max tasks. 
+                            var taskIntegerProgress = responseJsonContent.progress;
+                            var taskFractionalProgress = parseFloat(taskIntegerProgress) + totalFractionalPercent; 
+                            $(document).trigger("mtwilson-quickstart-wizard:progress", [{
+                                    "current": taskFractionalProgress, // responseJsonContent.progress, 
+                                    "max": responseJsonContent.progress_max, 
+                                    "status": responseJsonContent.status
+                            }]);
                             
                             // now figure out which packages have been installed successfully on which targets...
                             if( responseJsonContent.targets && responseJsonContent.tasks ) {
@@ -2305,13 +2323,14 @@
 
                         //update progress
                         var step = $(e.target).data('step');
-                        var percent = (parseInt(step) / max_steps) * 100;
+                        var fractionalPercent = (parseFloat(step) / max_steps) * 100;
+                        //var percent = (parseInt(step) / max_steps) * 100;
                         var progressText = "Step " + step + " of " + max_steps;
                         if (step === "0") {
                             progressText = "";
                         }
 
-                        wizard.find('#setup_panel .progress-bar').css({width: percent + '%'});
+                        wizard.find('#setup_panel .progress-bar').css({width: fractionalPercent + '%'});
                         wizard.find('#setup_panel .progress-bar').text(progressText);
 
                         //e.relatedTarget // previous tab
@@ -2374,15 +2393,20 @@
                     $(document).on("mtwilson-quickstart-wizard:progress", function(e, data) {
                         console.log("Caught progress event: %O", data);
                         //update progress
-                        var current = data.current; // integer
+                        var current = data.current; // float, where the integer part (n) represents the overall progress in terms of tasks completed, and the fractional part (e) represents the PERCENT progress of the currently executing task.
                         var max = data.max; // max 
-                        var percent = Math.round((parseInt(current) / max) * 100);
-                        var progressText = percent + "%"; //"Processing..."; //  data.status;  //  looking for one line from server... //"Step " + step + " of " + max_steps;
+                        
+                        // we have to keep track of two percentages:
+                        // first, for animation we need more precision
+                        // second, for text display we need to round to nearest integer
+                        var fractionalPercent = ( parseFloat(current) / max ) * 100;
+                        var textPercent = Math.round(fractionalPercent);
+                        var progressText = textPercent + "%"; //"Processing..."; //  data.status;  //  looking for one line from server... //"Step " + step + " of " + max_steps;
                         if (current === 0) {
                             progressText = "";
                         }
 
-                        wizard.find('#deploy_panel .quickstart-order-progress .progress-bar').css({width: percent + '%'});
+                        wizard.find('#deploy_panel .quickstart-order-progress .progress-bar').css({width: fractionalPercent + '%'});
                         wizard.find('#deploy_panel .quickstart-order-progress .progress-bar').text(progressText);
 
                     });
