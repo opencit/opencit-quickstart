@@ -83,6 +83,7 @@ public class CopyQuickstartOrder extends AbstractPostconfigureTask {
         clean.setSettings(null); // intentionally remove all settings, because these may have changed post-deployment and anyway current settings can be retrieved from any installed server when user has the right credentials
         clean.setStatus(null); // remove the status, it's not needed for importing an order file later for upgrade
         clean.setTasks(null); // remove the tasks, they are not needed for importing an order file later for upgrade
+        clean.getLinks().clear(); // remove the links, currently they are for status, cancel, and export, and are relative links, so they are useless later.
         mapper.writeValue(orderFile, clean);
         return orderFile;
     }
