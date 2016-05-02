@@ -62,10 +62,10 @@ public class CopyQuickstartOrder extends AbstractPostconfigureTask {
     
     private String getRemotePath() {
         if( "attestation_service".equals(softwarePackageName)) {
-            return "/opt/mtwilson/features/quickstart";
+            return "/opt/mtwilson/configuration/quickstart";
         }
         if( "director".equals(softwarePackageName)) {
-            return "/opt/director/features/quickstart";
+            return "/opt/director/configuration/quickstart";
         }
         return "/tmp/quickstart";
     }
