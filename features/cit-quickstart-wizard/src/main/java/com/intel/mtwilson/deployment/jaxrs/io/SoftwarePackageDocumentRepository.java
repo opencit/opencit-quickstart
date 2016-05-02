@@ -58,7 +58,7 @@ public class SoftwarePackageDocumentRepository implements DocumentRepository<Sof
                 if( criteria.nameEqualTo == null || criteria.nameEqualTo.equals(item.getPackageName()) ) {
                     SoftwarePackageDocument document = new SoftwarePackageDocument();
                     document.setName(item.getPackageName());
-                    document.setAvailable(item.isFileAvailable());
+                    document.setAvailableVariants(item.getAvailableVariants());
                     collection.getDocuments().add(document);
                 }
             }
