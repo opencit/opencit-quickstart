@@ -39,6 +39,11 @@ public class FileTransfer extends AbstractRemoteTask implements Progress {
     protected List<FileTransferDescriptor> manifest;
     private HashMap<FileTransferDescriptor, FileTransferProgressListener> listenerMap = new HashMap<>();
 
+    public FileTransfer(SSH remote) {
+        super();
+        this.remote = remote;
+    }
+    
     public FileTransfer(SSH remote, FileTransferDescriptor singleFileTransfer) {
         super();
         this.remote = remote;

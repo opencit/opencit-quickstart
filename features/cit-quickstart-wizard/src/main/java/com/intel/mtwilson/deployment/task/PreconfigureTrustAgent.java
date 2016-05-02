@@ -6,6 +6,7 @@ package com.intel.mtwilson.deployment.task;
 
 import com.intel.mtwilson.deployment.FileTransferDescriptor;
 import com.intel.mtwilson.deployment.FileTransferManifestProvider;
+import com.intel.mtwilson.deployment.OperatingSystemInfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,17 +21,20 @@ public class PreconfigureTrustAgent extends AbstractPreconfigureTask implements 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PreconfigureTrustAgent.class);
     private List<FileTransferDescriptor> manifest;
     private File envFile;
+    private RetrieveLinuxOperatingSystemVersion retrieveLinuxOperatingSystemVersion;
     
     /**
      * Initializes the task with a file transfer manifest; the file(s) mentioned
      * in the manifest will not be available until AFTER execute() completes
      * successfully.
+     * @param retrieveLinuxOperatingSystemVersion
      */
-    public PreconfigureTrustAgent() {
+    public PreconfigureTrustAgent(RetrieveLinuxOperatingSystemVersion retrieveLinuxOperatingSystemVersion) {
         super(); // initializes taskDirectory
         envFile = getTaskDirectory().toPath().resolve("mtwilson-openstack.env").toFile();
         manifest = new ArrayList<>();
         manifest.add(new FileTransferDescriptor(envFile, envFile.getName()));
+        this.retrieveLinuxOperatingSystemVersion = retrieveLinuxOperatingSystemVersion;
     }
     
     @Override
@@ -39,6 +43,7 @@ public class PreconfigureTrustAgent extends AbstractPreconfigureTask implements 
         // MTWILSON_HOST, MTWILSON_PORT, and MTWILSON_TLS_CERT_SHA1 must be set ;  note that if using a load balanced mtwilson, the tls cert is for the load balancer
         // the host and port are set by PreconfigureAttestationService, but the tls sha1 fingerprint is set by PostconfigureAttestationService.
         // either way, the sync task forces all attestation service tasks to complete before key broker proxy tasks start, so these settings should be present.
+        OperatingSystemInfo osInfo = retrieveLinuxOperatingSystemVersion.getData();
         if( setting("mtwilson.host").isEmpty() || setting("mtwilson.port.https").isEmpty() || setting("mtwilson.tls.cert.sha1").isEmpty() ) {
             throw new IllegalStateException("Missing required settings"); // TODO:  rewrite as a precondition
         }
@@ -64,8 +69,16 @@ public class PreconfigureTrustAgent extends AbstractPreconfigureTask implements 
         data.put("KMSPROXY_HOST", setting("kmsproxy.host"));
         data.put("KMSPROXY_PORT", setting("kmsproxy.port.http"));  // NOTE:  when trustagent uses key broker proxy, it uses http not https ; see CIT 3.0 architecture
         
-        
+          
         data.put("TRUSTAGENT_HOST", target.getHost());
+        switch(osInfo.getDistributorName()){
+            case "ubuntu":
+                data.put("GRUB_FILE", "/boot/grub/grub.cfg");
+                break;
+            case "redhat":
+                data.put("GRUB_FILE", "/boot/grub2/grub.cfg");
+                break;
+        }
         
         // generate the .env file using pre-configuration data
         render("mtwilson-openstack.env.st4", envFile);

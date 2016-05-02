@@ -38,7 +38,7 @@ public class TaskFactoryTest {
     
     @Test
     public void testCreateTasks() throws IOException {
-        OrderDocument order = readOrder("/order_private_host_attestation.json");
+        OrderDocument order = readOrder("/order_private_attestation_host_xm.json");
         
                 // generate the tasks that will execute the order;
                 // this includes input validation on selected features and software packages
