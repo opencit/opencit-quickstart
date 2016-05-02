@@ -1507,7 +1507,13 @@
                             console.log("available packages response: %O", responseJsonContent);
                             // convert  {  "packages": [   {... },  {...} , ... ] }  to { name: available/no,  name2: available/no, ... }
                             for(var i=0; i<responseJsonContent.packages.length; i++) {
-                                self.available_packages[responseJsonContent.packages[i].name] = responseJsonContent.packages[i].available;
+                                var available_variants = responseJsonContent.packages[i].available_variants;
+                                if( available_variants && available_variants.length > 0 ) {
+                                    self.available_packages[responseJsonContent.packages[i].name] = true; // if at least one variant is available;  for key broker that would be "default",  for trust agent it's "ubuntu" and "redhat"
+                                }
+                                else {
+                                    self.available_packages[responseJsonContent.packages[i].name] = false;
+                                }
                             }
                             if( !self.available_packages["key_broker"] ) {
                                 console.log("encryption not available");
