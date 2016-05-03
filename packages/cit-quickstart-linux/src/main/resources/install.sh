@@ -274,6 +274,9 @@ if [ -z "$CIT_NOSETUP" ]; then
   # (must be after setup because password command is added via extensions)
   cit password anonymous --nopass --permissions *:*
 
+  # extend session idle timeout to 24 hours
+  cit config login.token.expires.minutes 1440
+
 fi
 
 # delete the temporary setup environment variables file
