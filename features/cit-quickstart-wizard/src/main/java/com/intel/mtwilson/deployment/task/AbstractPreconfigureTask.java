@@ -80,12 +80,21 @@ public abstract class AbstractPreconfigureTask extends AbstractRemoteTask implem
     protected void render(String templateFileName, File outputFile) {
         // read the template file        
         SoftwarePackage softwarePackage = softwarePackageRepository.searchByNameEquals(getPackageName());
-        Collection<List<File>> filesMap = softwarePackage.getFilesMap().values();
-        File installer = null;
-        for(List<File> fileList : filesMap){
-            installer = fileList.get(0);
-            break;
+        if( softwarePackage == null ) {
+            log.error("No software package for: {}", getPackageName());
+            throw new IllegalStateException("Undefined software package");
         }
+        Map<String,List<File>> filesMap = softwarePackage.getFilesMap();
+        if( filesMap == null ) {
+            log.error("No file map for package: {}", softwarePackage.getPackageName());
+            throw new IllegalStateException("Missing file map for package");
+        }
+        List<File> files = filesMap.get("default"); // NOTE: will need to change when we add support to automatically install trust agent, because variant names are "ubuntu" and "redhat"
+        if( files == null || files.isEmpty() ) {
+            log.error("No files in package: {}", softwarePackage.getPackageName());
+            throw new IllegalStateException("Missing files in package");
+        }
+        File installer = files.get(0);
         File envFileTemplate = installer.toPath().resolveSibling(templateFileName).toFile();
         if (!envFileTemplate.exists() || !envFileTemplate.canRead()) {
             fault(new FileNotFound(envFileTemplate.getName()));
