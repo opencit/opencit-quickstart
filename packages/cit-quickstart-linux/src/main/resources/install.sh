@@ -275,7 +275,7 @@ if [ -z "$CIT_NOSETUP" ]; then
   cit password anonymous --nopass --permissions *:*
 
   # extend session idle timeout to 24 hours
-  cit config login.token.expires.minutes 1440
+  cit config login.token.expires.minutes 1440 >/dev/null
 
 fi
 
