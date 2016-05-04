@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.stringtemplate.v4.ST;
 
@@ -89,9 +90,17 @@ public abstract class AbstractPreconfigureTask extends AbstractRemoteTask implem
             log.error("No file map for package: {}", softwarePackage.getPackageName());
             throw new IllegalStateException("Missing file map for package");
         }
-        List<File> files = filesMap.get("default"); // NOTE: will need to change when we add support to automatically install trust agent, because variant names are "ubuntu" and "redhat"
+        // NOTE: we just need the path to the package directory, at this time all variants are stored together so we just take the first file in any one of them as a reference and look for the specified template next to it
+        Set<String> variants = softwarePackage.getAvailableVariants();
+        if( variants == null || variants.isEmpty() ) {
+            log.error("No available variants for package: {}", softwarePackage.getPackageName());
+            throw new IllegalStateException("No available variants for package");
+        }
+        String[] variantsArray = variants.toArray(new String[0]);
+        String key = variantsArray[0]; // NOTE: could be 'default', 'redhat', 'ubuntu', etc.  at this time doesn't matter which one. will need to change if we later store them in separate folders, and then variant name would need to be passed in to this method.
+        List<File> files = filesMap.get(key); 
         if( files == null || files.isEmpty() ) {
-            log.error("No files in package: {}", softwarePackage.getPackageName());
+            log.error("No files in package: {} variant: {}", softwarePackage.getPackageName(), key);
             throw new IllegalStateException("Missing files in package");
         }
         File installer = files.get(0);
