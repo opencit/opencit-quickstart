@@ -10,6 +10,7 @@ import com.intel.mtwilson.deployment.OperatingSystemInfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 
@@ -69,6 +70,16 @@ public class PreconfigureTrustAgent extends AbstractPreconfigureTask implements 
         data.put("KMSPROXY_HOST", setting("kmsproxy.host"));
         data.put("KMSPROXY_PORT", setting("kmsproxy.port.http"));  // NOTE:  when trustagent uses key broker proxy, it uses http not https ; see CIT 3.0 architecture
         
+        // optional: 
+        // if docker feature was selected, then we need to set this variable; otherwise it can be empty
+        String deploymentType = "";
+        if( order != null ) {
+            Set<String> features = order.getFeatures();
+            if( features != null && features.contains("attestation_container") ) {
+                deploymentType = "docker";
+            }
+        }
+        data.put("DEPLOYMENT_TYPE", deploymentType);
           
         data.put("TRUSTAGENT_HOST", target.getHost());
         switch(osInfo.getDistributorName()){
