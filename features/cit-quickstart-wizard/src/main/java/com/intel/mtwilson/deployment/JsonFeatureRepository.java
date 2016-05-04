@@ -5,17 +5,13 @@
 package com.intel.mtwilson.deployment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.intel.mtwilson.Folders;
 import com.intel.mtwilson.deployment.descriptor.FeatureDescriptor;
 import com.intel.mtwilson.deployment.descriptor.FeatureDescriptorCollection;
 import com.intel.mtwilson.jaxrs2.provider.JacksonObjectMapperProvider;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 

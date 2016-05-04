@@ -50,6 +50,15 @@
           "required_settings": [
               "mtwilson.host", "mtwilson.port.https", "mtwilson.tls.cert.sha1", "director.mtwilson.username", "director.mtwilson.password"
           ]
+      },
+      {
+          "name": "attestation_container",
+          "software_packages": [
+              "director"
+          ],
+          "required_settings": [
+              "mtwilson.host", "mtwilson.port.https", "mtwilson.tls.cert.sha1", "director.mtwilson.username", "director.mtwilson.password"
+          ]
       }
   ]
 }

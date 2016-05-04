@@ -54,7 +54,7 @@ public class JsonSoftwarePackageRepository implements SoftwarePackageRepository 
                 descriptor.setRequirements(new ArrayList<String>());
             }
             
-            Map<String, List<File>> filesMap= getPackageFile(descriptor.getPackageName(), descriptor.getFileName());
+            Map<String, List<File>> filesMap = getPackageFileMap(descriptor.getPackageName(), descriptor.getFileName());
             SoftwarePackage softwarePackage = new SoftwarePackage(descriptor.getPackageName(), filesMap);
             softwarePackageList.add(softwarePackage);
         }
@@ -94,7 +94,7 @@ public class JsonSoftwarePackageRepository implements SoftwarePackageRepository 
         return softwarePackageList;
     }
     
-    private Map<String, List<File>> getPackageFile(String packageName, Map<String, List<String>> fileNameMap) throws FileNotFoundException, IOException {
+    private Map<String, List<File>> getPackageFileMap(String packageName, Map<String, List<String>> fileNameMap) throws FileNotFoundException, IOException {
         Set<Entry<String, List<String>>> entries = fileNameMap.entrySet();
         Map<String, List<File>> result = new HashMap<>();
         for (Entry<String, List<String>> entry : entries) {
@@ -113,10 +113,14 @@ public class JsonSoftwarePackageRepository implements SoftwarePackageRepository 
                     continue;
                 }
 
+                /*
+                 * Disabling the file exists check because checking it here means we're filtering out the installer names when they're not available, and then the SoftwarePackage getAvailableVariants method doesn't have a way to know what's not available since it would already not be listed. 
+                 * SoftwarePackage getAVailableVariants checks the file existence. 
                 if (!file.exists()) {
                     log.error("File does not exist: {}", file.getAbsolutePath());
                     continue;
                 }
+                */
                 filesSet.add(file);
             }
         }

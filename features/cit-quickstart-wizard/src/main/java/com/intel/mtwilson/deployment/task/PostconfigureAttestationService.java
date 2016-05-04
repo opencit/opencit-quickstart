@@ -48,9 +48,12 @@ public class PostconfigureAttestationService extends AbstractPostconfigureTask {
             }
             
             // now create a user that we will use to download the configuration data bundle later
+            // ImportAttestationServiceCertificatesToKeyBroker needs the permission configuration_databundle:retrieve
+            // ApproveKeyBrokerProxyUserInAttestationService needs the permissions users:search,user_login_certificates:search,user_login_certificates:retrieve,user_login_certificates:store
             String username = setting("mtwilson.quickstart.username");
             String password = setting("mtwilson.quickstart.password");
-            String cmdCreateQuickstartUser = "/opt/mtwilson/bin/mtwilson login-password " + username + " " + password + " --permissions configuration_databundle:retrieve";
+            // NOTE:  the mtwilson login-password command takes a SPACE-separated list of permissions, while the mtwilson-core password command (used in key broker and trust director) takes a COMMA-separated list of permissions 
+            String cmdCreateQuickstartUser = "/opt/mtwilson/bin/mtwilson login-password " + username + " " + password + " --permissions configuration_databundle:retrieve users:search user_login_certificates:search user_login_certificates:retrieve user_login_certificates:store";
             Result createAdminUser = sshexec(client, cmdCreateQuickstartUser);
             if (createAdminUser.getExitCode() != 0) {
                 log.error("Failed to create quickstart user in attestation service");

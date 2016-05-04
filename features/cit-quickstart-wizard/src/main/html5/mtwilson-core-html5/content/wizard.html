@@ -196,6 +196,10 @@
                                             </label>
                                             <p class="hint">Encrypted workloads run only on trusted hosts</p>
                                         </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-container" data-bind="checked: attestation_container.checked, disable: attestation_container.disable, click: $parent.update_features"/>Container integrity (Docker)</label>
+                                            <p class="hint">Measure and enforce trust policy for containers before launching via Docker Engine on a trusted host</p>
+                                        </div>
                                         
                                         <label>Integrations</label>
                                         <div class="checkbox">
@@ -249,6 +253,10 @@
                                             <label><input type="checkbox" name="enforcement-vm-encryption" data-bind="checked: encryption_vm.checked, disable: encryption_vm.disable, click: $parent.update_features"/>VM encryption</label>
                                             <p class="hint">Encrypted workloads run only on trusted hosts</p>
                                         </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-container" data-bind="checked: attestation_container.checked, disable: attestation_container.disable, click: $parent.update_features"/>Container integrity (Docker)</label>
+                                            <p class="hint">Measure and enforce trust policy for containers before launching via Docker Engine on a trusted host</p>
+                                        </div>
 
                                         <label>Integrations</label>
                                         <div class="checkbox">
@@ -288,6 +296,11 @@
                                             </label>
                                             <p class="hint">Encrypted workloads run only on trusted hosts</p>
                                         </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox" name="attestation-container" data-bind="checked: attestation_container.checked, disable: attestation_container.disable, click: $parent.update_features"/>Container integrity (Docker)</label>
+                                            <p class="hint">Measure and enforce trust policy for containers before launching via Docker Engine on a trusted host</p>
+                                        </div>
+                                        
                                         <label>Integrations</label>
                                         <div class="checkbox">
                                             <label><input type="checkbox" name="integration-openstack-glance" data-bind="checked: integration_openstack_glance.checked, disable: integration_openstack_glance.disable, click: $parent.update_features">OpenStack Glance</label>
@@ -482,7 +495,7 @@
                                             </form>
                                         </div>
                                     </div>
-                                    <div class="panel panel-primary-subdued" data-bind="visible: features.attestation_vm.checked() && environment.network_role() === 'SUBSCRIBER'">
+                                    <div class="panel panel-primary-subdued" data-bind="visible: ( features.attestation_vm.checked() || features.attestation_container.checked() ) && environment.network_role() === 'SUBSCRIBER'">
                                         <div class="panel-heading"><h3 class="panel-title">Attestation Service</h3></div>
                                         <div class="panel-body">
                                             <p data-bind="visible: environment.network_role() === 'SUBSCRIBER'">Details available from Cloud Service Provider</p>
@@ -740,19 +753,22 @@
                                                     <label><input type="checkbox" data-bind="checked: features.attestation_host_xm.checked" disabled/>Host apps, drivers, configuration</label>
                                                 </div>
                                                 </div>
-                                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" data-bind="visible: features.attestation_vm.checked() || features.encryption_vm.checked()">
-                                                <label>Workload Protection</label>
-                                                <div class="checkbox" data-bind="visible: features.attestation_vm.checked">
-                                                    <label><input type="checkbox" data-bind="checked: features.attestation_vm.checked" disabled/>VM integrity</label>
-                                                </div>
-                                                <div class="checkbox" data-bind="visible: features.encryption_vm.checked">
-                                                    <label><input type="checkbox" data-bind="checked: features.encryption_vm.checked" disabled/>
-                                                        VM encryption
-                                                        <!--<span data-bind="text: i18n.t('quickstart:tasks.' + settings.kms_key_provider)"></span>-->
-                                                        <span data-bind="visible: settings.kms_key_provider()==='com.intel.kms.barbican.client.BarbicanKeyManager'" data-i18n="quickstart:packages.openstack_barbican">barbican</span>
-                                                        <span data-bind="visible: settings.kms_key_provider()==='com.intel.kms.kmip.client.KMIPKeyManager'" data-i18n="quickstart:packages.kmip4j">kmip</span>
-                                                    </label>
-                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" data-bind="visible: features.attestation_container.checked() || features.attestation_vm.checked() || features.encryption_vm.checked()">
+                                                    <label>Workload Protection</label>
+                                                    <div class="checkbox" data-bind="visible: features.attestation_vm.checked">
+                                                        <label><input type="checkbox" data-bind="checked: features.attestation_vm.checked" disabled/>VM integrity</label>
+                                                    </div>
+                                                    <div class="checkbox" data-bind="visible: features.encryption_vm.checked">
+                                                        <label><input type="checkbox" data-bind="checked: features.encryption_vm.checked" disabled/>
+                                                            VM encryption
+                                                            <!--<span data-bind="text: i18n.t('quickstart:tasks.' + settings.kms_key_provider)"></span>-->
+                                                            <span data-bind="visible: settings.kms_key_provider()==='com.intel.kms.barbican.client.BarbicanKeyManager'" data-i18n="quickstart:packages.openstack_barbican">barbican</span>
+                                                            <span data-bind="visible: settings.kms_key_provider()==='com.intel.kms.kmip.client.KMIPKeyManager'" data-i18n="quickstart:packages.kmip4j">kmip</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="checkbox" data-bind="visible: features.attestation_container.checked">
+                                                        <label><input type="checkbox" data-bind="checked: features.attestation_container.checked" disabled/>Container integrity (Docker)</label>
+                                                    </div>                                                
                                                 </div>
                                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" data-bind="visible: features.integration_openstack_nova.checked() || features.integration_openstack_glance.checked() || features.encryption_vm.checked()">
                                                 <label>Integrations</label>
@@ -915,10 +931,15 @@
                             </table>
                             </div>
 
+                            <!-- export link appears only for DONE and ERROR status -->
+                            <div data-bind="visible: progress.order.status() == 'DONE' || progress.order.status() == 'ERROR' ">
+                                <a class="btn btn-link btn-sm export" target="_blank" data-bind="attr: { href: progress.links.export }">Export <span class="glyphicon glyphicon-save"></span></a>  
+                            </div>
+                            
                         </div>
                         
                         <div data-bind="visible: progress.order.status() == 'PENDING' || progress.order.status() == 'ACTIVE'">
-                            <a class="btn btn-danger btn-lg cancel" href="#">Cancel</a>                            
+                            <a class="btn btn-danger btn-lg cancel" href="#">Cancel</a>
                         </div>
                         <div data-bind="visible: progress.order.status() == 'DONE' || progress.order.status() == 'ERROR' ">
                             <a class="btn btn-success btn-lg restart" href="#">Start Again</a>                            
@@ -984,8 +1005,55 @@
              */
             function WizardFeature(init) {
                 var self = this;
-                self.checked = ko.observable(init.checked);
-                self.disable = ko.observable(init.disable);
+                self._available = ko.observable(typeof init["available"] === "undefined" ? true : init.available);
+                self._checked = ko.observable(init.checked);
+                self._disable = ko.observable(init.disable);
+                self.available =  ko.computed({
+                    read: function() {
+                        return self._available();
+                    },
+                    write: function(value) {
+                        if( value === true ) {
+                            self.release();
+                            self._available(true);
+                        }
+                        else {
+                            self.force(false);
+                            self._available(false);
+                        }
+                    }
+                });
+                        ////ko.observable(self._available);
+                self.checked = ko.computed({
+                    read: function() { 
+                        return self._available() && self._checked();
+                    },
+                    write: function(value) {
+                        if( self._available() ) {
+                            self._checked(value);
+                        }
+                        else {
+                            self._checked(false);
+                            console.log("Feature not available");
+                        }
+                    }
+                });
+                self.disable = ko.computed({
+                    read: function() { 
+                        return !self._available() || self._disable();
+                    },
+                    write: function(value) {
+                        if( self._available()) {
+                            self._disable(value);
+                        }
+                        else {
+                            self._disable(true);
+                            console.log("Feature not available");
+                        }
+                    }
+                });
+                
+                
                 self.prior_checked = null; // used to store prior checked value by force function
                 self.prior_disable = null; // used to store prior disable value by force function
 
@@ -1405,14 +1473,21 @@
 //                    "integration_kmip": new WizardFeature({checked: false, disable: false}),
                     "compute_node_trustagent": new WizardFeature({checked: false, disable: false})
                 };
-                self.update_features = function() {                    
+                self.update_features = function() {
                     // order matters here... the "forcing" should cascade from the "least dependent" option to the "most dependent" option (in terms of number of things that could force it to be on or off)
                     // these two options are mutually exclusive
 //                    self.features.integration_openstack_barbican.suppress_if(self.features.integration_kmip.checked() ); 
 //                    self.features.integration_kmip.suppress_if(self.features.integration_openstack_barbican.checked() );
                     // rest of these are dependency relationships
 //                    self.features.encryption_vm.force_if(self.features.integration_openstack_barbican.checked() || self.features.integration_kmip.checked());
-                    self.features.attestation_vm.force_if(self.features.encryption_vm.checked() || self.environment.network_role() === "SUBSCRIBER"); // for subscriber, the minimum install is trust director with vm integrity
+
+                    if( self.features.attestation_container.checked() ) {
+                        self.features.attestation_vm.suppress_if( true );
+                        self.features.encryption_vm.suppress_if( true );
+                    }
+                    else {
+                        self.features.attestation_vm.force_if(self.features.encryption_vm.checked() || self.environment.network_role() === "SUBSCRIBER"); // for subscriber, the minimum install is trust director with vm integrity
+                    }
                     
                     if( self.environment.network_role() === "PRIVATE" ) {
                         self.features.attestation_host_xm.force_if(self.features.attestation_vm.checked() || self.features.attestation_container.checked());
@@ -1440,10 +1515,41 @@
                         "existing_openstack_barbican": new WizardFeature({checked: false, disabled: false})
                     }
                 };
+                
+                self.available_packages = {};
+                
+                self.get_available_packages = function() {
+                    console.log("Checking available packages");
+                    $.ajax({
+                        type: "GET",
+                        url: endpoint + "/quickstart/packages", 
+                        headers: {'Accept': 'application/json'},
+                        //contentType: "application/json",
+                        //data: JSON.stringify(data),
+                        success: function(responseJsonContent, status, xhr) {
+                            console.log("available packages response: %O", responseJsonContent);
+                            // convert  {  "packages": [   {... },  {...} , ... ] }  to { name: available/no,  name2: available/no, ... }
+                            for(var i=0; i<responseJsonContent.packages.length; i++) {
+                                var available_variants = responseJsonContent.packages[i].available_variants;
+                                if( available_variants && available_variants.length > 0 ) {
+                                    self.available_packages[responseJsonContent.packages[i].name] = true; // if at least one variant is available;  for key broker that would be "default",  for trust agent it's "ubuntu" and "redhat"
+                                }
+                                else {
+                                    self.available_packages[responseJsonContent.packages[i].name] = false;
+                                }
+                            }
+                            if( !self.available_packages["key_broker"] ) {
+                                console.log("encryption not available");
+                                self.features.encryption_vm.available(false); // forces checked=false and disable=true
+                                self.update_features();
+                            }
+                        }
+                    });
+                };
 
                 self.update_network_role = function() {
                     // when the user selects a new network role, first we release all obligations... then start over with defaults appropriate to that role
-                    var packageNames = ["attestation_host","attestation_host_xm","attestation_vm","encryption_vm",/*"integration_kmip",*/"integration_openstack_nova","integration_openstack_glance",/*"integration_openstack_barbican",*/"compute_node_trustagent"];
+                    var packageNames = ["attestation_host","attestation_host_xm","attestation_vm","encryption_vm","attestation_container","integration_openstack_nova","integration_openstack_glance",/*"integration_openstack_barbican",*/"compute_node_trustagent"];
                     for(var i=0; i<packageNames.length; i++) {
                         var packageName = packageNames[i];
                         self.features[packageName].release();
@@ -1465,6 +1571,7 @@
                         self.features.attestation_host.disable(true);                     
                         self.features.attestation_host_xm.checked(true);
 //                        self.features.attestation_host_xm.disable(true);                     
+                        self.features.attestation_container.checked(false); // do this before attestation_vm to ensure it's released
                         self.features.attestation_vm.checked(true);
                         self.features.integration_openstack_nova.checked(true);
                         self.features.integration_openstack_glance.checked(true);
@@ -1474,11 +1581,13 @@
                         self.features.attestation_host.disable(true);                     
                         self.features.attestation_host_xm.checked(true);
 //                        self.features.attestation_host_xm.disable(true);                     
+                        self.features.attestation_container.checked(false); // do this before attestation_vm to ensure it's released
                         self.features.attestation_vm.checked(true);
                         self.features.integration_openstack_nova.checked(true);
 //                        self.features.integration_openstack_glance.checked(true);
                     }
                     if( self.environment.network_role() === "SUBSCRIBER" ) {
+                        self.features.attestation_container.checked(false); // do this before attestation_vm to ensure it's released
                         self.features.attestation_vm.checked(true);
                         self.features.integration_openstack_glance.checked(true);
                     }
@@ -1577,6 +1686,9 @@
                         if (self.features.attestation_host_xm.checked()) {
                             packages.director = true;
                         }
+                        if (self.features.attestation_container.checked()) {
+                            packages.director = true;
+                        }
                         if (self.features.attestation_vm.checked()) {
                             packages.director = true;
                         }
@@ -1599,6 +1711,9 @@
                         if (self.features.attestation_host_xm.checked()) {
                             packages.director = true;
                         }
+                        if (self.features.attestation_container.checked()) {
+                            //we don't enable director for vm integrity for a CSP;  they my have director anyway for tboot-xm but CSP doesn't use director to make container policies
+                        }
                         if (self.features.attestation_vm.checked()) {
                             //we don't enable director for vm integrity for a CSP;  they my have director anyway for tboot-xm but CSP doesn't use director to make VM policies
                         }
@@ -1614,6 +1729,9 @@
                     // the public cloud customer (enterprise) installs only trust director and key broker (if applicable)
                     "SUBSCRIBER": function() {
                         var packages = {};
+                        if (self.features.attestation_container.checked()) {
+                            packages.director = true;
+                        }
                         if (self.features.attestation_vm.checked()) {
                             packages.director = true;
                         }
@@ -1686,6 +1804,7 @@
                 self.progress.interval_period = 1000; // check progress every 2 seconds = 2000 ms
                 self.progress.links = {};
                 self.progress.links.status = null; // this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a where we can get more updates
+                self.progress.links.export = ko.observable(""); // this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a/export where we can export the order information
                 self.progress.links.cancel = null;// this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a/cancel where we can cancel the task with a POST
                 self.progress.actions = ko.observableArray([]); // list of actions from server about what is happening during the deployment;  these are then used to update the UI under the progress bar
                 self.progress.order = {
@@ -1797,6 +1916,7 @@
                             else {
                                 // schedule periodic progress checks
                                 self.progress.links.status = responseJsonContent.links.status;
+                                self.progress.links.export(responseJsonContent.links.export + "?token="+ mainViewModel.loginViewModel.userProfile.authorizationToken() ); // must add session token to this link or else server will block access
                                 self.progress.links.cancel = responseJsonContent.links.cancel;
                                 self.progress.interval = setInterval(self.checkProgress, self.progress.interval_period); // check progress every "interval period" milliseconds
                             }
@@ -1858,6 +1978,7 @@
                     }
                     self.progress.links = {};
                     self.progress.links.status = null; // this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a where we can get more updates
+                    self.progress.links.export(""); // this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a/export where we can export the order information
                     self.progress.links.cancel = null;// this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a/cancel where we can cancel the task with a POST
                     self.progress.actions([]);
                     self.progress.order.id("");
@@ -1953,7 +2074,6 @@
                              time: new Date()
                              });
                              */
-                            $(document).trigger("mtwilson-quickstart-wizard:progress", [{"current": responseJsonContent.progress, "max": responseJsonContent.progress_max, "status": responseJsonContent.status}]);
 
                             if (responseJsonContent.targets) {
                                 for(var i=0; i<responseJsonContent.targets.length; i++) {
@@ -1979,6 +2099,7 @@
                              }
                              */
 
+                             var totalFractionalPercent = 0;
                             if (responseJsonContent.tasks) {
                                 for (var i = 0; i < responseJsonContent.tasks.length; i++) {
 //                           responseJsonContent.tasks[i].sequence = i+1;
@@ -1986,8 +2107,12 @@
                                     //var underscore_name = responseJsonContent.tasks[i].name.replace(/\./g,"\\.");
                                     var underscore_name = responseJsonContent.tasks[i].name.replace(/\./g, "_");
                                     responseJsonContent.tasks[i].display_name = i18n.t('quickstart:tasks.' + underscore_name, responseJsonContent.tasks[i].data); // second argument provides a data object from the task status object for interpolation into the translated text
-                                    responseJsonContent.tasks[i].percent = Math.round(responseJsonContent.tasks[i].progress_max == 0 ? 0 : (parseInt(responseJsonContent.tasks[i].progress) / responseJsonContent.tasks[i].progress_max) * 100);
+                                    responseJsonContent.tasks[i].fractional_percent = responseJsonContent.tasks[i].progress_max == 0 ? 0 : parseFloat(responseJsonContent.tasks[i].progress) / responseJsonContent.tasks[i].progress_max; // note: the fractional percent is between 0 and 1, not 0 and 100. 
+                                    responseJsonContent.tasks[i].percent = Math.floor(responseJsonContent.tasks[i].fractional_percent * 100);
                                     responseJsonContent.tasks[i].display_percent = responseJsonContent.tasks[i].percent + '%';
+                                    if( responseJsonContent.tasks[i].done == false && responseJsonContent.tasks[i].progress > 0 && responseJsonContent.tasks[i].progress < responseJsonContent.tasks[i].progress_max  ) {
+                                        totalFractionalPercent += responseJsonContent.tasks[i].fractional_percent;
+                                    }
                                     // make sure there's a "data" object and "faults" array 
                                     if( typeof responseJsonContent.tasks[i]["data"] === "undefined" ) {
                                         responseJsonContent.tasks[i].data = {};
@@ -1998,6 +2123,20 @@
                                 }
                                 responseJsonContent.tasks.sort(sortBy('+sequence', '-percent', '+display_name'));
                             }
+                            
+                            // the overall progerss is now a combination of two things:
+                            // number of tasks completed out of total tasks (e.g.   1/15, 2/15, 3/15, ... 15/15)
+                            // percent completed of the currently executing task  (eg  0.1, 0.2, 0.3, ... 0.99)   
+                            // so the number we report will be like  1.04/15,  1.5/15,  1.7/15, 1.85/15,  2/15,  2.25/15,  etc. 
+                            // and that is what makes the overall progress bar move for progress in current task 
+                            // and also total tasks completed out of max tasks. 
+                            var taskIntegerProgress = responseJsonContent.progress;
+                            var taskFractionalProgress = parseFloat(taskIntegerProgress) + totalFractionalPercent; 
+                            $(document).trigger("mtwilson-quickstart-wizard:progress", [{
+                                    "current": taskFractionalProgress, // responseJsonContent.progress, 
+                                    "max": responseJsonContent.progress_max, 
+                                    "status": responseJsonContent.status
+                            }]);
                             
                             // now figure out which packages have been installed successfully on which targets...
                             if( responseJsonContent.targets && responseJsonContent.tasks ) {
@@ -2128,8 +2267,7 @@
                 $(document).on("mtwilson-quickstart-wizard:start", function(e) {
                     console.log("Caught start event");
                     self.start();
-                    // TEMPORARY:  show the task details when we start a task;  in production we would keep this hidden and user can show if s/he wants to.
-                    self.progress.taskView.visible(true);
+                    self.progress.taskView.visible(false);
                 });
                 $(document).on("mtwilson-quickstart-wizard:cancel", function(e) {
                     console.log("Caught cancel event");
@@ -2226,13 +2364,14 @@
 
                         //update progress
                         var step = $(e.target).data('step');
-                        var percent = (parseInt(step) / max_steps) * 100;
+                        var fractionalPercent = (parseFloat(step) / max_steps) * 100;
+                        //var percent = (parseInt(step) / max_steps) * 100;
                         var progressText = "Step " + step + " of " + max_steps;
                         if (step === "0") {
                             progressText = "";
                         }
 
-                        wizard.find('#setup_panel .progress-bar').css({width: percent + '%'});
+                        wizard.find('#setup_panel .progress-bar').css({width: fractionalPercent + '%'});
                         wizard.find('#setup_panel .progress-bar').text(progressText);
 
                         //e.relatedTarget // previous tab
@@ -2284,19 +2423,31 @@
                         $(document).trigger("mtwilson-quickstart-wizard:reset");
                         
                     });
+                    
+                    /*
+                    wizard.find('#deploy_panel .export').click(function() {
+                        console.log("Export link href %s",this.href);
+                        window.open(this.href);  // url path like /v1/quickstart/orders/b3bafefa-a83d-4265-affd-b977a199d71a/export
+                    });
+                    */
 
                     $(document).on("mtwilson-quickstart-wizard:progress", function(e, data) {
                         console.log("Caught progress event: %O", data);
                         //update progress
-                        var current = data.current; // integer
+                        var current = data.current; // float, where the integer part (n) represents the overall progress in terms of tasks completed, and the fractional part (e) represents the PERCENT progress of the currently executing task.
                         var max = data.max; // max 
-                        var percent = Math.round((parseInt(current) / max) * 100);
-                        var progressText = percent + "%"; //"Processing..."; //  data.status;  //  looking for one line from server... //"Step " + step + " of " + max_steps;
+                        
+                        // we have to keep track of two percentages:
+                        // first, for animation we need more precision
+                        // second, for text display we need to round to nearest integer
+                        var fractionalPercent = ( parseFloat(current) / max ) * 100;
+                        var textPercent = Math.round(fractionalPercent);
+                        var progressText = textPercent + "%"; //"Processing..."; //  data.status;  //  looking for one line from server... //"Step " + step + " of " + max_steps;
                         if (current === 0) {
                             progressText = "";
                         }
 
-                        wizard.find('#deploy_panel .quickstart-order-progress .progress-bar').css({width: percent + '%'});
+                        wizard.find('#deploy_panel .quickstart-order-progress .progress-bar').css({width: fractionalPercent + '%'});
                         wizard.find('#deploy_panel .quickstart-order-progress .progress-bar').text(progressText);
 
                     });
@@ -2309,6 +2460,7 @@
                     //mainViewModel.wizardViewModel.searchSettings({});
 
                     // initialize
+                    mainViewModel.wizardViewModel.get_available_packages();
                     mainViewModel.wizardViewModel.update_network_role(); // calls update_features()
                     mainViewModel.wizardViewModel.update_layout(); // calls update_features()
                     //mainViewModel.wizardViewModel.update_environment();
