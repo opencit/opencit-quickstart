@@ -71,12 +71,15 @@ public class PreconfigureTrustAgent extends AbstractPreconfigureTask implements 
         data.put("KMSPROXY_PORT", setting("kmsproxy.port.http"));  // NOTE:  when trustagent uses key broker proxy, it uses http not https ; see CIT 3.0 architecture
         
         // optional: 
-        // if docker feature was selected, then we need to set this variable; otherwise it can be empty
+        // if docker feature was selected, then we need to set this variable to 'docker'; if vm attestation was selected, then we need to set this to 'vm', otherwise it can be empty string
         String deploymentType = "";
         if( order != null ) {
             Set<String> features = order.getFeatures();
             if( features != null && features.contains("attestation_container") ) {
                 deploymentType = "docker";
+            }
+            else if( features != null && features.contains("attestation_vm") ) {
+                deploymentType = "vm";
             }
         }
         data.put("DEPLOYMENT_TYPE", deploymentType);
