@@ -41,8 +41,9 @@ public class OrderCleanup implements Runnable, Configurable, Command {
             configuration = new PropertiesConfiguration();
         }
         long currentTime = System.currentTimeMillis(); // we measure order age relative to when this job started
-        long thresholdExpireModified = Long.valueOf(configuration.get("mtwilson.quickstart.order.cleanup.modified", "86400000")).longValue(); // default 24 hours; delete any orders that have not been modified in 24 hours
-        long thresholdExpireAccessed = Long.valueOf(configuration.get("mtwilson.quickstart.order.cleanup.accessed", "604800000")).longValue(); //   default 7 days; delete any orders that have not been accessed in 7 days 
+        long sessionTimeout = Integer.valueOf(configuration.get("login.token.expires.minutes", "30")) * 60 * 1000; //  login.token.expires.minutes defined in LoginTokenUtils in mtwilson-core-login token
+        long thresholdExpireModified = Long.valueOf(configuration.get("mtwilson.quickstart.order.cleanup.modified", String.valueOf(sessionTimeout))).longValue(); // default delete order after user session expires;  previous default 86400000 (24 hours) to delete any orders that have not been modified in 24 hours
+        long thresholdExpireAccessed = Long.valueOf(configuration.get("mtwilson.quickstart.order.cleanup.accessed", String.valueOf(sessionTimeout))).longValue(); // default delete order after user session expires;  previous default 604800000 (7 days) to delete any orders that have not been accessed in 7 days 
         FileTime expireIfModifiedBefore = FileTime.fromMillis(currentTime - thresholdExpireModified);
         FileTime expireIfAccessedBefore = FileTime.fromMillis(currentTime - thresholdExpireAccessed);
         Map<String, OrderDispatchQueue.OrderDispatch> currentOrders = OrderDispatchQueue.getCurrentOrders();
