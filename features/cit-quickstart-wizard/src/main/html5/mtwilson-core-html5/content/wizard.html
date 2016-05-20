@@ -1930,7 +1930,7 @@
                             }
                         },
                         error: function(xhr, status, errorMessage) {
-                            console.log("Failed to deploy: %s", errorMessage);
+                            console.log("Failed to cancel deployment: %s", errorMessage);
                         }
 
                     });
@@ -1941,7 +1941,7 @@
                         clearInterval(self.progress.interval);
                         self.progress.interval = null;
                     }
-                    self.progress.links = {};
+                    //self.progress.links = {}; // setting this to empty object removes the observable on the export link
                     self.progress.links.status = null; // this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a where we can get more updates
                     self.progress.links.export(""); // this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a/export where we can export the order information
                     self.progress.links.cancel = null;// this is set to a value like /v1/tasks/9e80cc60-b6c9-417a-8073-0def8a31e53a/cancel where we can cancel the task with a POST
