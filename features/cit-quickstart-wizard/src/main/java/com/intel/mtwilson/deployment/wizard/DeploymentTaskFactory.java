@@ -37,6 +37,7 @@ import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInOpenstack;
 import com.intel.mtwilson.deployment.task.DynamicFileTransfer;
 import com.intel.mtwilson.deployment.task.FileTransfer;
 import com.intel.mtwilson.deployment.task.ImportAttestationServiceCertificatesToKeyBroker;
+import com.intel.mtwilson.deployment.task.ImportAttestationServiceCertificatesToOpenstack;
 import com.intel.mtwilson.deployment.task.PostconfigureAttestationService;
 import com.intel.mtwilson.deployment.task.PostconfigureKeyBroker;
 import com.intel.mtwilson.deployment.task.PostconfigureOpenstack;
@@ -341,6 +342,12 @@ public class DeploymentTaskFactory extends AbstractTask {
                 CreateTrustDirectorUserInOpenstack createDirectorUserInOpenstack = new CreateTrustDirectorUserInOpenstack(target);
                 createDirectorUserInOpenstack.getDependencies().add(postconfigureOpenstackExtensions);
                 tasks.add(createDirectorUserInOpenstack);
+            }
+            // import the attestation service certificate
+            if( selectedSoftwarePackageMap.containsKey("attestation_service") ) {
+                ImportAttestationServiceCertificatesToOpenstack importAttestationServiceCertificatesToOpenstack = new ImportAttestationServiceCertificatesToOpenstack();
+                importAttestationServiceCertificatesToOpenstack.getDependencies().add(postconfigureOpenstackExtensions);
+                tasks.add(importAttestationServiceCertificatesToOpenstack);
             }
         }
         if( softwarePackage.getPackageName().equals("trustagent_ubuntu")) {

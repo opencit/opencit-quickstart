@@ -27,6 +27,7 @@
         "com_intel_mtwilson_deployment_task_PreconfigureTrustDirector": "Configuring $t(quickstart:packages.director) on {{host}}",
         "com_intel_mtwilson_deployment_task_SynchronizeSoftwarePackageTargets": "Synchronizing $t(quickstart:packages.{{package_name}})",
         "com_intel_mtwilson_deployment_task_ImportAttestationServiceCertificatesToKeyBroker": "Importing $t(quickstart:packages.attestation_service) certificates to $t(quickstart:packages.key_broker)",
+        "com_intel_mtwilson_deployment_task_ImportAttestationServiceCertificatesToOpenstack": "Importing $t(quickstart:packages.attestation_service) certificates to $t(quickstart:packages.openstack)",
         "com_intel_mtwilson_deployment_task_PostconfigureOpenstack": "Finishing $t(quickstart:packages.openstack) configuration on {{host}}",
         "com_intel_mtwilson_deployment_task_CreateTrustDirectorUserInOpenstack": "Creating $t(quickstart:packages.director) credential in $t(quickstart:packages.openstack) on {{host}}",
         "com_intel_mtwilson_deployment_task_PostconfigureTrustDirector": "Finishing $t(quickstart:packages.director) configuration on {{host}}",
