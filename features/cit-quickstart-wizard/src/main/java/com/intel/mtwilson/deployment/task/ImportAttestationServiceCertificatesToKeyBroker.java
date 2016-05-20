@@ -6,7 +6,6 @@ package com.intel.mtwilson.deployment.task;
 
 import com.intel.dcsg.cpg.performance.AlarmClock;
 import com.intel.dcsg.cpg.validation.Fault;
-import com.intel.mtwilson.deployment.descriptor.Target;
 import com.intel.mtwilson.jaxrs2.client.JaxrsClient;
 import com.intel.mtwilson.jaxrs2.client.JaxrsClientBuilder;
 import com.intel.mtwilson.util.validation.faults.Thrown;
@@ -35,24 +34,12 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
  */
 public class ImportAttestationServiceCertificatesToKeyBroker extends AbstractPostconfigureTask {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ImportAttestationServiceCertificatesToKeyBroker.class);
-    private int maxTriesDownload = 10;
-    private int progressTriesDownload = 0;
     private int maxTriesUpload = 1;
     private int progressTriesUpload = 0;
-    private int downloadRetryIntervalSeconds = 10;
+    private DownloadAttestationServiceDataBundle downloadDataBundle = null;
     
     public ImportAttestationServiceCertificatesToKeyBroker() {
         super();
-    }
-
-    private JaxrsClient createAttestationServiceClient() {
-        Properties attestationServiceProperties = new Properties();
-        attestationServiceProperties.setProperty("endpoint.url", "https://" + setting("mtwilson.host") + ":" + setting("mtwilson.port.https") + "/mtwilson");
-        attestationServiceProperties.setProperty("login.basic.username", setting("mtwilson.quickstart.username"));
-        attestationServiceProperties.setProperty("login.basic.password", setting("mtwilson.quickstart.password"));
-        attestationServiceProperties.setProperty("tls.policy.certificate.sha1", setting("mtwilson.tls.cert.sha1"));
-        JaxrsClient attestationServiceClient = JaxrsClientBuilder.factory().configuration(attestationServiceProperties).build();
-        return attestationServiceClient;
     }
 
     private JaxrsClient createKeyBrokerClient() {
@@ -65,60 +52,18 @@ public class ImportAttestationServiceCertificatesToKeyBroker extends AbstractPos
         return keybrokerClient;
     }
 
-    private byte[] downloadDataBundleFromAttestationService() {
-        log.debug("Downloading data bundle from mtwilson");
-        JaxrsClient attestationServiceClient = createAttestationServiceClient();
-        Response zipResponse = null;
-
-        // the loop here is because sometimes mtwilson is not accessible in the short time
-        // after it is installed, so if we get a connection error we just try again a few
-        // times and it's likely to work eventually if it did install without errors.
-        // we keep track of the faults in a temporary list, so if we eventually succeed we
-        // discard them, but if we exhaust max attempts then we log all the faults
-        progressTriesDownload = 0;
-        ArrayList<Fault> faults = new ArrayList<>();
-        while (zipResponse == null && progressTriesDownload < maxTriesDownload) {
-            try {
-                log.debug("Downloading data bundle from mtwilson, attempt {}", progressTriesDownload+1); // +1 because we haven't completed that attempt yet
-                zipResponse = attestationServiceClient.getTargetPath("/v2/configuration/databundle").request().accept(MediaType.APPLICATION_OCTET_STREAM).get();
-                log.debug("Downloaded data bundle from mtwilson");
-            } catch (Exception e) {
-                log.error("Cannot download data bundle from mtwilson", e);
-                faults.add(new Thrown(e));
-                AlarmClock clock = new AlarmClock();
-                clock.sleep(downloadRetryIntervalSeconds, TimeUnit.SECONDS);
-            }
-            progressTriesDownload++;
-        }
-        if (zipResponse == null) {
-            log.error("Cannot download data bundle from mtwilson after {} attempts", progressTriesDownload);
-            getFaults().addAll(faults); // log all collected faults
-            return null;
-        }
-        progressTriesDownload = maxTriesDownload; // since we successfully downloaded it, we reflect this in progress 
-
-        byte[] zip;
-        try (InputStream zipIn = zipResponse.readEntity(InputStream.class)) {
-            zip = IOUtils.toByteArray(zipIn);
-            File zipFile = getTaskDirectory().toPath().resolve(String.valueOf(sequence()) + ".databundle.tgz").toFile();
-            log.debug("Storing databundle.tgz file at {}", zipFile.getAbsolutePath());
-            FileUtils.writeByteArrayToFile(zipFile, zip);
-        } catch (IOException e) {
-            log.error("Cannot store databundle.tgz file", e);
-            fault(new Fault("Cannot store attestation service configuration data bundle"));
-            return null;
-        }
-
-        return zip;
-    }
 
     @Override
     public void execute() {
+        downloadDataBundle = new DownloadAttestationServiceDataBundle();
+        downloadDataBundle.setOrderDocument(order);
+        downloadDataBundle.setTarget(target);
+        downloadDataBundle.execute();
         // download .zip file with attestation service certificates
         // requires permission "configuration_databundle:retrieve" in mtwilson
         // NOTE: we use the JaxrsClient from mtwilson-util-jaxrs2-client directly
         // so we don't have a dependency on either attestation service or key broker.
-        byte[] zip = downloadDataBundleFromAttestationService();
+        byte[] zip = downloadDataBundle.getDataBundleZip();
         if (zip == null) {
             return; // faults already logged by downloadDataBundleFromAttestationService
         }
@@ -161,12 +106,12 @@ public class ImportAttestationServiceCertificatesToKeyBroker extends AbstractPos
 
     @Override
     public long getCurrent() {
-        return progressTriesDownload + progressTriesUpload;
+        return ( downloadDataBundle == null ? 0 : downloadDataBundle.getCurrent() ) + progressTriesUpload;
     }
 
     @Override
     public long getMax() {
-        return maxTriesDownload + maxTriesUpload;
+        return ( downloadDataBundle == null ? 0 : downloadDataBundle.getMax() ) + maxTriesUpload;
     }
     
     

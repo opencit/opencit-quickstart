@@ -17,6 +17,14 @@
     <dependencies>
         <!-- common-java -->
         <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-archive</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.core</groupId>
+            <artifactId>mtwilson-core-data-bundle</artifactId>
+        </dependency>
+        <dependency>
             <!-- Purpose: enables storing test environment info outside test sources -->
             <groupId>com.intel.mtwilson.core</groupId>
             <artifactId>mtwilson-core-junit</artifactId>
