@@ -142,8 +142,10 @@ public class OrderDocument extends Document implements Faults {
 
     public void setTasks(Collection<TaskDocument> tasks) {
         taskMap.clear();
-        for (TaskDocument task : tasks) {
-            taskMap.put(task.getId().toString(), task);
+        if( tasks != null ) {
+            for (TaskDocument task : tasks) {
+                taskMap.put(task.getId().toString(), task);
+            }
         }
     }
 

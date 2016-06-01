@@ -28,6 +28,8 @@ import com.intel.mtwilson.deployment.descriptor.NetworkRole;
 import com.intel.mtwilson.deployment.descriptor.Target;
 import com.intel.mtwilson.deployment.jaxrs.faults.Null;
 import com.intel.mtwilson.deployment.jaxrs.io.OrderDocument;
+import com.intel.mtwilson.deployment.task.ApproveKeyBrokerProxyUserInAttestationService;
+import com.intel.mtwilson.deployment.task.CopyQuickstartOrder;
 import com.intel.mtwilson.deployment.task.CreateTrustAgentUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInKeyBroker;
@@ -35,6 +37,7 @@ import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInOpenstack;
 import com.intel.mtwilson.deployment.task.DynamicFileTransfer;
 import com.intel.mtwilson.deployment.task.FileTransfer;
 import com.intel.mtwilson.deployment.task.ImportAttestationServiceCertificatesToKeyBroker;
+import com.intel.mtwilson.deployment.task.ImportAttestationServiceCertificatesToOpenstack;
 import com.intel.mtwilson.deployment.task.PostconfigureAttestationService;
 import com.intel.mtwilson.deployment.task.PostconfigureKeyBroker;
 import com.intel.mtwilson.deployment.task.PostconfigureOpenstack;
@@ -229,6 +232,11 @@ public class DeploymentTaskFactory extends AbstractTask {
             PostconfigureAttestationService postconfigureAttestationService = new PostconfigureAttestationService(target);
             postconfigureAttestationService.getDependencies().add(remoteInstall);
             tasks.add(postconfigureAttestationService);
+            // copy the order file to attestation service
+            CopyQuickstartOrder copyQuickstartOrder = new CopyQuickstartOrder(softwarePackage);
+            copyQuickstartOrder.getDependencies().add(remoteInstall);
+            tasks.add(copyQuickstartOrder);
+            
             // IF the order includes trust director too (any target host), then we need to create a user for director to connect to mtwilson (see bug #4866)
             if( selectedSoftwarePackageMap.containsKey("director") ) {
                 CreateTrustDirectorUserInAttestationService createDirectorUser = new CreateTrustDirectorUserInAttestationService(target);
@@ -282,6 +290,15 @@ public class DeploymentTaskFactory extends AbstractTask {
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
             tasks.add(fileTransferEnvFile);
             remoteInstall.getDependencies().add(fileTransferEnvFile);
+            // IF the order includes attestation service, then approve the key broker proxy user automatically
+            if( selectedSoftwarePackageMap.containsKey("attestation_service")) {
+                // note: the "target" here is the key broker proxy host, to 
+                // which this task will connect to retrieve the key broker proxy
+                // username from its configuration.
+                ApproveKeyBrokerProxyUserInAttestationService approveKeyBrokerUser = new ApproveKeyBrokerProxyUserInAttestationService(target);
+                approveKeyBrokerUser.getDependencies().add(remoteInstall);
+                tasks.add(approveKeyBrokerUser);
+            }
         }
         if( softwarePackage.getPackageName().equals("director")) {
             Task staticFileTransfer = createStaticFileTransferTask(softwarePackage, target);
@@ -298,7 +315,11 @@ public class DeploymentTaskFactory extends AbstractTask {
             // create an admin user in trust director
             PostconfigureTrustDirector postconfigureTrustDirector = new PostconfigureTrustDirector(target);
             postconfigureTrustDirector.getDependencies().add(remoteInstall);
-            tasks.add(postconfigureTrustDirector);            
+            tasks.add(postconfigureTrustDirector);
+            // copy the order file to trust director
+            CopyQuickstartOrder copyQuickstartOrder = new CopyQuickstartOrder(softwarePackage);
+            copyQuickstartOrder.getDependencies().add(remoteInstall);
+            tasks.add(copyQuickstartOrder);
         }
         if( softwarePackage.getPackageName().equals("openstack_extensions")) {
             Task staticFileTransfer = createStaticFileTransferTask(softwarePackage, target);
@@ -321,6 +342,12 @@ public class DeploymentTaskFactory extends AbstractTask {
                 CreateTrustDirectorUserInOpenstack createDirectorUserInOpenstack = new CreateTrustDirectorUserInOpenstack(target);
                 createDirectorUserInOpenstack.getDependencies().add(postconfigureOpenstackExtensions);
                 tasks.add(createDirectorUserInOpenstack);
+            }
+            // import the attestation service certificate
+            if( selectedSoftwarePackageMap.containsKey("attestation_service") ) {
+                ImportAttestationServiceCertificatesToOpenstack importAttestationServiceCertificatesToOpenstack = new ImportAttestationServiceCertificatesToOpenstack();
+                importAttestationServiceCertificatesToOpenstack.getDependencies().add(postconfigureOpenstackExtensions);
+                tasks.add(importAttestationServiceCertificatesToOpenstack);
             }
         }
         if( softwarePackage.getPackageName().equals("trustagent_ubuntu")) {
