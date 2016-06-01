@@ -17,6 +17,14 @@
     <dependencies>
         <!-- common-java -->
         <dependency>
+            <groupId>com.intel.mtwilson.util</groupId>
+            <artifactId>mtwilson-util-archive</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.intel.mtwilson.core</groupId>
+            <artifactId>mtwilson-core-data-bundle</artifactId>
+        </dependency>
+        <dependency>
             <!-- Purpose: enables storing test environment info outside test sources -->
             <groupId>com.intel.mtwilson.core</groupId>
             <artifactId>mtwilson-core-junit</artifactId>
@@ -80,6 +88,14 @@
         
         <!-- quickstart -->
         <dependency>
+    <groupId>com.intel.mtwilson.services</groupId>
+    <artifactId>mtwilson-shiro-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        
+        <!-- this is mtwilson-core-configuration -->
+        <dependency>
             <groupId>com.intel.mtwilson</groupId>
             <artifactId>cit-task</artifactId>
             <version>${project.version}</version>
@@ -96,6 +112,21 @@
             <artifactId>jackson-dataformat-xml</artifactId>
             <optional>true</optional>
         </dependency>
+        
+        <!-- for approving the key broker proxy user -->
+        <dependency>
+        <groupId>com.intel.mtwilson.services</groupId>
+    <artifactId>mtwilson-user-management-model</artifactId>
+        <version>3.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+        <groupId>com.intel.mtwilson.services</groupId>
+    <artifactId>mtwilson-user-management-client-jaxrs2</artifactId>
+        <version>3.0-SNAPSHOT</version>
+        </dependency>
+
+        
+    
         <dependency>
             <!-- Purpose: scheduling tasks to run in background -->
             <!-- URL: https://quartz-scheduler.org -->

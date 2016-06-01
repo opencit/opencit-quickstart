@@ -270,9 +270,16 @@ if [ -z "$CIT_NOSETUP" ]; then
 
   cit setup
 
+  # temporary fix for bug #5008
+  echo >> $CIT_CONFIGURATION/extensions.cache
+  echo org.glassfish.jersey.media.multipart.MultiPartFeature >> $CIT_CONFIGURATION/extensions.cache
+
   # create an anonymous user for open access to the cit
   # (must be after setup because password command is added via extensions)
   cit password anonymous --nopass --permissions *:*
+
+  # extend session idle timeout to 24 hours
+  cit config login.token.expires.minutes 1440 >/dev/null
 
 fi
 

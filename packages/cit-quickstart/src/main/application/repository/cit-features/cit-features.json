@@ -28,6 +28,15 @@
           ]
       },
       {
+          "name": "attestation_container",
+          "software_packages": [
+              "trust_director", "attestation_service"
+          ],
+          "dependencies": [
+              "attestation_host_xm"
+          ]
+      },
+      {
           "name": "attestation_host",
           "software_packages": [
               "attestation_service"

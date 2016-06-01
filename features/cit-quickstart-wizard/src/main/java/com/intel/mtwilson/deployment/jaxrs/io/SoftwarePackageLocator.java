@@ -7,22 +7,18 @@ package com.intel.mtwilson.deployment.jaxrs.io;
 import com.intel.dcsg.cpg.io.UUID;
 import com.intel.mtwilson.repository.Locator;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 
 /**
  *
  * @author jbuhacoff
  */
-public class OrderLocator implements Locator<OrderDocument> {
+public class SoftwarePackageLocator implements Locator<SoftwarePackageDocument> {
 
     @PathParam("id")
     public UUID id;
-    
-    @QueryParam("token")
-    public String token;
 
     @Override
-    public void copyTo(OrderDocument item) {
+    public void copyTo(SoftwarePackageDocument item) {
         if( id != null ) {
             item.setId(id);
         }
