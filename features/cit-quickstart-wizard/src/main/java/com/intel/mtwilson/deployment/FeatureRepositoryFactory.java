@@ -29,8 +29,10 @@ public class FeatureRepositoryFactory {
         JsonFeatureRepository instance = instanceMap.get(edition);
         if( instance == null ) {
             File file = new File(Folders.repository("cit-features") + File.separator + edition + ".json");
-            instance = new JsonFeatureRepository(new FileInputStream(file), softwarePackageRepository);
-            instanceMap.put(edition, instance);
+            try (FileInputStream in = new FileInputStream(file)) {
+                instance = new JsonFeatureRepository(in, softwarePackageRepository);
+                instanceMap.put(edition, instance);
+            }
         }
         return instance;
     }
