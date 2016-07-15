@@ -105,9 +105,11 @@ public class FileTransfer extends AbstractRemoteTask implements Progress {
                         log.debug("Read etag from file: {}", sourceEtag.getAbsolutePath());
                     } else {
                         log.debug("Generating etag for file: {}", source.getAbsolutePath());
-                        etag = Digest.sha256().digest(new FileInputStream(source)).toHex();
-                        FileUtils.writeStringToFile(sourceEtag, etag, "UTF-8");
-                        log.debug("Stored etag in file: {}", sourceEtag.getAbsolutePath());
+                        try (FileInputStream fileInputStream = new FileInputStream(source)) {
+                            etag = Digest.sha256().digest(fileInputStream).toHex();
+                            FileUtils.writeStringToFile(sourceEtag, etag, "UTF-8");
+                            log.debug("Stored etag in file: {}", sourceEtag.getAbsolutePath());
+                        }
                     }
 
                     // get sha256 sum of remote file
@@ -117,18 +119,21 @@ public class FileTransfer extends AbstractRemoteTask implements Progress {
                         log.debug("File: {} Local etag: {} Remote etag: '{}'", entry.getTargetPath(), etag, remoteEtag);
                         if (etag.equalsIgnoreCase(remoteEtag)) {
                             log.debug("Remote etag matches file: {} with etag: {}", source.getName(), etag);
-                            listenerMap.get(entry).observe(new Progress() {
-                                @Override
-                                public long getCurrent() {
-                                    return source.length();
-                                }
+                            FileTransferProgressListener progressListener = listenerMap.get(entry);
+                            if (progressListener != null) {
+                                progressListener.observe(new Progress() {
+                                    @Override
+                                    public long getCurrent() {
+                                        return source.length();
+                                    }
 
-                                @Override
-                                public long getMax() {
-                                    return source.length();
-                                }
-                            });
-                            etagMatches.add(entry); // will cause it to be skipped later in upload section
+                                    @Override
+                                    public long getMax() {
+                                        return source.length();
+                                    }
+                                });
+                                etagMatches.add(entry); // will cause it to be skipped later in upload section
+                            }
                         } else {
                             log.debug("Remote etag does NOT match file: {} with etag: {}", source.getName(), etag);
                         }

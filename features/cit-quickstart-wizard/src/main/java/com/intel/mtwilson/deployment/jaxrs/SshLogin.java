@@ -544,6 +544,7 @@ public class SshLogin {
         }
     }
 
+    // getPaswordFromVault is not being used.
     /**
      *
      * @param secret
@@ -551,7 +552,7 @@ public class SshLogin {
      * @return the existing password, a newly created password, or null if a
      * password is not available
      */
-    private Password getPasswordFromVault(File secret, String alias) {
+    /* private Password getPasswordFromVault(File secret, String alias) {
         try (PasswordKeyStore passwordVault = PasswordVaultFactory.getPasswordKeyStore(configuration)) {
             if (passwordVault.contains(alias)) {
                 return passwordVault.get(alias);
@@ -571,7 +572,7 @@ public class SshLogin {
             log.error("Cannot load password from vault: {}", alias, e);
             return null;
         }
-    }
+    }*/
 
     private void loadHostKeyStore() {
         try {
@@ -627,13 +628,15 @@ public class SshLogin {
         return passwords.data.get(host);
     }
 
+    // Method not being used
+    /*
     private boolean isMatchingHostKey(String host, String hostKey) {
         if (hostKeys == null) {
             loadHostKeyStore();
         }
         String existing = hostKeys.data.get(host);
         return existing.equalsIgnoreCase(hostKey);
-    }
+    }*/
 
     private boolean isMatchingPassword(String inputPassword, HashedPassword existing) {
         try {

@@ -181,9 +181,11 @@ public class DeploymentTaskFactory extends AbstractTask {
         // copy the installer, marker file, and monitor script...  currently this is a generic step for each package.
         ArrayList<FileTransferDescriptor> packageList = new ArrayList<>();
         List<File> packageFiles = softwarePackage.getFiles("default"); // must have already been validated by precondition; if precondition wasn't checked there could be NPE here
-        for(File packageFile: packageFiles){
-            log.debug("Adding file {} to package {}",packageFile.getName(), softwarePackage.getPackageName());
-            packageList.add(new FileTransferDescriptor(packageFile, packageFile.getName()));
+        if (packageFiles != null && !packageFiles.isEmpty()) {
+            for(File packageFile: packageFiles){
+                log.debug("Adding file {} to package {}",packageFile.getName(), softwarePackage.getPackageName());
+                packageList.add(new FileTransferDescriptor(packageFile, packageFile.getName()));
+            }
         }
         FileTransfer fileTransfer = new FileTransfer(target, packageList);
         return fileTransfer;
@@ -447,7 +449,8 @@ public class DeploymentTaskFactory extends AbstractTask {
      *
      * @return
      */
-    private List<String> createOrderedAvailableSoftwarePackageNameList() {
+    // Method not being used.
+    /*private List<String> createOrderedAvailableSoftwarePackageNameList() {
         List<SoftwarePackage> list = softwarePackageRepository.listAll();
         DependenciesUtil.sort(list);
         ArrayList<String> sortedNames = new ArrayList<>();
@@ -455,9 +458,10 @@ public class DeploymentTaskFactory extends AbstractTask {
             sortedNames.add(item.getPackageName());
         }
         return Collections.unmodifiableList(sortedNames);
-    }
+    }*/
 
-    private List<String> createOrderedAvailableFeatureNameList() {
+    // Method not being used.
+    /*private List<String> createOrderedAvailableFeatureNameList() {
         List<Feature> list = featureRepository.listAll();
         DependenciesUtil.sort(list);
         ArrayList<String> sortedNames = new ArrayList<>();
@@ -465,7 +469,7 @@ public class DeploymentTaskFactory extends AbstractTask {
             sortedNames.add(item.getName());
         }
         return Collections.unmodifiableList(sortedNames);
-    }
+    }*/
 
     private List<SoftwarePackage> createSoftwarePackageList(Collection<String> softwarePackageNames) throws IOException {
         ArrayList<SoftwarePackage> list = new ArrayList<>();

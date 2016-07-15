@@ -32,9 +32,10 @@ public class RemoteInstall extends AbstractRemoteTask {
         super();
         this.remote = remote;
         this.softwarePackage = softwarePackage;
-        //RemoteInstall is set to just work for default installer. Need to update following code to support OS specific installer 
-        if(softwarePackage.getFiles("default") != null)
-            this.executablePath = softwarePackage.getFiles("default").get(0).getName();
+        //RemoteInstall is set to just work for default installer. Need to update following code to support OS specific installer
+        List<File> files = softwarePackage.getFiles("default");
+        if(files != null && !files.isEmpty())
+            this.executablePath = files.get(0).getName();
     }
 
     public RemoteInstall(SSH remote, SoftwarePackage softwarePackage, String executablePath) {

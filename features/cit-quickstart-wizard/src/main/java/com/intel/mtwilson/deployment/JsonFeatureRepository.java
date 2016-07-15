@@ -59,12 +59,13 @@ public class JsonFeatureRepository implements FeatureRepository {
         // third, for each feature, find the dependencies in the map and associate them
         for (FeatureDescriptor descriptor : descriptorCollection.getFeatures()) {
             Feature subject = featureMap.get(descriptor.getName());
-            log.debug("Processing feature: {}", subject.getName());
+            if (subject != null)
+                log.debug("Processing feature: {}", subject.getName());
             Collection<String> dependencyNames = descriptor.getDependencies();
             if (dependencyNames != null) {
                 for (String dependencyName : dependencyNames) {
                     Feature dependency = featureMap.get(dependencyName);
-                    if (dependency != null) {
+                    if (dependency != null && subject != null) {
                         subject.getDependencies().add(dependency);
                     } else {
                         log.warn("Cannot resolve dependency: {}", dependencyName);
@@ -72,7 +73,7 @@ public class JsonFeatureRepository implements FeatureRepository {
                 }
             }
             Collection<String> settingNames = descriptor.getRequiredSettings();
-            if( settingNames != null ) {
+            if( settingNames != null && subject != null ) {
                 subject.getRequiredSettings().addAll(settingNames);
             }
         }
@@ -87,7 +88,9 @@ public class JsonFeatureRepository implements FeatureRepository {
             Feature feature = featureMap.get(featureDescriptor.getName());
             for (String softwarePackageName : featureDescriptor.getSoftwarePackages()) {
                 SoftwarePackage softwarePackage = softwarePackageMap.get(softwarePackageName);
-                feature.getSoftwarePackages().add(softwarePackage);
+                if (softwarePackage != null && feature != null) {
+                    feature.getSoftwarePackages().add(softwarePackage);
+                }
             }
         }
 

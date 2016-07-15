@@ -45,12 +45,13 @@ public class Tasks extends AbstractJsonapiResource<TaskDocument, TaskDocumentCol
         return repository;
     }
 
+    /*
     private String getStatusLink(String taskId) {
         return "/v1/tasks/"+taskId;
     }
     private String getCancelLink(String taskId) {
         return "/v1/tasks/"+taskId+"/cancel";
-    }
+    }*/
     
     @POST
     @Path("/{taskId}/cancel")
@@ -59,9 +60,11 @@ public class Tasks extends AbstractJsonapiResource<TaskDocument, TaskDocumentCol
         TaskLocator locator = new TaskLocator();
         locator.id = UUID.valueOf(taskId);
         TaskDocument task = repository.retrieve(locator);
-        task.setStatus(Status.CANCELLED);
-        for(Action action : task.getActions() ) {
-            action.setStatus(Status.CANCELLED);
+        if (task != null) {
+            task.setStatus(Status.CANCELLED);
+            for(Action action : task.getActions() ) {
+                action.setStatus(Status.CANCELLED);
+            }
         }
         return task;
     }
