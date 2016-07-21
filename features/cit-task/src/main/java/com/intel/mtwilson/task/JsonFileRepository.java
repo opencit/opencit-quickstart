@@ -51,10 +51,12 @@ public class JsonFileRepository {
      * @return list of the files in the directory;  directories are excluded
      */
     public List<String> list() {
-        File[] files = directory.listFiles(new FileOnlyFilter()); // instead of DirectoryFilter 
         ArrayList<String> list = new ArrayList<>();
-        for(File file : files) {
-            list.add(file.getName());
+        File[] files = directory.listFiles(new FileOnlyFilter()); // instead of DirectoryFilter 
+            if (files != null && files.length > 0) {
+            for(File file : files) {
+                list.add(file.getName());
+            }
         }
         return list;
     }
@@ -184,12 +186,14 @@ public class JsonFileRepository {
             log.debug("Deleting contents of directory: {}", file.getAbsolutePath());
             boolean ok = true;
             File[] items = file.listFiles();
-            for(File item : items) {
-                boolean deleted = delete(item);
-                if( !deleted ) {
-                    log.error("Failed to delete file or directory: {}", item.getAbsolutePath());
+            if (items != null) {
+                for(File item : items) {
+                    boolean deleted = delete(item);
+                    if( !deleted ) {
+                        log.error("Failed to delete file or directory: {}", item.getAbsolutePath());
+                    }
+                    ok = ok && deleted;
                 }
-                ok = ok && deleted;
             }
             return ok;
         }

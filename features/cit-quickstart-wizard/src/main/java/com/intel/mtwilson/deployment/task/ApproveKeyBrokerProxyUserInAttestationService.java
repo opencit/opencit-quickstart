@@ -56,7 +56,9 @@ public class ApproveKeyBrokerProxyUserInAttestationService extends AbstractPostc
             // not provided by user, so retrieve it from the key broker proxy configuration
             try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
                 // strip newlines or whitespace from the key broker proxy username
-                keyBrokerProxyUsername = readRemoteConfig(client, "mtwilson.username").trim();
+                keyBrokerProxyUsername = readRemoteConfig(client, "mtwilson.username");
+                if (keyBrokerProxyUsername != null)
+                    keyBrokerProxyUsername = keyBrokerProxyUsername.trim();
             } catch (Exception e) {
                 log.error("Connection failed", e);
                 fault(new Connection(remote.getHost()));
