@@ -26,8 +26,8 @@ public class SoftwarePackageRepositoryFactory {
                     instance = new JsonSoftwarePackageRepository(in);
                 }
             }
+            return instance;
         }
-        return instance;
     }
 
 }
