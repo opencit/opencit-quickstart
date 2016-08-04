@@ -38,7 +38,7 @@ public abstract class AbstractRemoteTask extends AbstractTaskWithId {
         File stderrLogFile = new File(taskDirectoryPath + File.separator + String.valueOf(commandId) + ".stderr.log");
         FileOutput output = new FileOutput(stdoutLogFile, stderrLogFile);
         // execute the command, with factory-configured retry attempts and intervals 
-        log.debug("sshexec executing command: {}", command);
+        log.debug("sshexec executing command #{}: {}", commandId, command);
         Exit status = clientWrapper.execute(command, output); // throws Exception
         // read the output files 
         String stdoutText = "", stderrText = "";
