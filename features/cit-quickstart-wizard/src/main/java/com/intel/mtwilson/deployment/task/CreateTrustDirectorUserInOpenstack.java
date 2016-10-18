@@ -12,7 +12,7 @@ import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
 import com.intel.mtwilson.util.exec.Result;
 
 /**
- * 
+ * NOTE: adminrc MUST export OS_DEFAULT_DOMAIN  (for EXAMPLE 'default')
  * 
  * @author jbuhacoff
  */
@@ -42,8 +42,8 @@ public class CreateTrustDirectorUserInOpenstack extends AbstractPostconfigureTas
         
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
 
-            openstack(client, "project create "+openstackProjectName+" --description \"Cloud Integrity Technology\" --or-show");
-            openstack(client, "user create "+directorUsername+" --password "+directorPassword+" --project "+openstackProjectName+" --or-show");
+            openstack(client, "project create "+openstackProjectName+" --description \"Cloud Integrity Technology\" --or-show  --domain $OS_DEFAULT_DOMAIN");
+            openstack(client, "user create "+directorUsername+" --password "+directorPassword+" --project "+openstackProjectName+" --or-show  --domain $OS_DEFAULT_DOMAIN");
             openstack(client, "role add admin --project "+openstackProjectName+" --user "+directorUsername);
         
             

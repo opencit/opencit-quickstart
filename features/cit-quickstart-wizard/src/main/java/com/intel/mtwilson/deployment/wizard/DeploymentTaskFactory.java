@@ -30,6 +30,7 @@ import com.intel.mtwilson.deployment.jaxrs.faults.Null;
 import com.intel.mtwilson.deployment.jaxrs.io.OrderDocument;
 import com.intel.mtwilson.deployment.task.ApproveKeyBrokerProxyUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CopyQuickstartOrder;
+import com.intel.mtwilson.deployment.task.CreateAttestationHubUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CreateTrustAgentUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInAttestationService;
 import com.intel.mtwilson.deployment.task.CreateTrustDirectorUserInKeyBroker;
@@ -38,10 +39,12 @@ import com.intel.mtwilson.deployment.task.DynamicFileTransfer;
 import com.intel.mtwilson.deployment.task.FileTransfer;
 import com.intel.mtwilson.deployment.task.ImportAttestationServiceCertificatesToKeyBroker;
 import com.intel.mtwilson.deployment.task.ImportAttestationServiceCertificatesToOpenstack;
+import com.intel.mtwilson.deployment.task.PostconfigureAttestationHub;
 import com.intel.mtwilson.deployment.task.PostconfigureAttestationService;
 import com.intel.mtwilson.deployment.task.PostconfigureKeyBroker;
 import com.intel.mtwilson.deployment.task.PostconfigureOpenstack;
 import com.intel.mtwilson.deployment.task.PostconfigureTrustDirector;
+import com.intel.mtwilson.deployment.task.PreconfigureAttestationHub;
 import com.intel.mtwilson.deployment.task.PreconfigureAttestationService;
 import com.intel.mtwilson.deployment.task.PreconfigureKeyBroker;
 import com.intel.mtwilson.deployment.task.PreconfigureKeyBrokerProxy;
@@ -243,12 +246,18 @@ public class DeploymentTaskFactory extends AbstractTask {
                 createDirectorUser.getDependencies().add(postconfigureAttestationService);
                 tasks.add(createDirectorUser);
             }
+            if( selectedSoftwarePackageMap.containsKey("attestation_hub") ) {
+                CreateAttestationHubUserInAttestationService createAttestationHubUserInAttestationService = new CreateAttestationHubUserInAttestationService(target);
+                createAttestationHubUserInAttestationService.getDependencies().add(postconfigureAttestationService);
+                tasks.add(createAttestationHubUserInAttestationService);
+            }
             if( selectedSoftwarePackageMap.containsKey("trustagent_ubuntu") ) {
                 CreateTrustAgentUserInAttestationService createTrustagentUser = new CreateTrustAgentUserInAttestationService(target);
                 createTrustagentUser.getDependencies().add(postconfigureAttestationService);
                 tasks.add(createTrustagentUser);
             }
         }
+        String packageName = softwarePackage.getPackageName();
         if( softwarePackage.getPackageName().equals("key_broker")) {
             Task staticFileTransfer = createStaticFileTransferTask(softwarePackage, target);
             tasks.add(staticFileTransfer);
@@ -299,6 +308,27 @@ public class DeploymentTaskFactory extends AbstractTask {
                 approveKeyBrokerUser.getDependencies().add(remoteInstall);
                 tasks.add(approveKeyBrokerUser);
             }
+        }
+        if( packageName.equals("attestation_hub")) {
+            Task staticFileTransfer = createStaticFileTransferTask(softwarePackage, target);
+            tasks.add(staticFileTransfer);
+            remoteInstall.getDependencies().add(staticFileTransfer);
+            
+            PreconfigureAttestationHub generateEnvFile = new PreconfigureAttestationHub();
+            tasks.add(generateEnvFile);
+            // copy the env file
+            FileTransfer fileTransferEnvFile = new FileTransfer(target, generateEnvFile.getFileTransferManifest());
+            fileTransferEnvFile.getDependencies().add(generateEnvFile);
+            tasks.add(fileTransferEnvFile);
+            remoteInstall.getDependencies().add(fileTransferEnvFile);
+            // create an admin user in trust director
+            PostconfigureAttestationHub postconfigureAttestationHub = new PostconfigureAttestationHub(target);
+            postconfigureAttestationHub.getDependencies().add(remoteInstall);
+            tasks.add(postconfigureAttestationHub);
+            // copy the order file to trust director
+            CopyQuickstartOrder copyQuickstartOrder = new CopyQuickstartOrder(softwarePackage);
+            copyQuickstartOrder.getDependencies().add(remoteInstall);
+            tasks.add(copyQuickstartOrder);
         }
         if( softwarePackage.getPackageName().equals("director")) {
             Task staticFileTransfer = createStaticFileTransferTask(softwarePackage, target);
