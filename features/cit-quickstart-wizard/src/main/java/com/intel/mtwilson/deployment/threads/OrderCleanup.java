@@ -51,46 +51,50 @@ public class OrderCleanup implements Runnable, Configurable, Command {
         File orderDirectory = new File(Folders.repository("orders"));
         File taskDirectory = new File(Folders.repository("tasks"));
         File[] orderFiles = orderDirectory.listFiles(new FileOnlyFilter());
-        for (File orderFile : orderFiles) {
-            String orderId = orderFile.getName();
-            // if there is an active order with this id, skip it
-            if (currentOrders.containsKey(orderId)) {
-                log.debug("Skipping active order {}", orderId);
-                continue;
-            }
-            // try reading the file modification and access times
-            try {
-                BasicFileAttributes attrs = Files.readAttributes(orderFile.toPath(), BasicFileAttributes.class);
-                if (attrs.lastModifiedTime().compareTo(expireIfModifiedBefore) > 0) {
-                    log.debug("Skipping recently modified order {}", orderId);
+        if (orderFiles != null && orderFiles.length > 0) {
+            for (File orderFile : orderFiles) {
+                String orderId = orderFile.getName();
+                // if there is an active order with this id, skip it
+                if (currentOrders.containsKey(orderId)) {
+                    log.debug("Skipping active order {}", orderId);
                     continue;
                 }
-                if (attrs.lastAccessTime().compareTo(expireIfAccessedBefore) > 0) {
-                    log.debug("Skipping recently accessed order {}", orderId);
+                // try reading the file modification and access times
+                try {
+                    BasicFileAttributes attrs = Files.readAttributes(orderFile.toPath(), BasicFileAttributes.class);
+                    if (attrs.lastModifiedTime().compareTo(expireIfModifiedBefore) > 0) {
+                        log.debug("Skipping recently modified order {}", orderId);
+                        continue;
+                    }
+                    if (attrs.lastAccessTime().compareTo(expireIfAccessedBefore) > 0) {
+                        log.debug("Skipping recently accessed order {}", orderId);
+                        continue;
+                    }
+                } catch (IOException e) {
+                    log.error("Skipping order {} because cannot read last accessed time", orderId, e);
                     continue;
                 }
-            } catch (IOException e) {
-                log.error("Skipping order {} because cannot read last accessed time", orderId, e);
-                continue;
-            }
-            // order is expired, delete all its tasks then delete the order itself
-            log.debug("Deleting expired order {}", orderId);
-            try {
-                JsonFileRepository taskRepository = new JsonFileRepository(taskDirectory);
-                OrderLocator orderDocumentLocator = new OrderLocator();
-                orderDocumentLocator.id = UUID.valueOf(orderId);
-                OrderDocumentRepository orderRepository = new OrderDocumentRepository();
-                OrderDocument orderDocument = orderRepository.retrieve(orderDocumentLocator);
-                // first delete any tasks associated with the order
-                Collection<TaskDocument> tasks = orderDocument.getTasks();
-                for (TaskDocument task : tasks) {
-                    String taskId = task.getId().toString();
-                    taskRepository.remove(taskId); // recursively deletes the task directory
+                // order is expired, delete all its tasks then delete the order itself
+                log.debug("Deleting expired order {}", orderId);
+                try {
+                    JsonFileRepository taskRepository = new JsonFileRepository(taskDirectory);
+                    OrderLocator orderDocumentLocator = new OrderLocator();
+                    orderDocumentLocator.id = UUID.valueOf(orderId);
+                    OrderDocumentRepository orderRepository = new OrderDocumentRepository();
+                    OrderDocument orderDocument = orderRepository.retrieve(orderDocumentLocator);
+                    // first delete any tasks associated with the order
+                    if (orderDocument != null) {
+                        Collection<TaskDocument> tasks = orderDocument.getTasks();
+                        for (TaskDocument task : tasks) {
+                            String taskId = task.getId().toString();
+                            taskRepository.remove(taskId); // recursively deletes the task directory
+                        }
+                    }
+                    // now delete the order file itself
+                    orderRepository.delete(orderDocumentLocator);
+                } catch (IOException e) {
+                    log.error("Cannot delete tasks in order {}", orderId, e);
                 }
-                // now delete the order file itself
-                orderRepository.delete(orderDocumentLocator);
-            } catch (IOException e) {
-                log.error("Cannot delete tasks in order {}", orderId, e);
             }
         }
     }

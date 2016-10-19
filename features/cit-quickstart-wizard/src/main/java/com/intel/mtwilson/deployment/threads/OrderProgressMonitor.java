@@ -17,6 +17,7 @@ import com.intel.mtwilson.deployment.threads.OrderDocumentUpdateQueue.TaskProgre
 import com.intel.mtwilson.util.task.Task;
 import com.intel.mtwilson.util.task.TaskManager;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -84,10 +85,14 @@ public class OrderProgressMonitor implements ServletContextListener {
                 log.error("Cannot monitor progress because current orders map is null");
                 return;
             }
+            
+            // create a list of orders to remove after the loop, in order to
+            // avoid concurrent modification of the orders map while iterating
+            // on its values in the loop
+            ArrayList<String> ordersToRemove = new ArrayList<>();
 
             // look at each of the current orders and generate order document updates
-            Collection<OrderDispatch> orderDispatchCollection = currentOrders.values();
-            for (OrderDispatch orderDispatch : orderDispatchCollection) {
+            for (OrderDispatch orderDispatch : currentOrders.values()) {
 //                String status = orderDispatch.getOrderDocument().getStatus();
 
                 TaskManager taskManager = orderDispatch.getTaskManager();
@@ -132,7 +137,7 @@ public class OrderProgressMonitor implements ServletContextListener {
                     // done (completed successfully): update status and remove the order
                     OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderStatusUpdate(orderDispatch.getOrderDocument().getId(), "DONE", taskManager.getCurrent(), taskManager.getMax()));
                     OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderSettingsUpdate(orderDispatch.getOrderDocument().getId(), orderDispatch.getOrderDocument().getSettings()));
-                    currentOrders.remove(orderDispatch.getOrderDocument().getId().toString());
+                    ordersToRemove.add(orderDispatch.getOrderDocument().getId().toString());
                 }
                 if (!taskManager.isCancelled() && !taskManager.getFaults().isEmpty()) {
                     // run or postcondition error (other than cancelled):  update status to "ERROR" with faults;  we check for not cancelled because if it's cancelled then OrderDispatchQueue is already changing status to "CANCELLED"
@@ -143,10 +148,13 @@ public class OrderProgressMonitor implements ServletContextListener {
                     // it's an error for the task manager to be inactive but not completed all tasks (during postcondition testing, active=false but current=max)
                     OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderStatusUpdate(orderDispatch.getOrderDocument().getId(), "ERROR", taskManager.getCurrent(), taskManager.getMax()));
                     OrderDocumentUpdateQueue.getUpdateQueue().add(new OrderSettingsUpdate(orderDispatch.getOrderDocument().getId(), orderDispatch.getOrderDocument().getSettings()));
-                    currentOrders.remove(orderDispatch.getOrderDocument().getId().toString());
+                    ordersToRemove.add(orderDispatch.getOrderDocument().getId().toString());
                 }
             }
 
+            for(String orderId : ordersToRemove) {
+                currentOrders.remove(orderId);
+            }
 
         }
     }

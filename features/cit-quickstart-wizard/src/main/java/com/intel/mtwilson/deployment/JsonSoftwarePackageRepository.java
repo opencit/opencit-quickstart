@@ -70,7 +70,7 @@ public class JsonSoftwarePackageRepository implements SoftwarePackageRepository 
             SoftwarePackage subject = softwarePackageMap.get(descriptor.getPackageName());
             for (String dependencyName : dependencyNames) {
                 SoftwarePackage dependency = softwarePackageMap.get(dependencyName);
-                if (dependency != null) {
+                if (dependency != null && subject != null) {
                     subject.getDependencies().add(dependency);
                 } else {
                     log.warn("Cannot resolve dependency: {}", dependencyName);
@@ -83,7 +83,7 @@ public class JsonSoftwarePackageRepository implements SoftwarePackageRepository 
             SoftwarePackage subject = softwarePackageMap.get(descriptor.getPackageName());
             for (String requirementName : requirementNames) {
                 SoftwarePackage requirement = softwarePackageMap.get(requirementName);
-                if (requirement != null) {
+                if (requirement != null && subject != null) {
                     subject.getRequirements().add(requirement);
                 } else {
                     log.warn("Cannot resolve requirement: {}", requirementName);

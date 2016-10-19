@@ -14,7 +14,8 @@ import com.intel.mtwilson.deployment.jaxrs.faults.Connection;
 import com.intel.mtwilson.util.exec.Result;
 
 /**
- *
+ * NOTE: adminrc MUST export OS_DEFAULT_DOMAIN  (for EXAMPLE 'default')
+ * 
  * @author jbuhacoff
  */
 public class PostconfigureOpenstack extends AbstractPostconfigureTask {
@@ -37,8 +38,8 @@ public class PostconfigureOpenstack extends AbstractPostconfigureTask {
             String adminPassword = setting("openstack.admin.password");
             String roleName = "admin";
 
-            openstack(client, "project create " + projectName + " --description \"Cloud Integrity Technology\" --or-show");
-            openstack(client, "user create " + adminUsername + " --password " + adminPassword + " --project " + projectName + " --or-show");
+            openstack(client, "project create " + projectName + " --description \"Cloud Integrity Technology\" --or-show --domain $OS_DEFAULT_DOMAIN");
+            openstack(client, "user create " + adminUsername + " --password " + adminPassword + " --project " + projectName + " --or-show --domain $OS_DEFAULT_DOMAIN");
 
             // openstack supports "soft" create above with the --or-show option but does not support "soft" role add/remove, 
             // so to avoid errors we must first list the user's roles and only add the admin role if it's not already present

@@ -96,7 +96,7 @@ public class OrderDocumentRepository implements DocumentRepository<OrderDocument
      */
     @Override
     public OrderDocument retrieve(OrderLocator locator) {
-        if (locator == null || locator.id == null || !json.contains(locator.id.toString())) {
+        if (locator == null || locator.id == null || json == null || !json.contains(locator.id.toString())) {
             return null;
         }
         try {

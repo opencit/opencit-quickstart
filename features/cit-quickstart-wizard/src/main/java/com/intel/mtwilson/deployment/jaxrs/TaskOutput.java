@@ -40,9 +40,11 @@ public class TaskOutput {
         File outputDirectory = new File(outputPath);
 
         File[] files = outputDirectory.listFiles();
-        for (File file : files) {
-            if (file.isFile()) {
-                result.links.add(new Link("file", "/v1/quickstart/tasks/"+taskId+"/output/"+file.getName()));
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    result.links.add(new Link("file", "/v1/quickstart/tasks/"+taskId+"/output/"+file.getName()));
+                }
             }
         }
         return result;

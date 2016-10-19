@@ -22,10 +22,12 @@ public class SoftwarePackageRepositoryFactory {
         synchronized(instanceLock) {
             if( instance == null ) {
                 File file = new File(Folders.repository("packages") + File.separator + "packages.json");
-                instance = new JsonSoftwarePackageRepository(new FileInputStream(file));
+                try (FileInputStream in = new FileInputStream(file)) {
+                    instance = new JsonSoftwarePackageRepository(in);
+                }
             }
+            return instance;
         }
-        return instance;
     }
 
 }

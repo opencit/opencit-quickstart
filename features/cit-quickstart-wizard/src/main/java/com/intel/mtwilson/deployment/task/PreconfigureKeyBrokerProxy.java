@@ -36,10 +36,10 @@ public class PreconfigureKeyBrokerProxy extends AbstractPreconfigureTask impleme
     @Override
     public void execute() {
         // preconditions:  
-        // MTWILSON_HOST, MTWILSON_PORT, and MTWILSON_TLS_CERT_SHA1 must be set ;  note that if using a load balanced mtwilson, the tls cert is for the load balancer
-        // the host and port are set by PreconfigureAttestationService, but the tls sha1 fingerprint is set by PostconfigureAttestationService.
+        // MTWILSON_HOST, MTWILSON_PORT, and MTWILSON_TLS_CERT_SHA256 must be set ;  note that if using a load balanced mtwilson, the tls cert is for the load balancer
+        // the host and port are set by PreconfigureAttestationService, but the tls sha256 fingerprint is set by PostconfigureAttestationService.
         // either way, the sync task forces all attestation service tasks to complete before key broker proxy tasks start, so these settings should be present.
-        if( setting("mtwilson.host").isEmpty() || setting("mtwilson.port.https").isEmpty() || setting("mtwilson.tls.cert.sha1").isEmpty() ) {
+        if( setting("mtwilson.host").isEmpty() || setting("mtwilson.port.https").isEmpty() || setting("mtwilson.tls.cert.sha256").isEmpty() ) {
             throw new IllegalStateException("Missing required settings"); // TODO:  rewrite as a precondition
         }
 
@@ -54,7 +54,7 @@ public class PreconfigureKeyBrokerProxy extends AbstractPreconfigureTask impleme
         data.put("MTWILSON_HOST", setting("mtwilson.host"));
         data.put("MTWILSON_PORT", setting("mtwilson.port.https"));
         // the PostconfigureAttestationService task must already be executed 
-        data.put("MTWILSON_TLS_CERT_SHA1", setting("mtwilson.tls.cert.sha1"));
+        data.put("MTWILSON_TLS_CERT_SHA256", setting("mtwilson.tls.cert.sha256"));
         // generate the .env file using pre-configuration data
         render("kmsproxy.env.st4", envFile);
     }
