@@ -15,7 +15,7 @@
       {
           "name": "integration_openstack_nova",
           "software_packages": [
-              "openstack_extensions","attestation_hub"
+              "openstack_extensions"
           ],
           "dependencies": [
               "attestation_host"
