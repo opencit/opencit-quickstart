@@ -139,11 +139,11 @@ public class PreconfigureAttestationHub extends AbstractPreconfigureTask impleme
 		// use our alternate port
 		if (setting("attestationhub.port.http").isEmpty() || setting("attestationhub.port.https").isEmpty()) {
 			if (target.getPackages().size() == 1) {
-				setting("attestationhub.port.http", "81");
-				setting("attestationhub.port.https", "443");
+				setting("attestationhub.port.http", "82");
+				setting("attestationhub.port.https", "445");
 			} else {
-				setting("attestationhub.port.http", "19080");
-				setting("attestationhub.port.https", "19443");
+				setting("attestationhub.port.http", "19082");
+				setting("attestationhub.port.https", "19445");
 			}
 		}
 	}

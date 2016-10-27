@@ -108,7 +108,19 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
             password = RandomUtil.randomBase64String(lengthBytes).replace("=", "");
             setting("director.admin.password", password);
         }
-        
+        String dbUsername = setting("director.database.username");
+        if( dbUsername.isEmpty() ) {
+            dbUsername = "director";
+            setting("director.database.username", dbUsername);
+        }
+        String dbPassword = setting("director.database.password");
+        if( dbPassword.isEmpty() ) {
+            int lengthBytes = 16;
+            dbPassword = RandomUtil.randomBase64String(lengthBytes).replace("=", "");
+            setting("director.database.password", dbPassword);
+        }
+        data.put("DIRECTOR_DATABASE_USERNAME", dbUsername);
+        data.put("DIRECTOR_DATABASE_PASSWORD", dbPassword);
         // generate the .env file using pre-configuration data
         render("director.env.st4", envFile);
     }
@@ -118,11 +130,11 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
         // use our alternate port
         if (setting("director.port.http").isEmpty() || setting("director.port.https").isEmpty()) {
             if (target.getPackages().size() == 1) {
-                setting("director.port.http", "80");
-                setting("director.port.https", "443");
+                setting("director.port.http", "81");
+                setting("director.port.https", "444");
             } else {
-                setting("director.port.http", "19080");
-                setting("director.port.https", "19443");
+                setting("director.port.http", "19081");
+                setting("director.port.https", "19444");
             }
         }
     }
