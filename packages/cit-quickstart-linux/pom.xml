@@ -210,7 +210,7 @@
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
-                    <artifactId>mtwilson-openstack-controller</artifactId>
+                    <artifactId>mtwilson-openstack-controller-with-horizon</artifactId>
                     <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
@@ -226,6 +226,12 @@
                     <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
+				<dependency>
+					<groupId>com.intel.mtwilson.attestation-hub</groupId>
+					<artifactId>attestation-hub</artifactId>
+                    <version>${project.version}</version>
+                    <type>bin</type>
+                </dependency>						
             </dependencies>
         </profile>
 		
@@ -400,7 +406,7 @@
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
-                    <artifactId>mtwilson-openstack-controller</artifactId>
+                    <artifactId>mtwilson-openstack-controller-with-horizon</artifactId>
                     <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
@@ -416,6 +422,12 @@
                     <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
+                <dependency>
+					<groupId>com.intel.mtwilson.attestation-hub</groupId>
+					<artifactId>attestation-hub</artifactId>
+                    <version>${project.version}</version>
+                    <type>bin</type>
+                </dependency>				
             </dependencies>
         </profile>
     </profiles>

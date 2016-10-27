@@ -9,7 +9,8 @@
         "openstack_extensions": "OpenStack Extensions",
         "openstack": "OpenStack",
         "openstack_barbican": "OpenStack Barbican",
-        "kmip4j": "KMIP"
+        "kmip4j": "KMIP",
+        "attestation_hub": "Attestation Hub"
     },
     "tasks": {
         "com_intel_mtwilson_deployment_task_RemoteInstall": "Installing $t(quickstart:packages.{{package_name}}) on {{host}}",
@@ -25,12 +26,14 @@
         "com_intel_mtwilson_deployment_task_PreconfigureOpenstackExtensions": "Configuring $t(quickstart:packages.openstack_extensions) on {{host}}",
         "com_intel_mtwilson_deployment_task_PreconfigureTrustAgent": "Configuring $t(quickstart:packages.trustagent_ubuntu) on {{host}}",
         "com_intel_mtwilson_deployment_task_PreconfigureTrustDirector": "Configuring $t(quickstart:packages.director) on {{host}}",
+        "com_intel_mtwilson_deployment_task_PreconfigureAttestationHub": "Configuring $t(quickstart:packages.attestation_hub) on {{host}}",        
         "com_intel_mtwilson_deployment_task_SynchronizeSoftwarePackageTargets": "Synchronizing $t(quickstart:packages.{{package_name}})",
         "com_intel_mtwilson_deployment_task_ImportAttestationServiceCertificatesToKeyBroker": "Importing $t(quickstart:packages.attestation_service) certificates to $t(quickstart:packages.key_broker)",
         "com_intel_mtwilson_deployment_task_ImportAttestationServiceCertificatesToOpenstack": "Importing $t(quickstart:packages.attestation_service) certificates to $t(quickstart:packages.openstack)",
         "com_intel_mtwilson_deployment_task_PostconfigureOpenstack": "Finishing $t(quickstart:packages.openstack) configuration on {{host}}",
         "com_intel_mtwilson_deployment_task_CreateTrustDirectorUserInOpenstack": "Creating $t(quickstart:packages.director) credential in $t(quickstart:packages.openstack) on {{host}}",
         "com_intel_mtwilson_deployment_task_PostconfigureTrustDirector": "Finishing $t(quickstart:packages.director) configuration on {{host}}",
+        "com_intel_mtwilson_deployment_task_PostconfigureAttestationHub": "Finishing $t(quickstart:packages.attestation_hub) configuration on {{host}}",
         "com_intel_mtwilson_deployment_task_RetrieveLinuxOperatingSystemVersion": "Detecting operating system name and version on {{host}}",
         "com_intel_mtwilson_deployment_task_ApproveKeyBrokerProxyUserInAttestationService": "Approving {{host}} $t(quickstart:packages.key_broker_proxy) user in $t(quickstart:packages.attestation_service)",
         "com_intel_mtwilson_deployment_task_CopyQuickstartOrder": "Copying Quickstart Order to {{host}}",

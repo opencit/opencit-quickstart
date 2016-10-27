@@ -18,7 +18,7 @@
      {
        "package_name": "openstack_extensions",
        "file_name": { "default" : [ "cit3-openstack-extensions.bin", "cit3-openstack-extensions.bin.mark" ] },
-       "dependencies": [ "attestation_service" ]
+       "dependencies": [ "attestation_service","attestation_hub" ]
      },
      {
        "package_name": "trustagent_ubuntu",
@@ -31,6 +31,11 @@
        "package_name": "director",
        "file_name": { "default" : [ "cit3-director.bin", "cit3-director.bin.mark" ] },
        "dependencies": [ "attestation_service", "key_broker", "openstack_extensions" ]
-     }
+     },
+	 {
+       "package_name": "attestation_hub",
+       "file_name": { "default" : [ "cit3-attestationhub.bin", "cit3-attestationhub.bin.mark" ] },
+       "dependencies": [ "attestation_service" ]
+     }	 
   ]
 }

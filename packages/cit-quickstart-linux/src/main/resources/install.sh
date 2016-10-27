@@ -295,6 +295,13 @@ if [ -n "$DIRECTOR_BIN" ]; then
   mkdir -p $CIT_HOME/repository/packages/director
   cp $DIRECTOR_BIN $CIT_HOME/repository/packages/director/cit3-director.bin
 fi
+#attestationhub-0.1-SNAPSHOT.bin -> cit3-attestationhub.bin
+ATTESTATION_HUB_BIN=`ls -1 attestation-hub-*.bin | head -n 1`
+if [ -n "$ATTESTATION_HUB_BIN" ]; then
+  echo "Copying Attestation Hub installer..."
+  mkdir -p $CIT_HOME/repository/packages/attestation_hub
+  cp $ATTESTATION_HUB_BIN $CIT_HOME/repository/packages/attestation_hub/attestationhub.bin
+fi
 #kms-linux-makeself-0.1-SNAPSHOT.bin -> cit3-keybroker.bin
 KMS_BIN=`ls -1 kms-*.bin | head -n 1`
 if [ -n "$KMS_BIN" ]; then

@@ -12,7 +12,7 @@
       {
           "name": "integration_openstack",
           "software_packages": [
-              "openstack_extensions"
+              "openstack_extensions", "attestation_hub"
           ],
           "dependencies": [
               "attestation_host"

@@ -1681,7 +1681,7 @@
                     "PRIVATE": function() {
                         var packages = {};
                         if (self.features.attestation_host.checked()) {
-                            packages.attestation_service = true;
+                            packages.attestation_service = true;                            
                         }
                         if (self.features.attestation_host_xm.checked()) {
                             packages.director = true;
@@ -1698,6 +1698,7 @@
                         }
                         if (self.features.integration_openstack_nova.checked()) {
                             packages.openstack_extensions = true;
+                            packages.attestation_hub = true;
                         }
                         // NOTE: we do not automatically select any packages for compute_node_trustagent because user will add nodes directly in credential page (as many as they need)
                         return packages;
@@ -1707,6 +1708,7 @@
                         var packages = {};
                         if (self.features.attestation_host.checked()) {
                             packages.attestation_service = true;
+                            packages.attestation_hub = true;
                         }
                         if (self.features.attestation_host_xm.checked()) {
                             packages.director = true;
@@ -2176,6 +2178,11 @@
                                     "url": "openstack.horizon.url",
                                     "username": "openstack.admin.username",
                                     "password": "openstack.admin.password"
+                                },
+                                "attestation_hub": {
+                                    "url": "attestationhub.endpoint.url",
+                                    "username": "attestationhub.admin.username",
+                                    "password": "attestationhub.admin.password"
                                 }
                             };
                             // precondition: every target has a packages_installed array (empty ok)
