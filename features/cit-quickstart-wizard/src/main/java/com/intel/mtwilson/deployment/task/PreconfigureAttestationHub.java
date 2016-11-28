@@ -116,7 +116,7 @@ public class PreconfigureAttestationHub extends AbstractPreconfigureTask impleme
 
 		String dbUsername = setting("attestationhub.database.username");
 		if (dbUsername.isEmpty()) {
-			dbUsername = "admin";
+			dbUsername = "ahadmin";
 			setting("attestationhub.database.username", dbUsername);
 		}
 		String dbPassword = setting("attestationhub.database.password");
