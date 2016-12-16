@@ -122,7 +122,7 @@ Collection<String> requiredSoftwarePackages = getRequiredSoftwarePackges(feature
      * director.mtwilson.username, kms.barbican.project, 
      * director.glance.username, kms.barbican.url, kms.keystone.url,
      * kms.barbican.username, kms.barbican.password, kms.barbican.tenant,
-     * mtwilson.host, mtwilson.tls.cert.sha1,
+     * mtwilson.host, mtwilson.tls.cert.sha256,
      * director.glance.url, director.keystone.url,
      * kms.key.provider, director.glance.tenant, mtwilson.port.https, 
      * director.glance.password]

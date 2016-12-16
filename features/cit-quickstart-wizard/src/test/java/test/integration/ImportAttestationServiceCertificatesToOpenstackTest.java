@@ -39,19 +39,19 @@ public class ImportAttestationServiceCertificatesToOpenstackTest {
         
         host = testProperties.getProperty("host");
         openstackPassword = testProperties.getProperty("host.password");
-        String mtwilsonTlsCertSha1 = testProperties.getProperty("mtwilson.tls.cert.sha1");
+        String mtwilsonTlsCertSha256 = testProperties.getProperty("mtwilson.tls.cert.sha256");
         settings = new HashMap<String,String>();
         settings.put("mtwilson.host", host);
         settings.put("mtwilson.port.https", "8443");
         settings.put("mtwilson.quickstart.username", "quickstart");
         settings.put("mtwilson.quickstart.password", testProperties.getProperty("mtwilson.quickstart.password"));
-        settings.put("mtwilson.tls.cert.sha1", mtwilsonTlsCertSha1);
+        settings.put("mtwilson.tls.cert.sha256", mtwilsonTlsCertSha256);
     }
     
     
     /**
      * mtwilson login-password jonathan password --permissions *:*
-     * sha1sum /opt/mtwilson/configuration/ssl.crt
+     * sha256sum /opt/mtwilson/configuration/ssl.crt
      * kms password admin password --permissions *:*
      * cat /opt/kms/configuration/https.properties
      */

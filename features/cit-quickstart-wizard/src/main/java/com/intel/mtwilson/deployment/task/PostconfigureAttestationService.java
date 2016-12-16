@@ -26,24 +26,24 @@ public class PostconfigureAttestationService extends AbstractPostconfigureTask {
 
     @Override
     public void execute() {
-        // we need to retrieve the mtwilson tls cert sha1 fingerprint
+        // we need to retrieve the mtwilson tls cert sha256 fingerprint
         // which is needed by other packages: tagent, director, kmsproxy
 
         // right now, just get it directly... if, in th future, we need to 
         // get multiple pieces of info, then maybe we would want to generate
         // a file on the remote server and then download that file with all of it.
         // NOTE: we need to specify the full path to the remote command
-        String cmdGetTlsCertSha1 = "/usr/bin/sha1sum /opt/mtwilson/configuration/ssl.crt | /usr/bin/awk '{print $1}'";
+        String cmdGetTlsCertSha256 = "/usr/bin/sha256sum /opt/mtwilson/configuration/ssl.crt | /usr/bin/awk '{print $1}'";
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
 
-            Result result = sshexec(client, cmdGetTlsCertSha1);
+            Result result = sshexec(client, cmdGetTlsCertSha256);
             String stdoutText = result.getStdout();
 
-            // if the output looks like a valid sha1 digest, keep it:
+            // if the output looks like a valid sha256 digest, keep it:
             if (stdoutText != null) {
-                String tlsCertSha1 = stdoutText.trim();
-                if (Digest.sha1().isValidHex(tlsCertSha1)) {
-                    setting("mtwilson.tls.cert.sha1", tlsCertSha1); // TODO: possibly rename this setting (and update any references to it) to be named similar to the new tls policy settings, since this is really a certificate-digest policy
+                String tlsCertSha256 = stdoutText.trim();
+                if (Digest.sha256().isValidHex(tlsCertSha256)) {
+                    setting("mtwilson.tls.cert.sha256", tlsCertSha256); // TODO: possibly rename this setting (and update any references to it) to be named similar to the new tls policy settings, since this is really a certificate-digest policy
                 }
             }
             

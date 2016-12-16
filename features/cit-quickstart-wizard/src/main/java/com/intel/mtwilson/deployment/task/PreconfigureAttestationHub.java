@@ -38,21 +38,21 @@ public class PreconfigureAttestationHub extends AbstractPreconfigureTask impleme
 	public void execute() {
 		/*
 		 * preconditions: MTWILSON_HOST, MTWILSON_PORT, and
-		 * MTWILSON_TLS_CERT_SHA1 must be set ; note that if using a load
+		 * MTWILSON_TLS_CERT_SHA256 must be set ; note that if using a load
 		 * balanced mtwilson, the tls cert is for the load balancer the host and
-		 * port are set by PreconfigureAttestationService, but the tls sha1
+		 * port are set by PreconfigureAttestationService, but the tls sha256
 		 * fingerprint is set by PostconfigureAttestationService. either way,
 		 * the sync task forces all attestation service tasks to complete before
 		 * key broker proxy tasks start, so these settings should be present.
 		 */
 	/*	setting("mtwilson.host", "10.35.35.175");  
 		setting("mtwilson.port.https", "8443");
-		setting("mtwilson.tls.cert.sha1", "32120f52f8bcbb59590688fcb52118def1d3ce3d");*/
+		setting("mtwilson.tls.cert.sha256", "915916e6c44e80b3977392641e0ee92cb296104d4c17d593731ffc45cd6cf9cc");*/
 		if (setting("mtwilson.host").isEmpty() || setting("mtwilson.port.https").isEmpty()
-				|| setting("mtwilson.tls.cert.sha1").isEmpty()) {
+				|| setting("mtwilson.tls.cert.sha256").isEmpty()) {
 			log.debug("mtwilson.host = {}", setting("mtwilson.host"));
 			log.debug("mtwilson.port.https = {}", setting("mtwilson.port.https"));
-			log.debug("mtwilson.tls.cert.sha1 = {}", setting("mtwilson.tls.cert.sha1"));
+			log.debug("mtwilson.tls.cert.sha256 = {}", setting("mtwilson.tls.cert.sha256"));
 			throw new IllegalStateException("Missing required settings"); // TODO:
 																			// rewrite
 																			// as
@@ -89,7 +89,7 @@ public class PreconfigureAttestationHub extends AbstractPreconfigureTask impleme
 		// template
 		data.put("MTWILSON_HOST", setting("mtwilson.host"));
 		data.put("MTWILSON_PORT", setting("mtwilson.port.https"));
-		data.put("MTWILSON_TLS_CERT_SHA1", setting("mtwilson.tls.cert.sha1"));
+		data.put("MTWILSON_TLS_CERT_SHA256", setting("mtwilson.tls.cert.sha256"));
 		data.put("ATTESTATION_HUB_MTWILSON_USERNAME", setting("attestationhub.mtwilson.username"));
 		data.put("ATTESTATION_HUB_MTWILSON_PASSWORD", setting("attestationhub.mtwilson.password"));
 

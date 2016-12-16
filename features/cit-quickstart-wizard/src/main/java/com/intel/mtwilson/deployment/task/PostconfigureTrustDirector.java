@@ -29,16 +29,16 @@ public class PostconfigureTrustDirector extends AbstractPostconfigureTask {
 
         try (SSHClientWrapper client = new SSHClientWrapper(remote)) {
 
-            // get tls cert sha1 fingerprint
-            String cmdGetTlsCertSha1 = "/bin/cat /opt/director/configuration/https.properties | /bin/grep tls.cert.sha1 | /usr/bin/tr '=' ' ' | /usr/bin/awk '{print $2}'";
-            Result getTlsCertSha1 = sshexec(client, cmdGetTlsCertSha1);
+            // get tls cert sha256 fingerprint
+            String cmdGetTlsCertSha256 = "/bin/cat /opt/director/configuration/https.properties | /bin/grep tls.cert.sha256 | /usr/bin/tr '=' ' ' | /usr/bin/awk '{print $2}'";
+            Result getTlsCertSha256 = sshexec(client, cmdGetTlsCertSha256);
 
-            // if the output looks like a valid sha1 digest, keep it:
-            String stdoutText = getTlsCertSha1.getStdout();
+            // if the output looks like a valid sha256 digest, keep it:
+            String stdoutText = getTlsCertSha256.getStdout();
             if (stdoutText != null) {
-                String tlsCertSha1 = stdoutText.trim();
-                if (Digest.sha1().isValidHex(tlsCertSha1)) {
-                    setting("director.tls.cert.sha1", tlsCertSha1); // TODO: possibly rename this setting (and update any references to it) to be named similar to the new tls policy settings, since this is really a certificate-digest policy
+                String tlsCertSha256 = stdoutText.trim();
+                if (Digest.sha256().isValidHex(tlsCertSha256)) {
+                    setting("director.tls.cert.sha256", tlsCertSha256); // TODO: possibly rename this setting (and update any references to it) to be named similar to the new tls policy settings, since this is really a certificate-digest policy
                 }
             }
 

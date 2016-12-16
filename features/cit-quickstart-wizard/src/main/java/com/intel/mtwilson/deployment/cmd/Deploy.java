@@ -58,7 +58,7 @@ public class Deploy implements Command {
             log.error("File not found: {}", httpsPropertiesFile.getAbsolutePath());
             throw new FileNotFoundException("https.properties");
         }
-        // read in our own tls cert sha1 hash from https.properties
+        // read in our own tls cert sha256 hash from https.properties
         Properties httpsProperties = new Properties();
         try (FileInputStream httpsPropertiesIn = new FileInputStream(httpsPropertiesFile)) {
             httpsProperties.load(httpsPropertiesIn);
@@ -75,7 +75,7 @@ public class Deploy implements Command {
 
             Properties quickstartProperties = new Properties();
             quickstartProperties.setProperty("endpoint.url", endpointUrl);
-            quickstartProperties.setProperty("tls.policy.certificate.sha1", httpsProperties.getProperty("tls.cert.sha1"));
+            quickstartProperties.setProperty("tls.policy.certificate.sha256", httpsProperties.getProperty("tls.cert.sha256"));
             JaxrsClient keybrokerClient = JaxrsClientBuilder.factory().configuration(quickstartProperties).build();
             Response response = keybrokerClient.getTargetPath("/v1/quickstart/orders").request().post(Entity.json(order));
             log.debug("Response status: {}", response.getStatus());

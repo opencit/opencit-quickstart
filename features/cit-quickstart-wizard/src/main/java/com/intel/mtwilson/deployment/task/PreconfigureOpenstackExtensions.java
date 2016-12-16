@@ -55,10 +55,10 @@ public class PreconfigureOpenstackExtensions extends AbstractPreconfigureTask im
     @Override
     public void execute() {
         // preconditions:  
-        // MTWILSON_HOST, MTWILSON_PORT, and MTWILSON_TLS_CERT_SHA1 must be set ;  note that if using a load balanced mtwilson, the tls cert is for the load balancer
-        // the host and port are set by PreconfigureAttestationService, but the tls sha1 fingerprint is set by PostconfigureAttestationService.
+        // MTWILSON_HOST, MTWILSON_PORT, and MTWILSON_TLS_CERT_SHA256 must be set ;  note that if using a load balanced mtwilson, the tls cert is for the load balancer
+        // the host and port are set by PreconfigureAttestationService, but the tls sha256 fingerprint is set by PostconfigureAttestationService.
         // either way, the sync task forces all attestation service tasks to complete before key broker proxy tasks start, so these settings should be present.
-        if (setting("mtwilson.host").isEmpty() || setting("mtwilson.port.https").isEmpty() || setting("mtwilson.tls.cert.sha1").isEmpty() || setting("mtwilson.tag.admin.username").isEmpty() || setting("mtwilson.tag.admin.password").isEmpty()) {
+        if (setting("mtwilson.host").isEmpty() || setting("mtwilson.port.https").isEmpty() || setting("mtwilson.tls.cert.sha256").isEmpty() || setting("mtwilson.tag.admin.username").isEmpty() || setting("mtwilson.tag.admin.password").isEmpty()) {
             throw new IllegalStateException("Missing required settings"); // TODO:  rewrite as a precondition
         }
 
@@ -151,7 +151,7 @@ public class PreconfigureOpenstackExtensions extends AbstractPreconfigureTask im
         data.put("MTWILSON_TAG_ADMIN_USERNAME", setting("mtwilson.tag.admin.username"));
         data.put("MTWILSON_TAG_ADMIN_PASSWORD", setting("mtwilson.tag.admin.password"));
         // the PostconfigureAttestationService task must already be executed 
-        data.put("MTWILSON_TLS_CERT_SHA1", setting("mtwilson.tls.cert.sha1"));
+        data.put("MTWILSON_TLS_CERT_SHA256", setting("mtwilson.tls.cert.sha256"));
         // generate the .env file using pre-configuration data
         render("mtwilson-openstack-controller.env.st4", envFile);
     }

@@ -513,9 +513,9 @@
                                                     </div>
                                                 </div>
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
-                                                    <label class="col-lg-3">TLS Certificate SHA-1 Fingerprint</label>
-                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: mtwilson_tls_cert_sha1"/>
-                                                        <p>Example: 3c5fd6beb6f82169ed267a5d0a9039511c93b6f6</p>
+                                                    <label class="col-lg-3">TLS Certificate SHA-256 Fingerprint</label>
+                                                    <div class="col-lg-4"><input class="form-control input-sm" data-bind="value: mtwilson_tls_cert_sha256"/>
+                                                        <p>Example: 915916e6c44e80b3977392641e0ee92cb296104d4c17d593731ffc45cd6cf9cc</p>
                                                     </div>
                                                 </div>
                                                 <div class="form-group col-lg-12" style="padding-left: 0px;">
@@ -1615,7 +1615,7 @@
                     "saml_validity_seconds": ko.observable("900"),
                     "director_port_http": ko.observable(""),
                     "director_port_https": ko.observable(""),
-                    "director_tls_cert_sha1": ko.observable(""),
+                    "director_tls_cert_sha256": ko.observable(""),
                     "director_glance_url": ko.observable(""),
                     "director_keystone_url": ko.observable(""),
 //                    "director_glance_host": ko.observable(""), // .extend({faults: "director_glance_host"}),
@@ -1626,7 +1626,7 @@
                     "kms_host": ko.observable(""),
                     "kms_port_http": ko.observable(""),
                     "kms_port_https": ko.observable(""),
-                    "kms_tls_cert_sha1": ko.observable(""),
+                    "kms_tls_cert_sha256": ko.observable(""),
                     "kms_key_provider": ko.observable("com.intel.kms.barbican.client.BarbicanKeyManager"),
 //                    "kms_key_provider": ko.computed(function() {
 //                        if( self.features.integration_openstack_barbican.checked() ) {
@@ -1650,7 +1650,7 @@
                     "mtwilson_host": ko.observable(""),
                     "mtwilson_port_http": ko.observable(""),
                     "mtwilson_port_https": ko.observable(""),
-                    "mtwilson_tls_cert_sha1": ko.observable(""),
+                    "mtwilson_tls_cert_sha256": ko.observable(""),
                     "director_mtwilson_username": ko.observable(""),
                     "director_mtwilson_password": ko.observable(""),
                 };

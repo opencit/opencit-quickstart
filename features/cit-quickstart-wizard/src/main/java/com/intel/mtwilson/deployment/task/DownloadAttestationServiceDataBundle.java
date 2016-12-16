@@ -40,7 +40,7 @@ public class DownloadAttestationServiceDataBundle extends AbstractPostconfigureT
         attestationServiceProperties.setProperty("endpoint.url", "https://" + setting("mtwilson.host") + ":" + setting("mtwilson.port.https") + "/mtwilson");
         attestationServiceProperties.setProperty("login.basic.username", setting("mtwilson.quickstart.username"));
         attestationServiceProperties.setProperty("login.basic.password", setting("mtwilson.quickstart.password"));
-        attestationServiceProperties.setProperty("tls.policy.certificate.sha1", setting("mtwilson.tls.cert.sha1"));
+        attestationServiceProperties.setProperty("tls.policy.certificate.sha256", setting("mtwilson.tls.cert.sha256"));
         JaxrsClient attestationServiceClient = JaxrsClientBuilder.factory().configuration(attestationServiceProperties).build();
         return attestationServiceClient;
     }

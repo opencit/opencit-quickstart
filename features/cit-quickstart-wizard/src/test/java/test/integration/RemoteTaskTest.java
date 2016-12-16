@@ -72,7 +72,7 @@ public class RemoteTaskTest {
                 ssh.connect(remote.getHost(), remote.getPort()); // may throw java.net.SocketTimeoutException: connect timed out
                 ssh.authPassword(remote.getUsername(), remote.getPassword());
 */
-                Result result = sshexec(ssh, "/usr/bin/sha1sum /opt/mtwilson/configuration/ssl.crt | /usr/bin/awk '{print $1}'");
+                Result result = sshexec(ssh, "/usr/bin/sha256sum /opt/mtwilson/configuration/ssl.crt | /usr/bin/awk '{print $1}'");
 //                Result result = sshexec(ssh, "/bin/ls");
 //                Result result = sshexec(ssh, "/bin/bash monitor.sh mtwilson-server-3.0-SNAPSHOT-jdk_glassfish_monit.bin mtwilson-server-3.0-SNAPSHOT-jdk_glassfish_monit.bin.mark /tmp/cit/monitor/xyz >/dev/null &");
                 log.debug("result: {}", result.getStdout());
