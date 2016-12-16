@@ -47,7 +47,7 @@ public class ImportAttestationServiceCertificatesToKeyBroker extends AbstractPos
         keybrokerProperties.setProperty("endpoint.url", "https://" + target.getHost() + ":" + setting("kms.port.https"));
         keybrokerProperties.setProperty("login.basic.username", setting("kms.admin.username"));
         keybrokerProperties.setProperty("login.basic.password", setting("kms.admin.password"));
-        keybrokerProperties.setProperty("tls.policy.certificate.sha1", setting("kms.tls.cert.sha1"));
+        keybrokerProperties.setProperty("tls.policy.certificate.sha256", setting("kms.tls.cert.sha256"));
         JaxrsClient keybrokerClient = JaxrsClientBuilder.factory().configuration(keybrokerProperties).register(MultiPartFeature.class).build();
         return keybrokerClient;
     }

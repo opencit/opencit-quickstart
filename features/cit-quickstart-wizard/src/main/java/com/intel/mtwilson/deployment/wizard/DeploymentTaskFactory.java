@@ -233,7 +233,7 @@ public class DeploymentTaskFactory extends AbstractTask {
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
             tasks.add(fileTransferEnvFile);
             remoteInstall.getDependencies().add(fileTransferEnvFile);
-            // get the mtwilson tls cert sha1 fingerprint so other services can use it when connecting
+            // get the mtwilson tls cert sha256 fingerprint so other services can use it when connecting
             PostconfigureAttestationService postconfigureAttestationService = new PostconfigureAttestationService(target);
             postconfigureAttestationService.getDependencies().add(remoteInstall);
             tasks.add(postconfigureAttestationService);
@@ -272,7 +272,7 @@ public class DeploymentTaskFactory extends AbstractTask {
             fileTransferEnvFile.getDependencies().add(generateEnvFile);
             tasks.add(fileTransferEnvFile);
             remoteInstall.getDependencies().add(fileTransferEnvFile);
-            // get the kms tls cert sha1 fingerprint so other services can use it when connecting
+            // get the kms tls cert sha256 fingerprint so other services can use it when connecting
             PostconfigureKeyBroker postconfigureKeyBroker = new PostconfigureKeyBroker(target);
             postconfigureKeyBroker.getDependencies().add(remoteInstall);
             tasks.add(postconfigureKeyBroker);

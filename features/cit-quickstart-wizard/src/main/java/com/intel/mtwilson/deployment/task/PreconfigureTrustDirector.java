@@ -36,10 +36,10 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
     @Override
     public void execute() {
         // preconditions:
-        // MTWILSON_HOST, MTWILSON_PORT, and MTWILSON_TLS_CERT_SHA1 must be set ;  note that if using a load balanced mtwilson, the tls cert is for the load balancer
-        // the host and port are set by PreconfigureAttestationService, but the tls sha1 fingerprint is set by PostconfigureAttestationService.
+        // MTWILSON_HOST, MTWILSON_PORT, and MTWILSON_TLS_CERT_SHA256 must be set ;  note that if using a load balanced mtwilson, the tls cert is for the load balancer
+        // the host and port are set by PreconfigureAttestationService, but the tls sha256 fingerprint is set by PostconfigureAttestationService.
         // either way, the sync task forces all attestation service tasks to complete before key broker proxy tasks start, so these settings should be present.
-        if (setting("mtwilson.host").isEmpty() || setting("mtwilson.port.https").isEmpty() || setting("mtwilson.tls.cert.sha1").isEmpty()) {
+        if (setting("mtwilson.host").isEmpty() || setting("mtwilson.port.https").isEmpty() || setting("mtwilson.tls.cert.sha256").isEmpty()) {
             throw new IllegalStateException("Missing required settings"); // TODO:  rewrite as a precondition
         }
 
@@ -67,7 +67,7 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
         // make these global settings available to director.env.st4 template
         data.put("MTWILSON_HOST", setting("mtwilson.host"));
         data.put("MTWILSON_PORT", setting("mtwilson.port.https"));
-        data.put("MTWILSON_TLS_CERT_SHA1", setting("mtwilson.tls.cert.sha1"));
+        data.put("MTWILSON_TLS_CERT_SHA256", setting("mtwilson.tls.cert.sha256"));
         data.put("DIRECTOR_MTWILSON_USERNAME", setting("director.mtwilson.username"));
         data.put("DIRECTOR_MTWILSON_PASSWORD", setting("director.mtwilson.password"));
         data.put("DIRECTOR_ID", "director-" + target.getHost());
@@ -82,16 +82,16 @@ public class PreconfigureTrustDirector extends AbstractPreconfigureTask implemen
         data.put("OPENSTACK_GLANCE_URL", setting("director.glance.url"));
         data.put("OPENSTACK_KEYSTONE_URL", setting("director.keystone.url"));
 //        data.put("OPENSTACK_GLANCE_HOST", setting("director.glance.host"));
-//        data.put("OPENSTACK_GLANCE_PORT", setting("director.glance.port")); // TODO:  is this http or https?  should make the property name specific , and also if https we will need tls cert sha1 fingerprint
+//        data.put("OPENSTACK_GLANCE_PORT", setting("director.glance.port")); // TODO:  is this http or https?  should make the property name specific , and also if https we will need tls cert sha256 fingerprint
         data.put("DIRECTOR_GLANCE_USERNAME", setting("director.glance.username"));
         data.put("DIRECTOR_GLANCE_PASSWORD", setting("director.glance.password"));
 
         // optional:
         // IF key broker is enabled, these settings must be available:
-        // kms.host, kms.port, kms.username, kms.password, kms.tls.cert.sha1
+        // kms.host, kms.port, kms.username, kms.password, kms.tls.cert.sha256
         data.put("KMS_HOST", setting("kms.host"));
         data.put("KMS_PORT", setting("kms.port.https"));
-        data.put("KMS_TLS_CERT_SHA1", setting("kms.tls.cert.sha1")); // or a name from PropertiesTlsPolicyFactory like tls.policy.certificate.sha1
+        data.put("KMS_TLS_CERT_SHA256", setting("kms.tls.cert.sha256")); // or a name from PropertiesTlsPolicyFactory like tls.policy.certificate.sha256
         data.put("DIRECTOR_KMS_LOGIN_BASIC_USERNAME", setting("director.kms.username"));
         data.put("DIRECTOR_KMS_LOGIN_BASIC_PASSWORD", setting("director.kms.password"));
 

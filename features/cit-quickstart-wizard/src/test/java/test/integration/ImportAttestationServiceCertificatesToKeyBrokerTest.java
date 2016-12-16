@@ -52,18 +52,18 @@ public class ImportAttestationServiceCertificatesToKeyBrokerTest {
     @BeforeClass
     public static void init() {
         host = "10.1.68.31";
-        String mtwilsonTlsCertSha1 = "4ec09d750dd0e7d85d75ffdcfa4621191775d6f8";
-        String keybrokerTlsCertSha1 = "15bd8afa40e6a7d0ceb0942a9794805c706e93fe";
+        String mtwilsonTlsCertSha256 = "915916e6c44e80b3977392641e0ee92cb296104d4c17d593731ffc45cd6cf9cc";
+        String keybrokerTlsCertSha256 = "915916e6c44e80b3977392641e0ee92cb296104d4c17d593731ffc45cd6cf9cc";
         settings = new HashMap<>();
         settings.put("mtwilson.host", host);
         settings.put("mtwilson.port.https", "8443");
         settings.put("mtwilson.quickstart.username", "quickstart");
         settings.put("mtwilson.quickstart.password", "8Byr+SjR0C9KxsX1JYIivQ");
-        settings.put("mtwilson.tls.cert.sha1", mtwilsonTlsCertSha1);
+        settings.put("mtwilson.tls.cert.sha256", mtwilsonTlsCertSha256);
         settings.put("kms.port.https", "20443");
         settings.put("kms.admin.username", "admin");
         settings.put("kms.admin.password", "00NRWepfflHMWMvnvVcBuA");
-        settings.put("kms.tls.cert.sha1", keybrokerTlsCertSha1);
+        settings.put("kms.tls.cert.sha256", keybrokerTlsCertSha256);
     }
     
     // method present in the task being tested so copy/paste is easier for the code
@@ -88,7 +88,7 @@ public class ImportAttestationServiceCertificatesToKeyBrokerTest {
         attestationServiceProperties.setProperty("endpoint.url", "https://"+setting("mtwilson.host")+":"+setting("mtwilson.port.https")+"/mtwilson");
         attestationServiceProperties.setProperty("login.basic.username", setting("mtwilson.quickstart.username"));
         attestationServiceProperties.setProperty("login.basic.password", setting("mtwilson.quickstart.password"));
-        attestationServiceProperties.setProperty("tls.policy.certificate.sha1", setting("mtwilson.tls.cert.sha1"));
+        attestationServiceProperties.setProperty("tls.policy.certificate.sha256", setting("mtwilson.tls.cert.sha256"));
         JaxrsClient attestationServiceClient = JaxrsClientBuilder.factory().configuration(attestationServiceProperties).build();
         Response zipResponse = attestationServiceClient.getTargetPath("/v2/configuration/databundle").request().accept(MediaType.APPLICATION_OCTET_STREAM).get();
         log.debug("Downloaded data bundle from mtwilson");
@@ -142,7 +142,7 @@ public class ImportAttestationServiceCertificatesToKeyBrokerTest {
         keybrokerProperties.setProperty("endpoint.url", "https://"+target.getHost()+":"+setting("kms.port.https"));
         keybrokerProperties.setProperty("login.basic.username", setting("kms.admin.username"));
         keybrokerProperties.setProperty("login.basic.password", setting("kms.admin.password"));
-        keybrokerProperties.setProperty("tls.policy.certificate.sha1", setting("kms.tls.cert.sha1"));
+        keybrokerProperties.setProperty("tls.policy.certificate.sha256", setting("kms.tls.cert.sha256"));
         JaxrsClient keybrokerClient = JaxrsClientBuilder.factory().configuration(keybrokerProperties).register(MultiPartFeature.class).build();
         Response uploadResponse = keybrokerClient.getTargetPath("/v1/databundle").request().post(Entity.entity(zipUpload, zipUpload.getMediaType()));
         log.debug("Uploaded data bundle to key broker");
@@ -162,7 +162,7 @@ public class ImportAttestationServiceCertificatesToKeyBrokerTest {
     
     /**
      * mtwilson login-password jonathan password --permissions *:*
-     * sha1sum /opt/mtwilson/configuration/ssl.crt
+     * sha256sum /opt/mtwilson/configuration/ssl.crt
      * kms password admin password --permissions *:*
      * cat /opt/kms/configuration/https.properties
      */

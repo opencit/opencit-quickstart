@@ -48,7 +48,7 @@
               "director"
           ],
           "required_settings": [
-              "mtwilson.host", "mtwilson.port.https", "mtwilson.tls.cert.sha1", "director.mtwilson.username", "director.mtwilson.password"
+              "mtwilson.host", "mtwilson.port.https", "mtwilson.tls.cert.sha256", "director.mtwilson.username", "director.mtwilson.password"
           ]
       },
       {
@@ -57,7 +57,7 @@
               "director"
           ],
           "required_settings": [
-              "mtwilson.host", "mtwilson.port.https", "mtwilson.tls.cert.sha1", "director.mtwilson.username", "director.mtwilson.password"
+              "mtwilson.host", "mtwilson.port.https", "mtwilson.tls.cert.sha256", "director.mtwilson.username", "director.mtwilson.password"
           ]
       }
   ]

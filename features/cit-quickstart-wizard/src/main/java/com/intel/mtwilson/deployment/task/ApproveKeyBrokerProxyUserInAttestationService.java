@@ -148,7 +148,7 @@ roles:
         attestationServiceProperties.setProperty("endpoint.url", "https://" + setting("mtwilson.host") + ":" + setting("mtwilson.port.https") + "/mtwilson/v2");
         attestationServiceProperties.setProperty("login.basic.username", setting("mtwilson.quickstart.username"));
         attestationServiceProperties.setProperty("login.basic.password", setting("mtwilson.quickstart.password"));
-        attestationServiceProperties.setProperty("tls.policy.certificate.sha1", setting("mtwilson.tls.cert.sha1"));
+        attestationServiceProperties.setProperty("tls.policy.certificate.sha256", setting("mtwilson.tls.cert.sha256"));
         return attestationServiceProperties;
     }
 }
