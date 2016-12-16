@@ -18,6 +18,7 @@
         "com_intel_mtwilson_deployment_task_PreconfigureAttestationService": "Configuring $t(quickstart:packages.attestation_service) on {{host}}",
         "com_intel_mtwilson_deployment_task_CreateTrustAgentUserInAttestationService": "Creating $t(quickstart:packages.trustagent_ubuntu) credential in $t(quickstart:packages.attestation_service) on {{host}}",
         "com_intel_mtwilson_deployment_task_CreateTrustDirectorUserInAttestationService": "Creating $t(quickstart:packages.director) credential in $t(quickstart:packages.attestation_service) on {{host}}",
+        "com_intel_mtwilson_deployment_task_CreateAttestationHubUserInAttestationService": "Creating $t(quickstart:packages.attestation_hub) credential in $t(quickstart:packages.attestation_service) on {{host}}",
         "com_intel_mtwilson_deployment_task_CreateTrustDirectorUserInKeyBroker": "Creating $t(quickstart:packages.director) credential in $t(quickstart:packages.key_broker) on {{host}}",
         "com_intel_mtwilson_deployment_task_PostconfigureAttestationService": "Finishing $t(quickstart:packages.attestation_service) configuration on {{host}}",
         "com_intel_mtwilson_deployment_task_PostconfigureKeyBroker": "Finishing $t(quickstart:packages.key_broker) configuration on {{host}}",
