@@ -216,19 +216,21 @@
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
-                    <artifactId>mtwilson-openstack-trusted-node-ubuntu</artifactId>
+                    <artifactId>mtwilson-openstack-trusted-node</artifactId>
                     <version>${project.version}</version>
                     <type>bin</type>
+                    <classifier>ubuntu</classifier>
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
-                    <artifactId>mtwilson-openstack-trusted-node-rhel</artifactId>
+                    <artifactId>mtwilson-openstack-trusted-node</artifactId>
                     <version>${project.version}</version>
                     <type>bin</type>
+                    <classifier>rhel</classifier>
                 </dependency>
-				<dependency>
-					<groupId>com.intel.mtwilson.attestation-hub</groupId>
-					<artifactId>attestation-hub</artifactId>
+                <dependency>
+                    <groupId>com.intel.mtwilson.attestation-hub</groupId>
+                    <artifactId>attestation-hub</artifactId>
                     <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>						
@@ -412,19 +414,21 @@
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
-                    <artifactId>mtwilson-openstack-trusted-node-ubuntu</artifactId>
+                    <artifactId>mtwilson-openstack-trusted-node</artifactId>
                     <version>${project.version}</version>
                     <type>bin</type>
+                    <classifier>ubuntu</classifier>
                 </dependency>
                 <dependency>
                     <groupId>com.intel.mtwilson.openstack.packages</groupId>
-                    <artifactId>mtwilson-openstack-trusted-node-rhel</artifactId>
+                    <artifactId>mtwilson-openstack-trusted-node</artifactId>
                     <version>${project.version}</version>
                     <type>bin</type>
+                    <classifier>rhel</classifier>
                 </dependency>
                 <dependency>
-					<groupId>com.intel.mtwilson.attestation-hub</groupId>
-					<artifactId>attestation-hub</artifactId>
+                    <groupId>com.intel.mtwilson.attestation-hub</groupId>
+                    <artifactId>attestation-hub</artifactId>
                     <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>				
