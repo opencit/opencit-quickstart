@@ -226,9 +226,9 @@
                     <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>
-				<dependency>
-					<groupId>com.intel.mtwilson.attestation-hub</groupId>
-					<artifactId>attestation-hub</artifactId>
+                <dependency>
+                    <groupId>com.intel.mtwilson.attestation-hub</groupId>
+                    <artifactId>attestation-hub</artifactId>
                     <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>						
@@ -423,8 +423,8 @@
                     <type>bin</type>
                 </dependency>
                 <dependency>
-					<groupId>com.intel.mtwilson.attestation-hub</groupId>
-					<artifactId>attestation-hub</artifactId>
+                    <groupId>com.intel.mtwilson.attestation-hub</groupId>
+                    <artifactId>attestation-hub</artifactId>
                     <version>${project.version}</version>
                     <type>bin</type>
                 </dependency>				
