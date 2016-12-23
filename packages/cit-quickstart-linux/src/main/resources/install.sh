@@ -331,14 +331,14 @@ if [ -n "$ATTESTATION_SERVICE_BIN" ]; then
   cp $ATTESTATION_SERVICE_BIN $CIT_HOME/repository/packages/attestation_service/cit3-attestation.bin
 fi
 #mtwilson-openstack-trusted-node-ubuntu-0.1-SNAPSHOT.bin -> cit3-openstack-trusted-node-ubuntu.bin
-TRUSTAGENT_UBUNTU_BIN=`ls -1 mtwilson-openstack-trusted-node-ubuntu-*.bin | head -n 1`
+TRUSTAGENT_UBUNTU_BIN=`ls -1 mtwilson-openstack-trusted-node-*ubuntu.bin | head -n 1`
 if [ -n "$TRUSTAGENT_UBUNTU_BIN" ]; then
   echo "Copying Trust Agent Ubuntu installer..."
   mkdir -p $CIT_HOME/repository/packages/trustagent_ubuntu
   cp $TRUSTAGENT_UBUNTU_BIN $CIT_HOME/repository/packages/trustagent_ubuntu/cit3-openstack-trusted-node-ubuntu.bin
 fi
 
-TRUSTAGENT_RHEL_BIN=`ls -1 mtwilson-openstack-trusted-node-rhel-*.bin | head -n 1`
+TRUSTAGENT_RHEL_BIN=`ls -1 mtwilson-openstack-trusted-node-*rhel.bin | head -n 1`
 if [ -n "$TRUSTAGENT_UBUNTU_BIN" ]; then
   echo "Copying Trust Agent RHEL installer..."
   mkdir -p $CIT_HOME/repository/packages/trustagent_ubuntu
