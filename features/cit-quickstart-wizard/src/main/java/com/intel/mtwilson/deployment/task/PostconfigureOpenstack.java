@@ -22,6 +22,7 @@ public class PostconfigureOpenstack extends AbstractPostconfigureTask {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PostconfigureOpenstack.class);
     private SSH remote;
+    private static final String JSON_FORMAT = " -f json"; 
 
     public PostconfigureOpenstack(SSH remote) {
         this.remote = remote;
@@ -38,13 +39,39 @@ public class PostconfigureOpenstack extends AbstractPostconfigureTask {
             String adminPassword = setting("openstack.admin.password");
             String roleName = "admin";
 
+            
+            //Clean up the existing project with the same name if any
+            Result projectResult = openstack(client, "project show " + projectName + JSON_FORMAT);
+            OpenstackProject project;
+            if (projectResult.getExitCode() == 0) {
+                ObjectMapper mapper = new ObjectMapper();
+                project = mapper.readValue(projectResult.getStdout(), OpenstackProject.class);                
+                //delete the project
+                openstack(client, "project delete " + project.id);
+                log.info("Deleted the existing project with the name {}. ID that is deleted : {}", projectName, project.id);
+            } 
+            
+
+            //Clean up the existing user with the same name if any
+            Result userResult = openstack(client, "user show " + adminUsername + JSON_FORMAT);
+            OpenstackUser user;
+            if (userResult.getExitCode() == 0) {
+                ObjectMapper mapper = new ObjectMapper();
+                user = mapper.readValue(userResult.getStdout(), OpenstackUser.class);
+                //delete the user
+                openstack(client, "user delete " + user.id);
+                log.info("Deleted the existing user with the name {}. ID that is deleted : {}", adminUsername, user.id);
+            } 
+            
+            //Create project and user
+            
             openstack(client, "project create " + projectName + " --description \"Cloud Integrity Technology\" --or-show --domain $OS_DEFAULT_DOMAIN");
             openstack(client, "user create " + adminUsername + " --password " + adminPassword + " --project " + projectName + " --or-show --domain $OS_DEFAULT_DOMAIN");
 
             // openstack supports "soft" create above with the --or-show option but does not support "soft" role add/remove, 
             // so to avoid errors we must first list the user's roles and only add the admin role if it's not already present
             OpenstackRole[] roles;
-            Result roleResult = openstack(client, "role list --project " + projectName + " --user " + adminUsername + " -f json");
+            Result roleResult = openstack(client, "role list --project " + projectName + " --user " + adminUsername + JSON_FORMAT);
             if (roleResult.getExitCode() == 0) {
                 ObjectMapper mapper = new ObjectMapper();
                 roles = mapper.readValue(roleResult.getStdout(), OpenstackRole[].class);
@@ -97,4 +124,36 @@ public class PostconfigureOpenstack extends AbstractPostconfigureTask {
         @JsonProperty("User")
         public String user;
     }
+    
+    
+    public static class OpenstackUser {
+
+        @JsonProperty("id")
+        public String id;
+        @JsonProperty("name")
+        public String name;
+        @JsonProperty("enabled")
+        public boolean enabled;
+        @JsonProperty("domain_id")
+        public String domainId;
+    }
+
+    public static class OpenstackProject {
+
+        @JsonProperty("is_domain")
+        public boolean isDomain;
+        @JsonProperty("description")
+        public String description;
+        @JsonProperty("id")
+        public String id;
+        @JsonProperty("domain_id")
+        public String domainId;
+        @JsonProperty("name")
+        public String name;     
+        @JsonProperty("enabled")
+        public boolean enabled;
+        @JsonProperty("parent_id")
+        public String parentId;
+    }
+
 }
