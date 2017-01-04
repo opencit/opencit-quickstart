@@ -41,26 +41,16 @@ public class PostconfigureOpenstack extends AbstractPostconfigureTask {
 
             
             //Clean up the existing project with the same name if any
-            Result projectResult = openstack(client, "project show " + projectName + JSON_FORMAT);
-            OpenstackProject project;
+            Result projectResult = openstackSilent(client, "project delete " + projectName);
             if (projectResult.getExitCode() == 0) {
-                ObjectMapper mapper = new ObjectMapper();
-                project = mapper.readValue(projectResult.getStdout(), OpenstackProject.class);                
-                //delete the project
-                openstack(client, "project delete " + project.id);
-                log.info("Deleted the existing project with the name {}. ID that is deleted : {}", projectName, project.id);
+                log.info("Deleted the existing project with the name {}. ID that is deleted : {}", projectName);
             } 
             
 
             //Clean up the existing user with the same name if any
-            Result userResult = openstack(client, "user show " + adminUsername + JSON_FORMAT);
-            OpenstackUser user;
+            Result userResult = openstackSilent(client, "user delete " + adminUsername );
             if (userResult.getExitCode() == 0) {
-                ObjectMapper mapper = new ObjectMapper();
-                user = mapper.readValue(userResult.getStdout(), OpenstackUser.class);
-                //delete the user
-                openstack(client, "user delete " + user.id);
-                log.info("Deleted the existing user with the name {}. ID that is deleted : {}", adminUsername, user.id);
+                log.info("Deleted the existing user with the name {}. ID that is deleted : {}", adminUsername);
             } 
             
             //Create project and user
@@ -113,6 +103,15 @@ public class PostconfigureOpenstack extends AbstractPostconfigureTask {
         return result;
     }
 
+    private Result openstackSilent(SSHClientWrapper clientWrapper, String command) throws Exception {
+        log.debug("Task ID {} openstack {}", getId(), command);
+        // escape signle quotes
+        String escapedSingleQuoteCommand = command.replace("'", "'\"\\'\"'"); //  f'oo becomes f'"\'"'oo so that when we wrap it in single quotes below it becomes 'f'"\'"'oo' and shell interprets it like concat('f',single quote,'oo')
+        Result result = sshexec(clientWrapper, "/bin/bash -c 'source adminrc && /usr/bin/openstack " + escapedSingleQuoteCommand + "'");
+        return result;
+    }
+    
+    
     public static class OpenstackRole {
 
         @JsonProperty("ID")
@@ -126,34 +125,5 @@ public class PostconfigureOpenstack extends AbstractPostconfigureTask {
     }
     
     
-    public static class OpenstackUser {
-
-        @JsonProperty("id")
-        public String id;
-        @JsonProperty("name")
-        public String name;
-        @JsonProperty("enabled")
-        public boolean enabled;
-        @JsonProperty("domain_id")
-        public String domainId;
-    }
-
-    public static class OpenstackProject {
-
-        @JsonProperty("is_domain")
-        public boolean isDomain;
-        @JsonProperty("description")
-        public String description;
-        @JsonProperty("id")
-        public String id;
-        @JsonProperty("domain_id")
-        public String domainId;
-        @JsonProperty("name")
-        public String name;     
-        @JsonProperty("enabled")
-        public boolean enabled;
-        @JsonProperty("parent_id")
-        public String parentId;
-    }
 
 }
