@@ -83,7 +83,7 @@ fi
 
 # all other variables with defaults
 CIT_HTTP_LOG_FILE=${CIT_HTTP_LOG_FILE:-$CIT_LOGS/http.log}
-JAVA_REQUIRED_VERSION=${JAVA_REQUIRED_VERSION:-1.7}
+JAVA_REQUIRED_VERSION=${JAVA_REQUIRED_VERSION:-1.8}
 JAVA_OPTS=${JAVA_OPTS:-"-Dlogback.configurationFile=$CIT_CONFIGURATION/logback.xml"}
 
 CIT_SETUP_FIRST_TASKS=${CIT_SETUP_FIRST_TASKS:-"update-extensions-cache-file"}
