@@ -39,15 +39,6 @@
             <type>zip</type>
             <classifier>application</classifier>
         </dependency>
-        
-        <!-- external -->
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>jdk</artifactId>
-            <version>1.7.0_51</version>
-            <type>tar.gz</type>
-            <classifier>linux-x64</classifier>
-        </dependency>
     </dependencies>
     
     <profiles>
