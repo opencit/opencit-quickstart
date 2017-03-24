@@ -2007,7 +2007,7 @@
                         //contentType: "application/json",
                         //data: JSON.stringify(data),
                         success: function(responseJsonContent, status, xhr) {
-						responseJsonContent = htmlEncode(responseJsonContent);
+							responseJsonContent = htmlEncode(responseJsonContent);
                             console.log("status response: %O", responseJsonContent);
                             
                             // sometimes when server is busy we get a success response with no data
