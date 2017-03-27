@@ -978,7 +978,8 @@
         <!--        
                 <script src="js/kms_settings.js"></script>
         -->    
-        <script type="text/javascript">
+        <script src="quickstart-xss.js"></script>
+		<script type="text/javascript">
             /*property
              attr, click, css, data, find, getElementById, length, log, next, on,
              parents, tab, target, text, width
@@ -2006,6 +2007,7 @@
                         //contentType: "application/json",
                         //data: JSON.stringify(data),
                         success: function(responseJsonContent, status, xhr) {
+							responseJsonContent = htmlEncode(responseJsonContent);
                             console.log("status response: %O", responseJsonContent);
                             
                             // sometimes when server is busy we get a success response with no data
