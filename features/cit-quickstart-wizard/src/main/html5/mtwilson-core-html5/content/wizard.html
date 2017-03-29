@@ -978,7 +978,6 @@
         <!--        
                 <script src="js/kms_settings.js"></script>
         -->    
-        <script src="quickstart-xss.js"></script>
 		<script type="text/javascript">
             /*property
              attr, click, css, data, find, getElementById, length, log, next, on,
@@ -1128,6 +1127,16 @@
                 };
 
             }
+			
+			function htmlEncode(obj){
+                if (typeof obj == 'string' || obj instanceof String){
+                        return obj.replace(/&/g, '&amp;')
+                          .replace(/"/g, '&quot;')
+                          .replace(/</g, '&lt;')
+                          .replace(/>/g, '&gt;');
+                 }
+                return obj;
+           }
 
             function isHostFormatValid(input) {
                 var regexIPv4 = /^(?:(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
