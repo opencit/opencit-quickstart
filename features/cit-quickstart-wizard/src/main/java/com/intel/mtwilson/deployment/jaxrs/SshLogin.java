@@ -458,7 +458,7 @@ public class SshLogin {
         if( packages.contains("attestation_service") ||packages.contains("director") ||packages.contains("key_broker")||packages.contains("key_broker")||packages.contains("key_broker_proxy")||packages.contains("openstack_extensions") ) {
             preconditions.add("ubuntu");
         }
-        if( packages.contains("trustagent_ubuntu") ) {
+        if( packages.contains("trustagent") ) {
             
         }
     }
