@@ -320,15 +320,15 @@ fi
 TRUSTAGENT_UBUNTU_BIN=`ls -1 mtwilson-openstack-trusted-node-*ubuntu.bin | head -n 1`
 if [ -n "$TRUSTAGENT_UBUNTU_BIN" ]; then
   echo "Copying Trust Agent Ubuntu installer..."
-  mkdir -p $CIT_HOME/repository/packages/trustagent_ubuntu
-  cp $TRUSTAGENT_UBUNTU_BIN $CIT_HOME/repository/packages/trustagent_ubuntu/cit3-openstack-trusted-node-ubuntu.bin
+  mkdir -p $CIT_HOME/repository/packages/trustagent
+  cp $TRUSTAGENT_UBUNTU_BIN $CIT_HOME/repository/packages/trustagent/cit3-openstack-trusted-node-ubuntu.bin
 fi
 
 TRUSTAGENT_RHEL_BIN=`ls -1 mtwilson-openstack-trusted-node-*rhel.bin | head -n 1`
-if [ -n "$TRUSTAGENT_UBUNTU_BIN" ]; then
+if [ -n "$TRUSTAGENT_RHEL_BIN" ]; then
   echo "Copying Trust Agent RHEL installer..."
-  mkdir -p $CIT_HOME/repository/packages/trustagent_ubuntu
-  cp $TRUSTAGENT_RHEL_BIN $CIT_HOME/repository/packages/trustagent_ubuntu/cit3-openstack-trusted-node-rhel.bin
+  mkdir -p $CIT_HOME/repository/packages/trustagent
+  cp $TRUSTAGENT_RHEL_BIN $CIT_HOME/repository/packages/trustagent/cit3-openstack-trusted-node-rhel.bin
 fi
 
 # ensure the cit owns all the content created during setup

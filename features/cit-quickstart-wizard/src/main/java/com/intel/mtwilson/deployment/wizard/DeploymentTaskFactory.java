@@ -73,7 +73,7 @@ import java.util.Set;
  *
  * create dependencies between products installations:
  * <pre>
- * trustagent_ubuntu depends on attestation_service
+ * trustagent depends on attestation_service
  * key_broker_proxy depends on attestation_service
  * key_broker depends on attestation_service
  * director depends on attestation_service and key_broker (if present) and openstack_extensions (if present)
@@ -150,7 +150,7 @@ public class DeploymentTaskFactory extends AbstractTask {
 
     /**
      * <pre>
-     * Set<Target> targets = request.getTargets(); // each one with host, port, username, password, publicKeyDigest, timeout, networkRole, and packages list with any of [key_broker, key_broker_proxy, director, trustagent_ubuntu, attestation_service, openstack_extensions]
+     * Set<Target> targets = request.getTargets(); // each one with host, port, username, password, publicKeyDigest, timeout, networkRole, and packages list with any of [key_broker, key_broker_proxy, director, trustagent, attestation_service, openstack_extensions]
      *
      * // validate input:  do we support all the specified features?
      * Set<String> selectedfeatureNames = request.getFeatures();
@@ -253,7 +253,7 @@ public class DeploymentTaskFactory extends AbstractTask {
                 createAttestationHubUserInAttestationService.getDependencies().add(postconfigureAttestationService);
                 tasks.add(createAttestationHubUserInAttestationService);
             }
-            if( selectedSoftwarePackageMap.containsKey("trustagent_ubuntu") ) {
+            if( selectedSoftwarePackageMap.containsKey("trustagent") ) {
                 CreateTrustAgentUserInAttestationService createTrustagentUser = new CreateTrustAgentUserInAttestationService(target);
                 createTrustagentUser.getDependencies().add(postconfigureAttestationService);
                 tasks.add(createTrustagentUser);
@@ -382,7 +382,7 @@ public class DeploymentTaskFactory extends AbstractTask {
                 tasks.add(importAttestationServiceCertificatesToOpenstack);
             }
         }
-        if( softwarePackage.getPackageName().equals("trustagent_ubuntu")) {
+        if( softwarePackage.getPackageName().equals("trustagent")) {
             // for trust agent, we need to detect the distribution so we can send appropriate additional files
             RetrieveLinuxOperatingSystemVersion retrieveLinuxOperatingSystemVersion = new RetrieveLinuxOperatingSystemVersion();
             tasks.add(retrieveLinuxOperatingSystemVersion);
@@ -552,7 +552,7 @@ public class DeploymentTaskFactory extends AbstractTask {
 //        List<String> orderedAvailableFeatureNameList = createOrderedAvailableFeatureNameList();
 //        List<String> orderedAvailableSoftwarePackageNameList = createOrderedAvailableSoftwarePackageNameList();
         
-        // each target specifies host, port, username, password, publicKeyDigest, timeout, networkRole, and packages list with any of [key_broker, key_broker_proxy, director, trustagent_ubuntu, attestation_service, openstack_extensions]
+        // each target specifies host, port, username, password, publicKeyDigest, timeout, networkRole, and packages list with any of [key_broker, key_broker_proxy, director, trustagent, attestation_service, openstack_extensions]
         Set<Target> targets = order.getTargets(); 
         log.debug("targets: {}", targets.size());
         // the software packages are installed in groups:  given the list of software
