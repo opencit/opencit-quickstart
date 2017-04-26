@@ -37,7 +37,7 @@ public class RetrieveLinuxOperatingSystemVersion extends AbstractRemoteTask impl
     }
     
     private OperatingSystemInfo retrieve(SSHClientWrapper client) {
-        String cmdGetVersionInfo = "/usr/bin/lsb_release -a";
+        String cmdGetVersionInfo = "cat /etc/*release";
         try {
             Result result = sshexec(client, cmdGetVersionInfo);
             String lsbReleaseInfo = result.getStdout();
@@ -45,7 +45,7 @@ public class RetrieveLinuxOperatingSystemVersion extends AbstractRemoteTask impl
             OperatingSystemInfo info = parser.parse(lsbReleaseInfo);
             return info;
         } catch (Exception e) {
-            log.error("Cannot execute lsb_release on remote host: {}", target.getHost(), e);
+            log.error("Cannot execute cat /etc/*release on remote host: {}", target.getHost(), e);
             return null;
         }
     }
