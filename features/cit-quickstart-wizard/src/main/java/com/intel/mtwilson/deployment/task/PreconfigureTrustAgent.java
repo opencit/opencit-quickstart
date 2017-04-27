@@ -116,7 +116,7 @@ public class PreconfigureTrustAgent extends AbstractPreconfigureTask implements 
 
     @Override
     public String getPackageName() {
-        return "trustagent_ubuntu";
+        return "trustagent";
     }
 
     /**

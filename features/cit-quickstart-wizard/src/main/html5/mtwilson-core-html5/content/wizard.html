@@ -592,7 +592,7 @@
                                                     <span data-bind="visible: ssh.publicKeyDigestConfirmed, text: ssh.host"></span>
                                                     <i class="glyphicon glyphicon-edit" data-bind="visible: ssh.publicKeyDigestConfirmed, click: editHost"></i>
                                                 </h3>
-                                                <div data-bind="visible: packages().indexOf('trustagent_ubuntu') > -1">
+                                                <div data-bind="visible: packages().indexOf('trustagent') > -1">
                                                         <a title="Remove" href="#" class="btn btn-default btn-xs pull-right" data-bind="click: $parent.remove_compute_node_target">
                                                             <i class="glyphicon glyphicon-remove"></i>
                                                             <span>Remove</span>
@@ -1801,7 +1801,7 @@
                 
                 self.add_compute_node_target = function() {
                     var computeNode = new WizardTarget();
-                    computeNode.packages.push("trustagent_ubuntu");
+                    computeNode.packages.push("trustagent");
                     self.targets.push(computeNode);
                     self.features.compute_node_trustagent.checked(true);
                 };
@@ -2040,7 +2040,7 @@
                              *       "timeout": 15000,
                              *       "network_role": "PRIVATE",
                              *       "public_key_digest": "22952a72e24194f208200e76fd3900da",
-                             *       "packages": [ "trustagent_ubuntu", "director", "attestation_service" ]
+                             *       "packages": [ "trustagent", "director", "attestation_service" ]
                              *     }
                              *   ]
                              * }

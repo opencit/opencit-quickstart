@@ -87,7 +87,7 @@ public class StringTemplateTest {
         target2.setHost("198.51.100.14");
         target2.setPassword("password");
         target2.setPackages(new HashSet<String>());
-        target2.getPackages().add("trustagent_ubuntu");
+        target2.getPackages().add("trustagent");
         HashMap<String,String> settings = new HashMap<>();
         settings.put("com.intel.cit.attestation.cache.expires", "3000");
         settings.put("com.intel.cit.keymanager.kmip", "kmipserver.example.com");
