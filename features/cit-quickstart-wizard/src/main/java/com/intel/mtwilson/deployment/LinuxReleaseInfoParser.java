@@ -12,11 +12,12 @@ import java.util.regex.Pattern;
  * @author jbuhacoff
  */
 public class LinuxReleaseInfoParser {
-    private static final Pattern distributorPattern = Pattern.compile("^Distributor ID:\\s+([\\w\\d ]+)$", Pattern.MULTILINE);
-    private static final Pattern versionPattern = Pattern.compile("^Release:\\s+([\\w\\d \\.]+)$", Pattern.MULTILINE);
+    private static final Pattern distributorPattern = Pattern.compile("^NAME=\"([\\w\\s]+)\"$", Pattern.MULTILINE);
+    private static final Pattern versionPattern = Pattern.compile("^VERSION_ID=\"([\\d \\.]+)\"$", Pattern.MULTILINE);
+
 
     /*
-     * Given text output of the "lsb_release -a" command in Linux,
+     * Given text output of the "cat /etc/*release" command in Linux,
      * this method will return the distributor and release information.
      */
     public OperatingSystemInfo parse(String lsbReleaseText) {

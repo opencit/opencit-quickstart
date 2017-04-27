@@ -43,7 +43,7 @@ public class OperatingSystemInfo {
     public String getDistributorName() {
         if(distributor.contains("Ubuntu"))
                 return "ubuntu";
-        else if(distributor.contains("RedHat"))
+        else if(distributor.contains("Red Hat"))
             return "redhat";
         else
             return null;

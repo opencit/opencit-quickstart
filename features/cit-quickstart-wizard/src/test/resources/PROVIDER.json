@@ -54,7 +54,7 @@
       {
           "name": "compute_node_trustagent",
           "software_packages": [
-              "trustagent_ubuntu"
+              "trustagent"
           ],
           "dependencies": [
               "attestation_host"

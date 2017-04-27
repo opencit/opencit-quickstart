@@ -1,7 +1,7 @@
 {
     "packages": {
         "attestation_service": "Attestation Service",
-        "trustagent_ubuntu": "Trust Agent",
+        "trustagent": "Trust Agent",
         "policy_agent": "Policy Agent",
         "director": "Trust Director",
         "key_broker": "Key Broker",
@@ -16,7 +16,7 @@
         "com_intel_mtwilson_deployment_task_RemoteInstall": "Installing $t(quickstart:packages.{{package_name}}) on {{host}}",
         "com_intel_mtwilson_deployment_task_FileTransfer": "Copying {{filename_csv}} to {{host}}",
         "com_intel_mtwilson_deployment_task_PreconfigureAttestationService": "Configuring $t(quickstart:packages.attestation_service) on {{host}}",
-        "com_intel_mtwilson_deployment_task_CreateTrustAgentUserInAttestationService": "Creating $t(quickstart:packages.trustagent_ubuntu) credential in $t(quickstart:packages.attestation_service) on {{host}}",
+        "com_intel_mtwilson_deployment_task_CreateTrustAgentUserInAttestationService": "Creating $t(quickstart:packages.trustagent) credential in $t(quickstart:packages.attestation_service) on {{host}}",
         "com_intel_mtwilson_deployment_task_CreateTrustDirectorUserInAttestationService": "Creating $t(quickstart:packages.director) credential in $t(quickstart:packages.attestation_service) on {{host}}",
         "com_intel_mtwilson_deployment_task_CreateAttestationHubUserInAttestationService": "Creating $t(quickstart:packages.attestation_hub) credential in $t(quickstart:packages.attestation_service) on {{host}}",
         "com_intel_mtwilson_deployment_task_CreateTrustDirectorUserInKeyBroker": "Creating $t(quickstart:packages.director) credential in $t(quickstart:packages.key_broker) on {{host}}",
@@ -25,7 +25,7 @@
         "com_intel_mtwilson_deployment_task_PreconfigureKeyBroker": "Configuring $t(quickstart:packages.key_broker) on {{host}}",
         "com_intel_mtwilson_deployment_task_PreconfigureKeyBrokerProxy": "Configuring $t(quickstart:packages.key_broker_proxy) on {{host}}",
         "com_intel_mtwilson_deployment_task_PreconfigureOpenstackExtensions": "Configuring $t(quickstart:packages.openstack_extensions) on {{host}}",
-        "com_intel_mtwilson_deployment_task_PreconfigureTrustAgent": "Configuring $t(quickstart:packages.trustagent_ubuntu) on {{host}}",
+        "com_intel_mtwilson_deployment_task_PreconfigureTrustAgent": "Configuring $t(quickstart:packages.trustagent) on {{host}}",
         "com_intel_mtwilson_deployment_task_PreconfigureTrustDirector": "Configuring $t(quickstart:packages.director) on {{host}}",
         "com_intel_mtwilson_deployment_task_PreconfigureAttestationHub": "Configuring $t(quickstart:packages.attestation_hub) on {{host}}",        
         "com_intel_mtwilson_deployment_task_SynchronizeSoftwarePackageTargets": "Synchronizing $t(quickstart:packages.{{package_name}})",

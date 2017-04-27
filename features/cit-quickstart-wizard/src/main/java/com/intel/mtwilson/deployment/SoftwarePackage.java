@@ -66,11 +66,17 @@ public class SoftwarePackage implements Dependencies<SoftwarePackage> {
         if( files == null || files.isEmpty() ) {
             return false;
         }
-        for(File file : files) {
-            if(file == null || !file.exists() || !file.canRead()){
+        for (File file : files) {
+            if (!name.equals("trustagent")) {
+                if (file == null || !file.exists() || !file.canRead()) {
+                    return false;
+                }
+            } else if (name.equals("trustagent") && !new File("/opt/cit/repository/packages/trustagent/cit3-openstack-trusted-node-ubuntu.bin").exists()
+                    && !new File("/opt/cit/repository/packages/trustagent/cit3-openstack-trusted-node-rhel.bin").exists()) {
                 return false;
             }
         }
+
         return true;
     }
     

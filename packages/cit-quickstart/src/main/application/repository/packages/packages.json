@@ -21,7 +21,7 @@
        "dependencies": [ "attestation_service","attestation_hub" ]
      },
      {
-       "package_name": "trustagent_ubuntu",
+       "package_name": "trustagent",
        "file_name": { 
                         "ubuntu": [ "cit3-openstack-trusted-node-ubuntu.bin" ],
                         "redhat": [ "cit3-openstack-trusted-node-rhel.bin" ] },
