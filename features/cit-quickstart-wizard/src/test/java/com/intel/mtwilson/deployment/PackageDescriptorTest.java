@@ -82,7 +82,7 @@ public class PackageDescriptorTest {
     public void testSoftwarePackageComparison() throws IOException {
         JsonSoftwarePackageRepository softwarePackageRepository = new JsonSoftwarePackageRepository(getClass().getResourceAsStream("/software-packages.json"));
         SoftwarePackage attestationService = softwarePackageRepository.searchByNameEquals("attestation_service");
-        SoftwarePackage trustAgent = softwarePackageRepository.searchByNameEquals("trustagent_ubuntu");
+        SoftwarePackage trustAgent = softwarePackageRepository.searchByNameEquals("trustagent");
         SoftwarePackage trustDirector = softwarePackageRepository.searchByNameEquals("director");
         SoftwarePackage keyBroker = softwarePackageRepository.searchByNameEquals("key_broker");
         SoftwarePackage keyBrokerProxy = softwarePackageRepository.searchByNameEquals("key_broker_proxy");
