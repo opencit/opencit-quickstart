@@ -47,15 +47,25 @@ public class SoftwarePackageAvailable implements Condition {
                 notAvailable.add(name);
                 continue;
             }
-            for (List<File> files : softwarePackage.getFilesMap().values()){
-                for(File file : files){
-                    if(file == null || !file.exists() || !file.canRead()){
+            for (List<File> files : softwarePackage.getFilesMap().values()) {
+                for (File file : files) {
+                    if (!name.equals("trustagent")) {
+                        if (file == null || !file.exists() || !file.canRead()) {
+                            notAvailable.add(name);
+                            log.debug("File not available {} in software package {} ", file == null ? null : file.getPath(), name);
+                            break;
+                        }
+                    } 
+                    else if (name.equals("trustagent") && !new File("/opt/cit/repository/packages/trustagent/cit3-openstack-trusted-node-ubuntu.bin").exists()
+                            && !new File("/opt/cit/repository/packages/trustagent/cit3-openstack-trusted-node-rhel.bin").exists()) {
                         notAvailable.add(name);
-                        log.debug("File not available {} in software package {} ",file==null?null:file.getPath(), name);
+                        log.debug("File not available {} in software package {} ", file == null ? null : file.getPath(), name);
                         break;
                     }
+                    
                 }
             }
+
         }
         return notAvailable.isEmpty();
     }
