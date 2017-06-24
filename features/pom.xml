@@ -3,7 +3,7 @@
     
     <groupId>com.intel.mtwilson.quickstart.features</groupId>
     <artifactId>quickstart-maven-build-features</artifactId>
-    <version>3.2-SNAPSHOT</version>
+    <version>3.2.1-SNAPSHOT</version>
     
     <packaging>pom</packaging>
     
