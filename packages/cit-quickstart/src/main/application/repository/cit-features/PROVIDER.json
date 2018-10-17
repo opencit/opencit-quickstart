@@ -1,0 +1,73 @@
+{
+  "features": [
+      {
+          "name": "encryption_vm",
+          "software_packages": [
+              "key_broker_proxy", "director", "attestation_service"
+          ],
+          "dependencies": [
+              "attestation_vm", "attestation_host_xm"
+          ],
+          "required_settings": [
+              "kms.key.provider"
+          ]
+      },
+      {
+          "name": "integration_openstack_nova",
+          "software_packages": [
+              "openstack_extensions","attestation_hub"
+          ],
+          "dependencies": [
+              "attestation_host"
+          ],
+          "required_settings": [
+              
+          ]
+      },
+      {
+          "name": "attestation_vm",
+          "software_packages": [
+              "director", "attestation_service"
+          ],
+          "dependencies": [
+              "attestation_host_xm"
+          ]
+      },
+      {
+          "name": "attestation_container",
+          "software_packages": [
+              "director", "attestation_service"
+          ],
+          "dependencies": [
+              "attestation_host_xm"
+          ]
+      },
+      {
+          "name": "attestation_host",
+          "software_packages": [
+              "attestation_service"
+          ],
+          "dependencies": [
+              
+          ]
+      },
+      {
+          "name": "attestation_host_xm",
+          "software_packages": [
+              "attestation_service", "director"
+          ],
+          "dependencies": [
+              "attestation_host"
+          ]
+      },
+      {
+          "name": "compute_node_trustagent",
+          "software_packages": [
+              "trustagent"
+          ],
+          "dependencies": [
+              "attestation_host"
+          ]
+      }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "features": [
+      {
+          "name": "enforcement_vm_encryption",
+          "software_packages": [
+              "key_broker", "key_broker_proxy", "trust_director", "attestation_service"
+          ],
+          "dependencies": [
+              "attestation_vm", "attestation_host_xm"
+          ]
+      },
+      {
+          "name": "integration_openstack",
+          "software_packages": [
+              "openstack_extensions", "attestation_hub"
+          ],
+          "dependencies": [
+              "attestation_host"
+          ]
+      },
+      {
+          "name": "attestation_vm",
+          "software_packages": [
+              "trust_director", "attestation_service"
+          ],
+          "dependencies": [
+              "attestation_host_xm"
+          ]
+      },
+      {
+          "name": "attestation_container",
+          "software_packages": [
+              "trust_director", "attestation_service"
+          ],
+          "dependencies": [
+              "attestation_host_xm"
+          ]
+      },
+      {
+          "name": "attestation_host",
+          "software_packages": [
+              "attestation_service"
+          ],
+          "dependencies": [
+              
+          ]
+      },
+      {
+          "name": "attestation_host_xm",
+          "software_packages": [
+              "attestation_service", "trust_director"
+          ],
+          "dependencies": [
+              "attestation_host"
+          ]
+      }
+  ]
+}

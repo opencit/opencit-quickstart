@@ -1,0 +1,84 @@
+<configuration>
+
+    <appender name="LogFile" class="ch.qos.logback.core.FileAppender">
+        <!-- environment variable or JVM property CIT_LOGS must be set -->
+        <file>${CIT_LOGS:-/opt/cit/logs}/cit.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>[%date] %-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ConsoleError" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%boldRed(Error: %msg) %n</pattern>
+        </encoder>
+    </appender>
+    <appender name="ConsoleWarn" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%boldYellow(Warning: %msg) %n</pattern>
+        </encoder>
+    </appender>
+    <appender name="ConsoleInfo" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="${CIT_LOG_LEVEL:-INFO}">
+        <appender-ref ref="LogFile"/>
+        <appender-ref ref="ConsoleError"/>
+        <appender-ref ref="ConsoleWarn"/>
+        <appender-ref ref="ConsoleInfo"/>
+    </root>
+    
+    <!--
+    <logger name="com.intel.dcsg.cpg" level="INFO"/>
+    <logger name="com.intel.dcsg.cpg.console" level="INFO"/>
+    <logger name="com.intel.dcsg.cpg.configuration" level="INFO"/>
+    -->
+    <logger name="org.apache.commons" level="INFO"/>
+    <logger name="org.eclipse.jetty" level="INFO"/>
+    <logger name="org.apache.shiro" level="INFO"/>
+    <logger name="org.quartz" level="ERROR"/>
+    
+    <logger name="org.apache.shiro.session.mgt" level="ERROR"/>
+    <!-- INFO:  Enabling session validation scheduler...  -->
+    
+    <logger name="com.intel.dcsg.cpg.util.shiro" level="ERROR"/>
+    <!-- INFO:  Logged in cit as superuser -->
+    
+    <logger name="net.schmizz.sshj" level="ERROR"/>
+    <!-- INFO:  n.s.s.c.c.direct.SessionChannel: Will request to exec `...` --> 
+    
+    <logger name="com.intel.mtwilson.shiro" level="ERROR"/>
+    <!-- WARN:  c.i.m.s.LoggingAtLeastOneSuccessfulStrategy: no principal collection or realm names -->
+    
+    <logger name="com.intel.mtwilson.deployment.threads" level="INFO"/>
+    <!-- DEBUG: a lot of very frequent messages due to processing intervals -->
+
+    <logger name="com.intel.dcsg.cpg.i18n" level="INFO"/>
+    <!-- DEBUG: messages from LocalizableResponseFilter -->
+    
+    <logger name="com.intel.mtwilson.servlet" level="INFO"/>
+    <!-- DEBUG: messages from RepeatableRequestFilter -->
+    
+</configuration>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature xmlns="urn:mtwilson:feature:1.0">
+<id>com.intel.mtwilson.deployment.wizard</id>
+<version>3.2.1-SNAPSHOT</version>
+<name>Wizard</name>
+<provider><name>Intel Corporation</name></provider>
+<description>Configuration settings</description>
+<license><copyright>2015 Intel Corporation</copyright><url>http://intel.com</url></license>
+</feature>

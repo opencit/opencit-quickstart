@@ -1,0 +1,430 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>com.intel.mtwilson.quickstart.packages.bin</groupId>
+    <artifactId>cit-quickstart-linux</artifactId>
+    <version>3.2.1-SNAPSHOT</version>
+    
+    <packaging>pom</packaging>
+    <description>Self-extracting executable that installs the automation project</description>
+    
+    <parent>
+        <groupId>com.intel.mtwilson.maven</groupId>
+        <artifactId>mtwilson-maven-package-makeself</artifactId>
+        <version>3.2.1-SNAPSHOT</version>
+        <relativePath />
+    </parent>
+    
+    <properties>
+        <!-- this becomes the installer filename, like ${makeself.name}.bin -->
+        <makeself.name>${project.artifactId}-${project.version}</makeself.name>
+        <integrity.name>integrity</integrity.name>
+        <confidentiality.name>confidentiality</confidentiality.name>
+    </properties>
+    
+    <dependencies>
+        <!-- common-java -->
+        <dependency>
+            <groupId>com.intel.mtwilson.linux</groupId>
+            <artifactId>mtwilson-linux-util</artifactId>
+            <version>${project.version}</version>
+            <type>sh</type>
+        </dependency>
+        
+        <!-- quickstart -->
+        <dependency>
+            <groupId>com.intel.mtwilson.quickstart.packages.zip</groupId>
+            <artifactId>cit-quickstart</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <classifier>application</classifier>
+        </dependency>
+    </dependencies>
+    
+    <profiles>
+        <profile>
+            <id>integrityBuild</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+                <property>
+                    <name>integrity</name>  <!-- activate this profile with  -Dintegrity on the command line -->
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- copy all dependencies (non-transitive) to the resources folder for later packaging -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/${makeself.name}-${integrity.name}</outputDirectory>
+                                    <excludeTransitive>true</excludeTransitive>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    <!-- copy the setup script and any other locally defined resources for packaging -->
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>2.7</version>
+                        <executions>
+                            <execution>
+                                <id>copy-application-directories</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/${makeself.name}-${integrity.name}</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>src/main/resources</directory>
+                                            <filtering>false</filtering>
+                                        </resource>
+                                    </resources>
+                                </configuration>            
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-cli</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <!-- temporary directory for creating packages -->
+                                        <mkdir dir="/tmp/makeself"/>
+                                        <chmod perm="700" dir="/tmp/makeself"/>
+                                        
+                                        <!-- ant run task for maven build pom_ubuntu and pom_rhel-->
+										
+                                        <exec executable="mvn"  dir="${project.basedir}" resultproperty="mavenExitBuildPackagesIntegrity" failonerror="false">
+                                            <arg value="install"/>
+                                            <arg value="-fpom_ubuntu.xml"/>
+                                            <arg value="-Dintegrity"/>
+                                        </exec>
+                                        
+                                        <exec executable="mvn"  dir="${project.basedir}" resultproperty="mavenExitBuildPackagesIntegrity" failonerror="false">
+                                            <arg value="install"/>
+                                            <arg value="-fpom_rhel.xml"/>
+                                            <arg value="-Dintegrity"/>
+                                        </exec>
+                                        				
+                                        <!-- package directory contains everything that should be included in the installer -->
+                                        <mkdir dir="${project.build.directory}/${makeself.name}-${integrity.name}"/>
+                                        <chmod perm="700">
+                                            <fileset dir="${project.build.directory}/${makeself.name}-${integrity.name}">
+                                                <include name="**/*.sh"/>
+                                                <include name="**/*.bin"/>
+                                                <include name="**/*.pl"/>
+                                            </fileset>
+                                        </chmod>
+                                        <exec executable="makeself" dir="${project.build.directory}" resultproperty="mavenExitMakeself">
+                                            <!-- providing the environment variable TMPDIR tells makeself where to put temporary files when extracting at install time; we keep them in user's home directory to prevent world reading and possibly writing in /tmp; problem is ~ is interpreted literally here and if we use ${user.home} it will be interpolated now and won't work during install -->
+                                            <!-- <env key="TMPDIR" value="${user.home}/.tmp"/> -->
+                                            <arg value="--follow"/>
+                                            <arg value="--nocomp"/>
+                                            <!-- <arg value=" - - n o t e m p "/>  makeself needs an option to clean up the non-/tmp dir so disabling until we have that -->
+                                            <arg value="${project.build.directory}/${makeself.name}-${integrity.name}"/>
+                                            <arg value="${project.build.directory}/${makeself.name}-${integrity.name}.bin"/>
+                                            <arg value="${makeself.name}-${integrity.name}"/>
+                                            <arg value="bash"/>
+                                            <arg value="setup.sh"/>
+                                        </exec>
+                                        
+                                        <fail message="Cannot build self-extracting installer" status="${mavenExitMakeself}">
+                                            <condition>
+                                                <not>
+                                                    <equals arg1="${mavenExitMakeself}" arg2="0"/>
+                                                </not>
+                                            </condition>
+                                        </fail>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.apache.ant</groupId>
+                                <artifactId>ant</artifactId>
+                                <version>1.8.4</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>ant-contrib</groupId>
+                                <artifactId>ant-contrib</artifactId>
+                                <version>1.0b3</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>                      
+                            <execution>
+                                <id>attach-artifacts</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>attach-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <artifacts>
+                                        <artifact>
+                                            <file>${project.build.directory}/${makeself.name}-${integrity.name}.bin</file>
+                                            <type>bin</type>
+                                            <classifier>${integrity.name}</classifier>
+                                        </artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            
+            <dependencies>
+                <!-- component installers -->
+                <dependency>
+                    <groupId>com.intel.mtwilson.director</groupId>
+                    <artifactId>director</artifactId>
+                    <version>${project.version}</version>
+                    <type>bin</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.intel.mtwilson.linux</groupId>
+                    <artifactId>mtwilson-server</artifactId>
+                    <version>${project.version}</version>
+                    <classifier>jdk_glassfish_monit</classifier>
+                    <type>bin</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.intel.mtwilson.openstack.packages</groupId>
+                    <artifactId>mtwilson-openstack-controller-with-horizon</artifactId>
+                    <version>${project.version}</version>
+                    <type>bin</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.intel.mtwilson.attestation-hub</groupId>
+                    <artifactId>attestation-hub</artifactId>
+                    <version>${project.version}</version>
+                    <type>bin</type>
+                </dependency>						
+            </dependencies>
+        </profile>
+		
+        <profile>
+            <id>confidentialityBuild</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+                <property>
+                    <name>confidentiality</name>  <!-- activate this profile with  -Dconfidentiality on the command line -->
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- copy all dependencies (non-transitive) to the resources folder for later packaging -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/${makeself.name}-${confidentiality.name}</outputDirectory>
+                                    <excludeTransitive>true</excludeTransitive>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    <!-- copy the setup script and any other locally defined resources for packaging -->
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>2.7</version>
+                        <executions>
+                            <execution>
+                                <id>copy-application-directories</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/${makeself.name}-${confidentiality.name}</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>src/main/resources</directory>
+                                            <filtering>false</filtering>
+                                        </resource>
+                                    </resources>
+                                </configuration>            
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-cli</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <!-- temporary directory for creating packages -->
+                                        <mkdir dir="/tmp/makeself"/>
+                                        <chmod perm="700" dir="/tmp/makeself"/>
+                                        
+                                        <!-- ant run task for maven build pom_ubuntu and pom_rhel -->
+										
+                                        <exec executable="mvn"  dir="${project.basedir}" resultproperty="mavenExitBuildPackagesConfidentiality" failonerror="false">
+                                            <arg value="install"/>
+                                            <arg value="-fpom_ubuntu.xml"/>
+                                            <arg value="-Dconfidentiality"/>											
+                                        </exec>
+                                        
+                                        <exec executable="mvn"  dir="${project.basedir}" resultproperty="mavenExitBuildPackagesConfidentiality" failonerror="false">
+                                            <arg value="install"/>
+                                            <arg value="-fpom_rhel.xml"/>
+                                            <arg value="-Dconfidentiality"/>											
+                                        </exec>
+										
+                                        <!-- package directory contains everything that should be included in the installer -->
+                                        <mkdir dir="${project.build.directory}/${makeself.name}-${confidentiality.name}"/>
+                                        <chmod perm="700">
+                                            <fileset dir="${project.build.directory}/${makeself.name}-${confidentiality.name}">
+                                                <include name="**/*.sh"/>
+                                                <include name="**/*.bin"/>
+                                                <include name="**/*.pl"/>
+                                            </fileset>
+                                        </chmod>
+                                        <exec executable="makeself" dir="${project.build.directory}" resultproperty="mavenExitMakeself">
+                                            <!-- providing the environment variable TMPDIR tells makeself where to put temporary files when extracting at install time; we keep them in user's home directory to prevent world reading and possibly writing in /tmp; problem is ~ is interpreted literally here and if we use ${user.home} it will be interpolated now and won't work during install -->
+                                            <!-- <env key="TMPDIR" value="${user.home}/.tmp"/> -->
+                                            <arg value="--follow"/>
+                                            <arg value="--nocomp"/>
+                                            <!-- <arg value=" - - n o t e m p "/>  makeself needs an option to clean up the non-/tmp dir so disabling until we have that -->
+                                            <arg value="${project.build.directory}/${makeself.name}-${confidentiality.name}"/>
+                                            <arg value="${project.build.directory}/${makeself.name}-${confidentiality.name}.bin"/>
+                                            <arg value="${makeself.name}-${confidentiality.name}"/>
+                                            <arg value="bash"/>
+                                            <arg value="setup.sh"/>
+                                        </exec>
+                                        
+                                        <fail message="Cannot build self-extracting installer" status="${mavenExitMakeself}">
+                                            <condition>
+                                                <not>
+                                                    <equals arg1="${mavenExitMakeself}" arg2="0"/>
+                                                </not>
+                                            </condition>
+                                        </fail>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.apache.ant</groupId>
+                                <artifactId>ant</artifactId>
+                                <version>1.8.4</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>ant-contrib</groupId>
+                                <artifactId>ant-contrib</artifactId>
+                                <version>1.0b3</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>                      
+                            <execution>
+                                <id>attach-artifacts</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>attach-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <artifacts>
+                                        <artifact>
+                                            <file>${project.build.directory}/${makeself.name}-${confidentiality.name}.bin</file>
+                                            <type>bin</type>
+                                            <classifier>${confidentiality.name}</classifier>
+                                        </artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            
+            <dependencies>
+                <!-- component installers -->
+                <dependency>
+                    <groupId>com.intel.mtwilson.director</groupId>
+                    <artifactId>director</artifactId>
+                    <version>${project.version}</version>
+                    <type>bin</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.intel.mtwilson.kms</groupId>
+                    <artifactId>kms</artifactId>
+                    <version>${project.version}</version>
+                    <type>bin</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.intel.mtwilson.kms</groupId>
+                    <artifactId>kmsproxy</artifactId>
+                    <version>${project.version}</version>
+                    <type>bin</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.intel.mtwilson.linux</groupId>
+                    <artifactId>mtwilson-server</artifactId>
+                    <version>${project.version}</version>
+                    <classifier>jdk_glassfish_monit</classifier>
+                    <type>bin</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.intel.mtwilson.openstack.packages</groupId>
+                    <artifactId>mtwilson-openstack-controller-with-horizon</artifactId>
+                    <version>${project.version}</version>
+                    <type>bin</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.intel.mtwilson.attestation-hub</groupId>
+                    <artifactId>attestation-hub</artifactId>
+                    <version>${project.version}</version>
+                    <type>bin</type>
+                </dependency>				
+            </dependencies>
+        </profile>
+    </profiles>
+    
+</project>

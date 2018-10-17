@@ -1,0 +1,7 @@
+Verifying archive integrity... All good.
+Uncompressing mtwilson-openstack-controller-3.2.1-SNAPSHOT......
+Extracting application...
+Syncing nova database
+nova-api stop/waiting
+nova-scheduler stop/waiting
+OpenStack Controller Extensions Installation complete

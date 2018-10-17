@@ -1,0 +1,14 @@
+{
+"features":[
+    {"id":"cit-host-attestation","enabled":null},
+    {"id":"cit-vm-encryption","enabled":null},
+    {"id":"cit-vm-attestation","enabled":null}
+],
+"environment":"PRIVATE",
+"layout":"CUSTOM",
+"credentials":[
+    {"host":"192.168.1.101","port":22,"username":"root","password":"password","publicKeyDigest":null},
+    {"host":"192.168.1.102","port":22,"username":"root","password":"password","publicKeyDigest":null}
+],
+"settings":{"com.intel.cit.keymanager.kmip":"kmipserver.example.com","com.intel.cit.attestation.cache.expires":"3000"}
+}
